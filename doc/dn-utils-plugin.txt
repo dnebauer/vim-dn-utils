@@ -334,7 +334,7 @@ The plugin VCSCommand (see |vcscommand|) is recommended for version control.
 The function |dn-util-gitMake| is required because VCSCommand does not handle
 git repository creation.
 
-                                              *dn-mapping-git*  *DNU-GitMake*
+                                                              *DNU-GitMake*
 DNU_GitMake()
     purpose: creates git repo in current directory and commits file
     params:  1 - called from insert mode <default=false> <optional> [boolean]
@@ -532,15 +532,16 @@ DNU_TestFn()
 
 Mappings not associated with functions.
 
-                                          *dn-mapping-ic*  *DNU-initial-caps*
+                                                         *DNU-initial-caps*
 Initial capitals
+    purpose: convert text to initial capitals
+    note:    in normal and insert mode the current line is converted to
+             initial capitals
+    note:    in visual mode the selected text is converted to initial
+             capitals
 
-    Insert, normal and visual mappings for '<LocalLeader>ic',
-    usually '\ic'.
-
-    In normal and insert mode the current line is converted to
-    initial capitals.
-
-    In visual mode the selected text is converted to initial capitals.
+                                                           *dn-mapping-ic*
+This functionality is mapped by default to '<LocalLeader>ic', usually
+'\ic', in Insert, Normal and Visual modes.
 -------------------------------------------------------------------------
  vim:tw=78:fo=tcq2:ts=4:ft=help:

@@ -8,8 +8,6 @@ Table of Contents
 
 [Variables](#variables)
 
-[Bookmarking functions](#bookmarking)
-
 [Date functions](#date)
 
 [File/directory functions](#file)
@@ -30,6 +28,8 @@ Table of Contents
 
 [Miscellaneous mappings](#miscmap)
 
+[Templates](#templates)
+
 Overview<a id="overview"></a>
 --------
 
@@ -37,7 +37,7 @@ A plugin to provide useful generic functions. It is intended to be available to 
 
 These functions were developed over time by the author and later combined into a library.
 
-All functions in this library are global. They all have the prefix 'DNU_' to try and avoid namespace collisions.
+All functions in this library are global. They all have the prefix 'DNU\_' to try and avoid namespace collisions.
 
 Some mappings and autocommands are also provided.
 
@@ -48,33 +48,7 @@ The plugin provides some useful convenience variables that can be used by other 
 
 * Boolean buffer variables *b:dn\_true* and *b:dn\_false* save script writers from having to remember the boolean values used by vim. \(Note: false = 0 and true = non-zero integer.\)
 
-* A List variable used by the bookmark functions.
-
 * The extensible help system relies on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data.
-
-Bookmarking functions<a id="bookmarking"></a>
----------------------
-
-Functions enabling user to insert and jump to bookmarks. A bookmark is a location in the current document. Any number of bookmarks can be inserted. When jumping to bookmarks the most recently inserted one is jumped to.
-
-These functions use the buffer variable *b:dn\_cursor*.
-
-### DNU\_BookmarkSet\(\)
-
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>bookmark cursor position</td>
-</table>
-
-### DNU\_BookmarkGoto\(\)
-
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>goto most recently set bookmark</td>
-</tr>
-</table>
 
 Date functions<a id="date"></a>
 --------------
@@ -558,3 +532,24 @@ Insert, normal and visual mappings for '&lt;LocalLeader&gt;ic', usually '\ic'.
 In normal and insert mode the current line is converted to initial capitals.
 
 In visual mode the selected text is converted to initial capitals.
+
+Templates<a id="templates"></a>
+---------
+
+The following templates are provided in plugin directory `vim-dn-utils-templates`:
+
+* configfile.rc
+
+* Makefile.am
+
+* manpage.1
+
+* perlmod.pm
+
+* perlscript.pl
+
+* shellscript.sh
+
+* template.html
+
+* template.xhtml

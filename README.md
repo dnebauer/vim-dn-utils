@@ -299,20 +299,11 @@ These are functions that interact with users.
 
 ### DNU\_ChangeHeaderCaps\(mode\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>changes capitalisation of line or visual selection</td>
-</tr>
-<tr valign="top">
-<td>note:</td>
-<td>if visual selection is present it will be processed, otherwise the current line will be processed</td>
-</tr>
-<tr valign="top">
-<td>note:</td>
-<td>user chooses capitalisation type: upper case, lower case, capitalise every word, sentence case, or title case</td>
-</tr>
-</table>
+|         |                                |
+|---------|--------------------------------|
+|purpose: | changes capitalisation of line or visual selection|
+|note:    | if visual selection is present it will be processed, otherwise the current line will be processed|
+|note:    | user chooses capitalisation type: upper case, lower case, capitalise every word, sentence case, or title case|
 
 This function is mapped by default to '&lt;LocalLeader&gt;hc', usually '\hc', in Insert, Normal and Visual modes.
 
@@ -324,22 +315,13 @@ This function is mapped by default to '&lt;LocalLeader&gt;hc', usually '\hc', in
 |note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data|
 |note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin|
 
-         |                                
----------|--------------------------------
-purpose: | user can select from help topics
-note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data
-note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin
-
 This function is mapped by default to '&lt;LocalLeader&gt;hh', usually '\hh', in both Insert and Normal modes.
 
 ### DNU\_GetSelection\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>returns selected text</td>
-</tr>
-</table>
+|         |                      |
+|---------|----------------------|
+|purpose: | returns selected text|
 
 List functions<a id="list"></a>
 --------------
@@ -348,30 +330,21 @@ These are utility functions that support Lists.
 
 ### DNU\_ListGetPartialMatch\(list, pattern\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>get the first element containing given pattern</td>
-</tr>
-</table>
+|         |                                |
+|---------|--------------------------------|
+|purpose: | get the first element containing given pattern|
 
 ### DNU\_ListExchangeItems\(list, index1, index2\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>exchange two elements in the same list</td>
-</tr>
-</table>
+|         |                                |
+|---------|--------------------------------|
+|purpose: | exchange two elements in the same list|
 
 ### DNU\_ListSubtract\(list\_1, list\_2\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>subtract one list from another</td>
-</tr>
-</table>
+|         |                                |
+|---------|--------------------------------|
+|purpose: | subtract one list from another|
 
 ### DNU\_ListToScreen\(list, ...\)
 
@@ -425,12 +398,9 @@ The plugin [VCSCommand][] is recommended for version control. The function [dn-u
 
 ### DNU\_GitMake\(\)<a id="gitmake"></a>
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>creates git repo in current directory and commits file</td>
-</tr>
-</table>
+|         |                                                       |
+|---------|-------------------------------------------------------|
+|purpose: | creates git repo in current directory and commits file|
 
 This function is mapped by default to '<LocalLeader>git', usually '\git', in both Insert and Normal modes.
 
@@ -441,93 +411,63 @@ These functions manipulate strings.
 
 ### DNU\_StripLastChar\(text\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>removes last character from string</td>
-</tr>
-</table>
+|         |                                   |
+|---------|-----------------------------------|
+|purpose: | removes last character from string|
 
 ### DNU\_InsertString\(text, \[restrict\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>insert string at current cursor location</td>
-</tr>
-</table>
+|         |                                         |
+|---------|-----------------------------------------|
+|purpose: | insert string at current cursor location|
 
 ### DNU\_TrimChar\(text, \[char\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>removes leading and trailing chars from string</td>
-</tr>
-</table>
+|         |                                               |
+|---------|-----------------------------------------------|
+|purpose: | removes leading and trailing chars from string|
 
 ### DNU\_Entitise\(text\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>replace special html characters with entities</td>
-</tr>
-</table>
+|         |                                              |
+|---------|----------------------------------------------|
+|purpose: | replace special html characters with entities|
 
 ### DNU\_Deentitise\(text\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>replace entities with characters for special html characters</td>
-</tr>
-</table>
+|         |                                                             |
+|---------|-------------------------------------------------------------|
+|purpose: | replace entities with characters for special html characters|
 
 ### DNU\_String\(var\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>convert variables to string</td>
-</tr>
-</table>
+|         |                            |
+|---------|----------------------------|
+|purpose: | convert variables to string|
 
 ### DNU\_MatchCount\(haystack, needle\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>finds number of occurrences of a substring in a string</td>
-</tr>
-</table>
+|         |                                                       |
+|---------|-------------------------------------------------------|
+|purpose: | finds number of occurrences of a substring in a string|
 
 ### DNU\_StridxNum\(haystack, needle, number\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>finds the X'th match of a substring in a string</td>
-</tr>
-</table>
+|         |                                                |
+|---------|------------------------------------------------|
+|purpose: | finds the X'th match of a substring in a string|
 
 ### DNU\_PadInternal\(string, start, target, \[char\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>insert char at given position until initial location is at the desired location</td>
-</tr>
-</table>
+|         |                                |
+|---------|--------------------------------|
+|purpose: | insert char at given position until initial location is at the desired location|
 
 ### DNU\_ChangeHeaderCaps\(mode\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>change capitalisation of header</td>
-</tr>
-</table>
+|         |                                |
+|---------|--------------------------------|
+|purpose: | change capitalisation of header|
 
 This subsidiary function is used by the header-related function just described:
 
@@ -540,16 +480,10 @@ These functions manipulate numbers.
 
 ### DNU\_ValidPosInt\(int\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>check whether input is valid positive integer</td>
-</tr>
-<tr valign="top">
-<td>note:</td>
-<td>zero is not a positive integer</td>
-</tr>
-</table>
+|         |                                              |
+|---------|----------------------------------------------|
+|purpose: | check whether input is valid positive integer|
+|note:    | zero is not a positive integer               |
 
 Miscellaneous functions<a id="miscfunc"></a>
 -----------------------
@@ -558,30 +492,21 @@ Functions that cannot be placed in any other category.
 
 ### DNU\_JumpPlace\(start, end, direction\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>jump to placeholder</td>
-</tr>
-</table>
+|         |                    |
+|---------|--------------------|
+|purpose: | jump to placeholder|
 
 ### DNU\_SelectWord\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>selects <cword> under cursor (must be only [0-9a-zA-Z\_])</td>
-</tr>
-</table>
+|         |         |
+|---------|---------|
+|purpose: | selects |
 
 ### DNU\_TestFn\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>utility function used for testing purposes only</td>
-</tr>
-</table>
+|         |                                                |
+|---------|------------------------------------------------|
+|purpose: | utility function used for testing purposes only|
 
 Miscellaneous mappings<a id="miscmap"></a>
 ----------------------

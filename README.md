@@ -99,6 +99,8 @@ Templates do not have to contain all, or even any, tokens.
                 
 ### DNU\_InsertTemplate\(template\_key\)
 
+|         |                                                                       |
+|---------|-----------------------------------------------------------------------|
 |purpose: | insert template file into current buffer                              |
 |insert:  | template file contents                                                |
 |note:    | will insert template file contents only if current buffer is empty \(one line of zero length only\)|

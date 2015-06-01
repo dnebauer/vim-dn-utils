@@ -2,7 +2,7 @@
 
 Plugin supplies Dn library of vim utilities               *dn-utils-plugin*
                                                                *DNU_plugin*
-Dn Utilities Plugin
+Dn Utilities Plugin                                          *vim-dn-utils*
 -------------------------------------------------------------------------
                                                         *dn-utils-contents*
 1. Contents
@@ -50,6 +50,75 @@ having to remember the boolean values used by vim.
                         *b:dn-help-plugins* *b:dn-help-topics* *b:dn-help-data*
 The extensible help system relies on buffer Dictionary variables
 b:dn_help_plugins, b:dn_help_topics and b:dn_help_data.
+-------------------------------------------------------------------------
+                                                       *dn-utils-templates*
+4. Template functions
+
+This utility provides templates that can be loaded into new files, or
+inserted into empty existing files.
+
+                                                   *dn-utils-template-keys*
+The file to load/insert is selected by providing the file's 'key'. Here
+are the available templates and their keys:
+    
+    Configuration file  'configfile'
+    Makefile.am file    'makefile.am'
+    Man page            'manpage'
+    Markdown file       'markdown'
+    Perl module file    'perlmod'
+    Perl script file    'perlscript'
+    Shellscript.sh      'shellscript'
+    Html                'html'
+    Xhtml               'xhtml'
+
+                                                 *dn-utils-template-tokens*
+After a template is loaded the file is examined for a number of tokens.
+Most tokens are replaced with generated text. Here are the tokens and
+their significance:
+
+    <FILENAME>          replaced with file name
+    <BASENAME>          replaced with file basename
+    <NAME>              replaced with file basename
+    <DATE>              replaced with current date in iso format
+    <HEADER_NAME>       manpage header name, replaced with file basename
+    <HEADER_SECTION>    manpage section, replaced with numeric file
+                        extension, e.g., '1' from file name 'command.1'
+    <TITLE_NAME>        manpage title name element, replaced with file
+                        basename in initial caps
+    <START>             this is the last token processed and it marks the
+                        location at which to to start editing: the cursor
+                        is positioned at the token location, the token
+                        deleted, and insert mode activated
+
+Templates do not have to contain all, or even any, tokens.
+
+                                                         *DNU-LoadTemplate*
+DNU_LoadTemplate(template_key)
+    purpose: load template file into current buffer
+    params:  1 - template file key <required> [string]
+                 see above for key values
+    insert:  template file contents
+    return:  nil
+    note:    designed for use with autocommands triggered by the
+             BufNewFile event
+    usage:   here is how this function might be used in a vim
+             configuration file:
+                 au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
+                
+                                                       *DNU-InsertTemplate*
+DNU_InsertTemplate(template_key)
+    purpose: insert template file into current buffer
+    params:  1 - template file key <required> [string]
+                 see above for key values
+    insert:  template file contents
+    return:  nil
+    note:    will insert template file contents only if current buffer is
+             empty (one line of zero length only)
+    note:    designed for use with autocommands triggered by the
+             BufRead event
+    usage:   here is how this function might be used in a vim
+             configuration file:
+                 au BufRead *.[0-9] call DNU_InsertTemplate('manpage')
 -------------------------------------------------------------------------
                                                            *dn-utils-dates*
 5. Date functions

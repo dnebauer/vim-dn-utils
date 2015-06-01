@@ -88,7 +88,7 @@ their significance:
 
 Templates do not have to contain all, or even any, tokens.
 
-#### DNU\_LoadTemplate\(template\_key\)
+##### DNU\_LoadTemplate\(template\_key\)
 
 |         |                                                                       |
 |---------|-----------------------------------------------------------------------|
@@ -97,7 +97,7 @@ Templates do not have to contain all, or even any, tokens.
 |note:    | designed for use with autocommands triggered by the BufNewFile event  |
 |usage:   | here is how this function might be used in a vim configuration file: `au BufNewFile \*.\[0-9\] call DNU_LoadTemplate\('manpage'\)`|
                 
-#### DNU\_InsertTemplate\(template\_key\)
+##### DNU\_InsertTemplate\(template\_key\)
 
 |         |                                                                       |
 |---------|-----------------------------------------------------------------------|
@@ -112,37 +112,37 @@ Date functions<a id="date"></a>
 
 A series of functions that manipulate dates.
 
-#### s:currentIsoDate\(\)
+##### s:currentIsoDate\(\)
 
 |         |                                               |
 |---------|-----------------------------------------------|
 |purpose: | return current date in ISO format (yyyy-mm-dd)|
 
-#### DNU\_InsertCurrentDate\(\[insert\_mode\]\)
+##### DNU\_InsertCurrentDate\(\[insert\_mode\]\)
 
 |         |                                               |
 |---------|-----------------------------------------------|
 |purpose: | insert current date in ISO format (yyyy-mm-dd)|
 
-#### DNU\_NowYear\(\)
+##### DNU\_NowYear\(\)
 
 |         |                 |
 |---------|-----------------|
 |purpose: | get current year|
 
-#### DNU\_NowMonth\(\)
+##### DNU\_NowMonth\(\)
 
 |         |                  |
 |---------|------------------|
 |purpose: | get current month|
 
-#### DNU\_NowDay\(\)
+##### DNU\_NowDay\(\)
 
 |         |                         |
 |---------|-------------------------|
 |purpose: | get current day in month|
 
-#### DNU\_DayOfWeek\(year, month, day\)
+##### DNU\_DayOfWeek\(year, month, day\)
 
 |         |                    |
 |---------|--------------------|
@@ -153,25 +153,25 @@ File/directory functions<a id="file"></a>
 
 These are functions that manipulate files and directories.
 
-#### DNU\_GetFilePath\(\)
+##### DNU\_GetFilePath\(\)
 
 |         |                                  |
 |---------|----------------------------------|
 |purpose: | get filepath of file being edited|
 
-#### DNU\_GetFileDir\(\)
+##### DNU\_GetFileDir\(\)
 
 |         |                                   |
 |---------|-----------------------------------|
 |purpose: | get directory of file being edited|
 
-#### DNU\_GetFileName\(\)
+##### DNU\_GetFileName\(\)
 
 |         |                              |
 |---------|------------------------------|
 |purpose: | get name of file being edited|
 
-#### DNU\_StripPath\(filepath\)
+##### DNU\_StripPath\(filepath\)
 
 |         |                           |
 |---------|---------------------------|
@@ -182,45 +182,45 @@ User interactive functions<a id="user"></a>
 
 These are functions that interact with users.
 
-#### DNU\_ShowMsg\(message, \[type\]\)
+##### DNU\_ShowMsg\(message, \[type\]\)
 
 |         |                        |
 |---------|------------------------|
 |purpose: | display message to user|
 
-#### DNU\_Error\(message\)
+##### DNU\_Error\(message\)
 
 |         |                                                           |
 |---------|-----------------------------------------------------------|
 |purpose: | display error message                                     |
 |prints:  | error msg in error highlighting accompanied by system bell|
 
-#### DNU\_Warn\(message\)
+##### DNU\_Warn\(message\)
 
 |         |                                                              |
 |---------|--------------------------------------------------------------|
 |purpose: | display warning message                                      |
 |prints: | warning msg in warning highlighting accompanied by system bell|
 
-#### DNU\_Prompt\(\)
+##### DNU\_Prompt\(\)
 
 |         |                       |
 |---------|-----------------------|
 |purpose: | display prompt message|
 
-#### DNU\_Wrap\(message\)
+##### DNU\_Wrap\(message\)
 
 |         |                                  |
 |---------|----------------------------------|
 |purpose: | echoes text but wraps it sensibly|
 
-#### DNU\_MenuSelect\(items, \[prompt\]\)
+##### DNU\_MenuSelect\(items, \[prompt\]\)
 
 |         |                      |
 |---------|----------------------|
 |purpose: | select item from menu|
 
-#### DNU\_ChangeHeaderCaps\(mode\)
+##### DNU\_ChangeHeaderCaps\(mode\)
 
 |         |                                |
 |---------|--------------------------------|
@@ -230,7 +230,7 @@ These are functions that interact with users.
 
 This function is mapped by default to '&lt;LocalLeader&gt;hc', usually '\hc', in Insert, Normal and Visual modes.
 
-#### DNU\_Help\(\[insert\]\)
+##### DNU\_Help\(\[insert\]\)
 
 |         |                                 |
 |---------|---------------------------------|
@@ -240,7 +240,7 @@ This function is mapped by default to '&lt;LocalLeader&gt;hc', usually '\hc', in
 
 This function is mapped by default to '&lt;LocalLeader&gt;hh', usually '\hh', in both Insert and Normal modes.
 
-#### DNU\_GetSelection\(\)
+##### DNU\_GetSelection\(\)
 
 |         |                      |
 |---------|----------------------|
@@ -251,31 +251,31 @@ List functions<a id="list"></a>
 
 These are utility functions that support Lists.
 
-#### DNU\_ListGetPartialMatch\(list, pattern\)
+##### DNU\_ListGetPartialMatch\(list, pattern\)
 
 |         |                                               |
 |---------|-----------------------------------------------|
 |purpose: | get the first element containing given pattern|
 
-#### DNU\_ListExchangeItems\(list, index1, index2\)
+##### DNU\_ListExchangeItems\(list, index1, index2\)
 
 |         |                                       |
 |---------|---------------------------------------|
 |purpose: | exchange two elements in the same list|
 
-#### DNU\_ListSubtract\(list\_1, list\_2\)
+##### DNU\_ListSubtract\(list\_1, list\_2\)
 
 |         |                               |
 |---------|-------------------------------|
 |purpose: | subtract one list from another|
 
-#### DNU\_ListToScreen\(list, ...\)
+##### DNU\_ListToScreen\(list, ...\)
 
 |         |                                |
 |---------|--------------------------------|
 |purpose: | formats list for screen display|
 
-#### DNU\_ListToScreenColumns\(list, ...\)
+##### DNU\_ListToScreenColumns\(list, ...\)
 
 |         |                                           |
 |---------|-------------------------------------------|
@@ -286,13 +286,13 @@ Programming functions<a id="programming"></a>
 
 These are utility functions that aid programming.
 
-#### DNU\_UnusedFunctions\(\[lower\], \[upper\]\)
+##### DNU\_UnusedFunctions\(\[lower\], \[upper\]\)
 
 |         |                              |
 |---------|------------------------------|
 |purpose: | checks for uncalled functions|
 
-#### DNU\_InsertMode\(\[skip\]\)
+##### DNU\_InsertMode\(\[skip\]\)
 
 |         |                      |
 |---------|----------------------|
@@ -307,7 +307,7 @@ The plugin [VCSCommand][] is recommended for version control. The function [dn-u
 
 [VCSCommand]: https://github.com/vim-scripts/vcscommand.vim
 
-#### DNU\_GitMake\(\)<a id="gitmake"></a>
+##### DNU\_GitMake\(\)<a id="gitmake"></a>
 
 |         |                                                       |
 |---------|-------------------------------------------------------|
@@ -320,61 +320,61 @@ String functions<a id="string"></a>
 
 These functions manipulate strings.
 
-#### DNU\_StripLastChar\(text\)
+##### DNU\_StripLastChar\(text\)
 
 |         |                                   |
 |---------|-----------------------------------|
 |purpose: | removes last character from string|
 
-#### DNU\_InsertString\(text, \[restrict\]\)
+##### DNU\_InsertString\(text, \[restrict\]\)
 
 |         |                                         |
 |---------|-----------------------------------------|
 |purpose: | insert string at current cursor location|
 
-#### DNU\_TrimChar\(text, \[char\]\)
+##### DNU\_TrimChar\(text, \[char\]\)
 
 |         |                                               |
 |---------|-----------------------------------------------|
 |purpose: | removes leading and trailing chars from string|
 
-#### DNU\_Entitise\(text\)
+##### DNU\_Entitise\(text\)
 
 |         |                                              |
 |---------|----------------------------------------------|
 |purpose: | replace special html characters with entities|
 
-#### DNU\_Deentitise\(text\)
+##### DNU\_Deentitise\(text\)
 
 |         |                                                             |
 |---------|-------------------------------------------------------------|
 |purpose: | replace entities with characters for special html characters|
 
-#### DNU\_String\(var\)
+##### DNU\_String\(var\)
 
 |         |                            |
 |---------|----------------------------|
 |purpose: | convert variables to string|
 
-#### DNU\_MatchCount\(haystack, needle\)
+##### DNU\_MatchCount\(haystack, needle\)
 
 |         |                                                       |
 |---------|-------------------------------------------------------|
 |purpose: | finds number of occurrences of a substring in a string|
 
-#### DNU\_StridxNum\(haystack, needle, number\)
+##### DNU\_StridxNum\(haystack, needle, number\)
 
 |         |                                                |
 |---------|------------------------------------------------|
 |purpose: | finds the X'th match of a substring in a string|
 
-#### DNU\_PadInternal\(string, start, target, \[char\]\)
+##### DNU\_PadInternal\(string, start, target, \[char\]\)
 
 |         |                                |
 |---------|--------------------------------|
 |purpose: | insert char at given position until initial location is at the desired location|
 
-#### DNU\_ChangeHeaderCaps\(mode\)
+##### DNU\_ChangeHeaderCaps\(mode\)
 
 |         |                                |
 |---------|--------------------------------|
@@ -389,7 +389,7 @@ Number functions<a id="number"></a>
 
 These functions manipulate numbers.
 
-#### DNU\_ValidPosInt\(int\)
+##### DNU\_ValidPosInt\(int\)
 
 |         |                                              |
 |---------|----------------------------------------------|
@@ -401,19 +401,19 @@ Miscellaneous functions<a id="miscfunc"></a>
 
 Functions that cannot be placed in any other category.
 
-#### DNU\_JumpPlace\(start, end, direction\)
+##### DNU\_JumpPlace\(start, end, direction\)
 
 |         |                    |
 |---------|--------------------|
 |purpose: | jump to placeholder|
 
-#### DNU\_SelectWord\(\)
+##### DNU\_SelectWord\(\)
 
 |         |         |
 |---------|---------|
 |purpose: | selects |
 
-#### DNU\_TestFn\(\)
+##### DNU\_TestFn\(\)
 
 |         |                                                |
 |---------|------------------------------------------------|
@@ -424,7 +424,7 @@ Miscellaneous mappings<a id="miscmap"></a>
 
 Mappings not associated with functions.
 
-#### Initial capitals
+##### Initial capitals
 
 Insert, normal and visual mappings for '&lt;LocalLeader&gt;ic', usually '\ic'.
 

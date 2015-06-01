@@ -61,15 +61,15 @@ The file to load/insert is selected by providing the file's 'key'. Here are the 
     
     Template           | Key
     -------------------|-------------
-    Configuration file | 'configfile'
-    Makefile.am file   | 'makefile.am'
-    Man page           | 'manpage'
-    Markdown file      | 'markdown'
-    Perl module file   | 'perlmod'
-    Perl script file   | 'perlscript'
-    Shellscript.sh     | 'shellscript'
-    Html               | 'html'
-    Xhtml              | 'xhtml'
+    Configuration file | configfile
+    Makefile.am file   | makefile.am
+    Man page           | manpage
+    Markdown file      | markdown
+    Perl module file   | perlmod
+    Perl script file   | perlscript
+    Shellscript.sh     | shellscript
+    Html               | html
+    Xhtml              | xhtml
 
 After a template is loaded the file is examined for a number of tokens.
 Most tokens are replaced with generated text. Here are the tokens and
@@ -335,6 +335,15 @@ This function is mapped by default to '&lt;LocalLeader&gt;hc', usually '\hc', in
 
 |         |                                |
 |---------|--------------------------------|
+|purpose: | user can select from help topics|
+|note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data|
+|note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin|
+
+|---------|--------------------------------|
+|purpose: | user can select from help topics|
+|note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data|
+|note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin|
+
 |purpose: | user can select from help topics|
 |note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data|
 |note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin|

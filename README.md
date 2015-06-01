@@ -95,7 +95,7 @@ Templates do not have to contain all, or even any, tokens.
 |purpose: | load template file into current buffer                                |
 |insert:  | template file contents                                                |
 |note:    | designed for use with autocommands triggered by the BufNewFile event  |
-|usage:   | here is how this function might be used in a vim configuration file: `au BufNewFile \*.\[0-9\] call DNU_LoadTemplate\('manpage'\)`|
+|usage:   | here is how this function might be used in a vim configuration file: `au BufNewFile *.\[0-9\] call DNU_LoadTemplate\('manpage'\)`|
                 
 ##### DNU\_InsertTemplate\(template\_key\)
 
@@ -105,7 +105,7 @@ Templates do not have to contain all, or even any, tokens.
 |insert:  | template file contents                                                |
 |note:    | will insert template file contents only if current buffer is empty \(one line of zero length only\)|
 |note:    | designed for use with autocommands triggered by the BufRead event     |
-|usage:   | here is how this function might be used in a vim configuration file: `au BufRead \*.\[0-9\] call DNU_InsertTemplate\('manpage'\)`|
+|usage:   | here is how this function might be used in a vim configuration file: `au BufRead *.\[0-9\] call DNU_InsertTemplate\('manpage'\)`|
 
 Date functions<a id="date"></a>
 --------------

@@ -8,6 +8,8 @@ Table of Contents
 
 [Variables](#variables)
 
+[Templates](#templates)
+
 [Date functions](#date)
 
 [File/directory functions](#file)
@@ -49,6 +51,72 @@ The plugin provides some useful convenience variables that can be used by other 
 * Boolean buffer variables *b:dn\_true* and *b:dn\_false* save script writers from having to remember the boolean values used by vim. \(Note: false = 0 and true = non-zero integer.\)
 
 * The extensible help system relies on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data.
+
+Templates<a id="templates"></a>
+---------
+
+This utility provides templates that can be loaded into new files, or inserted into empty existing files.
+
+The file to load/insert is selected by providing the file's 'key'. Here are the available templates and their keys:
+    
+    Template           | Key
+    -------------------|-------------
+    Configuration file | 'configfile'
+    Makefile.am file   | 'makefile.am'
+    Man page           | 'manpage'
+    Markdown file      | 'markdown'
+    Perl module file   | 'perlmod'
+    Perl script file   | 'perlscript'
+    Shellscript.sh     | 'shellscript'
+    Html               | 'html'
+    Xhtml              | 'xhtml'
+
+After a template is loaded the file is examined for a number of tokens.
+Most tokens are replaced with generated text. Here are the tokens and
+their significance:
+
+    Token             | Use
+    ------------------|--------------------------------------------------
+    <FILENAME>        | replaced with file name
+    <BASENAME>        | replaced with file basename
+    <NAME>            | replaced with file basename
+    <DATE>            | replaced with current date in iso format
+    <HEADER_NAME>     | manpage header name, replaced with file basename
+    <HEADER_SECTION>  | manpage section, replaced with numeric file extension, e.g., '1' from file name 'command.1'
+    <TITLE_NAME>      | manpage title name element, replaced with file basename in initial caps
+    <START>           | this is the last token processed and it marks the location at which to to start editing: the cursor
+                       is positioned at the token location, the token
+                       deleted, and insert mode activated
+
+Templates do not have to contain all, or even any, tokens.
+
+                                                         *DNU-LoadTemplate*
+DNU_LoadTemplate(template_key)
+    purpose: load template file into current buffer
+    params:  1 - template file key <required> [string]
+                 see above for key values
+    insert:  template file contents
+    return:  nil
+    note:    designed for use with autocommands triggered by the
+             BufNewFile event
+    usage:   here is how this function might be used in a vim
+             configuration file:
+                 au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
+                
+                                                       *DNU-InsertTemplate*
+DNU_InsertTemplate(template_key)
+    purpose: insert template file into current buffer
+    params:  1 - template file key <required> [string]
+                 see above for key values
+    insert:  template file contents
+    return:  nil
+    note:    will insert template file contents only if current buffer is
+             empty (one line of zero length only)
+    note:    designed for use with autocommands triggered by the
+             BufRead event
+    usage:   here is how this function might be used in a vim
+             configuration file:
+                 au BufRead *.[0-9] call DNU_InsertTemplate('manpage')
 
 Date functions<a id="date"></a>
 --------------
@@ -266,6 +334,20 @@ This function is mapped by default to '&lt;LocalLeader&gt;hc', usually '\hc', in
 <td>other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin</td>
 </tr>
 </table>
+
+         |  
+---------|--------------------------------
+purpose: | user can select from help topics
+note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data
+note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin
+
+|purpose: | user can select from help topics|
+|note: | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data|
+|note: | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin|
+
+purpose: | user can select from help topics
+note: | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data
+note: | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin
 
 This function is mapped by default to '&lt;LocalLeader&gt;hh', usually '\hh', in both Insert and Normal modes.
 

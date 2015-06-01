@@ -318,31 +318,17 @@ This function is mapped by default to '&lt;LocalLeader&gt;hc', usually '\hc', in
 
 ### DNU\_Help\(\[insert\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>user can select from help topics</td>
-</tr>
-<tr valign="top">
-<td>note:</td>
-<td>extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data</td>
-</tr>
-<tr valign="top">
-<td>note:</td>
-<td>other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin</td>
-</tr>
-</table>
-
 |         |                                |
 |---------|--------------------------------|
 |purpose: | user can select from help topics|
 |note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data|
-|note:    | other plugins can add to the help variables and so
-            take advantage of the help system; the most friendly
-            way to do this is for the b:dn\_help\_topics variable 
-            to have a single top-level menu item reflecting the 
-            plugin name/type, and for the topic values to be made
-            unique by appending to each a prefix unique to its plugin|
+|note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin|
+
+         |                                
+---------|--------------------------------
+purpose: | user can select from help topics
+note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data
+note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin
 
 This function is mapped by default to '&lt;LocalLeader&gt;hh', usually '\hh', in both Insert and Normal modes.
 

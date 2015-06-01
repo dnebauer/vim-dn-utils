@@ -59,62 +59,51 @@ This utility provides templates that can be loaded into new files, or inserted i
 
 The file to load/insert is selected by providing the file's 'key'. Here are the available templates and their keys:
     
-    Template           | Key
-    -------------------|-------------
-    Configuration file | configfile
-    Makefile.am file   | makefile.am
-    Man page           | manpage
-    Markdown file      | markdown
-    Perl module file   | perlmod
-    Perl script file   | perlscript
-    Shellscript.sh     | shellscript
-    Html               | html
-    Xhtml              | xhtml
+|Template           | Key        |
+|-------------------|------------|
+|Configuration file | configfile |
+|Makefile.am file   | makefile.am|
+|Man page           | manpage    |
+|Markdown file      | markdown   |
+|Perl module file   | perlmod    |
+|Perl script file   | perlscript |
+|Shellscript.sh     | shellscript|
+|Html               | html       |
+|Xhtml              | xhtml      |
 
 After a template is loaded the file is examined for a number of tokens.
 Most tokens are replaced with generated text. Here are the tokens and
 their significance:
 
-    Token               | Use
-    --------------------|--------------------------------------------------
-    \<FILENAME\>        | replaced with file name
-    \<BASENAME\>        | replaced with file basename
-    \<NAME\>            | replaced with file basename
-    \<DATE\>            | replaced with current date in iso format
-    \<HEADER_NAME\>     | manpage header name, replaced with file basename
-    \<HEADER_SECTION\>  | manpage section, replaced with numeric file extension, e.g., '1' from file name 'command.1'
-    \<TITLE_NAME\>      | manpage title name element, replaced with file basename in initial caps
-    \<START\>           | this is the last token processed and it marks the location at which to to start editing: the cursor is positioned at the token location, the token deleted, and insert mode activated
+|Token              | Use                                             |
+|-------------------|-------------------------------------------------|
+|&lt;FILENAME&gt;       | replaced with file name                         |
+|&lt;BASENAME&gt;       | replaced with file basename                     |
+|&lt;NAME&gt;           | replaced with file basename                     |
+|&lt;DATE&gt;           | replaced with current date in iso format        |
+|&lt;HEADER_NAME&gt;    | manpage header name, replaced with file basename|
+|&lt;HEADER_SECTION&gt; | manpage section, replaced with numeric file extension, e.g., '1' from file name 'command.1'|
+|&lt;TITLE_NAME&gt;     | manpage title name element, replaced with file basename in initial caps|
+|&lt;START&gt;          | this is the last token processed and it marks the location at which to to start editing: the cursor is positioned at the token location, the token deleted, and insert mode activated|
 
 Templates do not have to contain all, or even any, tokens.
 
-                                                         *DNU-LoadTemplate*
-DNU_LoadTemplate(template_key)
-    purpose: load template file into current buffer
-    params:  1 - template file key <required> [string]
-                 see above for key values
-    insert:  template file contents
-    return:  nil
-    note:    designed for use with autocommands triggered by the
-             BufNewFile event
-    usage:   here is how this function might be used in a vim
-             configuration file:
-                 au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
+### DNU\_LoadTemplate\(template\_key\)
+
+|         |                                                                       |
+|---------|-----------------------------------------------------------------------|
+|purpose: | load template file into current buffer                                |
+|insert:  | template file contents                                                |
+|note:    | designed for use with autocommands triggered by the BufNewFile event  |
+|usage:   | here is how this function might be used in a vim configuration file: au BufNewFile \*.\[0-9\] call DNU_LoadTemplate\('manpage'\)|
                 
-                                                       *DNU-InsertTemplate*
-DNU_InsertTemplate(template_key)
-    purpose: insert template file into current buffer
-    params:  1 - template file key <required> [string]
-                 see above for key values
-    insert:  template file contents
-    return:  nil
-    note:    will insert template file contents only if current buffer is
-             empty (one line of zero length only)
-    note:    designed for use with autocommands triggered by the
-             BufRead event
-    usage:   here is how this function might be used in a vim
-             configuration file:
-                 au BufRead *.[0-9] call DNU_InsertTemplate('manpage')
+### DNU\_InsertTemplate\(template\_key\)
+
+|purpose: | insert template file into current buffer                              |
+|insert:  | template file contents                                                |
+|note:    | will insert template file contents only if current buffer is empty \(one line of zero length only\)|
+|note:    | designed for use with autocommands triggered by the BufRead event     |
+|usage:   | here is how this function might be used in a vim configuration file: au BufRead \*.\[0-9\] call DNU_InsertTemplate\('manpage'\)|
 
 Date functions<a id="date"></a>
 --------------
@@ -123,71 +112,39 @@ A series of functions that manipulate dates.
 
 ### s:currentIsoDate\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>return current date in ISO format (yyyy-mm-dd)</td>
-</tr>
-</table>
+|         |                                               |
+|---------|-----------------------------------------------|
+|purpose: | return current date in ISO format (yyyy-mm-dd)|
 
 ### DNU\_InsertCurrentDate\(\[insert\_mode\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>insert current date in ISO format (yyyy-mm-dd)</td>
-</tr>
-</table>
+|         |                                               |
+|---------|-----------------------------------------------|
+|purpose: | insert current date in ISO format (yyyy-mm-dd)|
 
 ### DNU\_NowYear\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>get current year</td>
-</tr>
-</table>
+|         |                 |
+|---------|-----------------|
+|purpose: | get current year|
 
 ### DNU\_NowMonth\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>get current month</td>
-</tr>
-</table>
+|         |                  |
+|---------|------------------|
+|purpose: | get current month|
 
 ### DNU\_NowDay\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>get current day in month</td>
-</tr>
-</table>
+|         |                         |
+|---------|-------------------------|
+|purpose: | get current day in month|
 
 ### DNU\_DayOfWeek\(year, month, day\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>get name of weekday</td>
-</tr>
-</table>
-
-These subsidiary functions are used by the date-related functions just described:
-
-* s:centuryDoomsday\(year\)
-* s:currentIsoDate\(\)
-* s:dayValue\(day\_number\)
-* s:leapYear\(year\)
-* s:monthLength\(year, month\)
-* s:monthValue\(year, month\)
-* s:validCalInput\(year, month, day\)
-* s:validDay\(year, month, day\)
-* s:validMonth\(month\)
-* s:validYear\(year\)
-* s:yearDoomsday\(year\)
+|         |                    |
+|---------|--------------------|
+|purpose: | get name of weekday|
 
 File/directory functions<a id="file"></a>
 ------------------------
@@ -196,39 +153,27 @@ These are functions that manipulate files and directories.
 
 ### DNU\_GetFilePath\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>get filepath of file being edited</td>
-</tr>
-</table>
+|         |                                  |
+|---------|----------------------------------|
+|purpose: | get filepath of file being edited|
 
 ### DNU\_GetFileDir\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>get directory of file being edited</td>
-</tr>
-</table>
+|         |                                   |
+|---------|-----------------------------------|
+|purpose: | get directory of file being edited|
 
 ### DNU\_GetFileName\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>get name of file being edited</td>
-</tr>
-</table>
+|         |                              |
+|---------|------------------------------|
+|purpose: | get name of file being edited|
 
 ### DNU\_StripPath\(filepath\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>removes path from filepath</td>
-</tr>
-</table>
+|         |                           |
+|---------|---------------------------|
+|purpose: | removes path from filepath|
 
 User interactive functions<a id="user"></a>
 --------------------------
@@ -237,65 +182,41 @@ These are functions that interact with users.
 
 ### DNU\_ShowMsg\(message, \[type\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>display message to user</td>
-</tr>
-</table>
+|         |                        |
+|---------|------------------------|
+|purpose: | display message to user|
 
 ### DNU\_Error\(message\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>display error message</td>
-</tr>
-<tr valign="top">
-<td>prints:</td>
-<td>error msg in error highlighting accompanied by system bell</td>
-</tr>
-</table>
+|         |                                                           |
+|---------|-----------------------------------------------------------|
+|purpose: | display error message                                     |
+|prints:  | error msg in error highlighting accompanied by system bell|
 
 ### DNU\_Warn\(message\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>display warning message</td>
-</tr>
-<tr valign="top">
-<td>prints:</td>
-<td>warning msg in warning highlighting accompanied by system bell</td>
-</tr>
-</table>
+|         |                                                              |
+|---------|--------------------------------------------------------------|
+|purpose: | display warning message                                      |
+|prints: | warning msg in warning highlighting accompanied by system bell|
 
 ### DNU\_Prompt\(\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>display prompt message</td>
-</tr>
-</table>
+|         |                       |
+|---------|-----------------------|
+|purpose: | display prompt message|
 
 ### DNU\_Wrap\(message\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>echoes text but wraps it sensibly</td>
-</tr>
-</table>
+|         |                                  |
+|---------|----------------------------------|
+|purpose: | echoes text but wraps it sensibly|
 
 ### DNU\_MenuSelect\(items, \[prompt\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>select item from menu</td>
-</tr>
-</table>
+|         |                      |
+|---------|----------------------|
+|purpose: | select item from menu|
 
 ### DNU\_ChangeHeaderCaps\(mode\)
 
@@ -309,8 +230,8 @@ This function is mapped by default to '&lt;LocalLeader&gt;hc', usually '\hc', in
 
 ### DNU\_Help\(\[insert\]\)
 
-|         |                                |
-|---------|--------------------------------|
+|         |                                 |
+|---------|---------------------------------|
 |purpose: | user can select from help topics|
 |note:    | extensible help system relying on buffer Dictionary variables b:dn\_help\_plugins, b:dn\_help\_topics and b:dn\_help\_data|
 |note:    | other plugins can add to the help variables and so take advantage of the help system; the most friendly way to do this is for the b:dn\_help\_topics variable to have a single top-level menu item reflecting the plugin name/type, and for the topic values to be made unique by appending to each a prefix unique to its plugin|
@@ -330,39 +251,33 @@ These are utility functions that support Lists.
 
 ### DNU\_ListGetPartialMatch\(list, pattern\)
 
-|         |                                |
-|---------|--------------------------------|
+|         |                                               |
+|---------|-----------------------------------------------|
 |purpose: | get the first element containing given pattern|
 
 ### DNU\_ListExchangeItems\(list, index1, index2\)
 
-|         |                                |
-|---------|--------------------------------|
+|         |                                       |
+|---------|---------------------------------------|
 |purpose: | exchange two elements in the same list|
 
 ### DNU\_ListSubtract\(list\_1, list\_2\)
 
-|         |                                |
-|---------|--------------------------------|
+|         |                               |
+|---------|-------------------------------|
 |purpose: | subtract one list from another|
 
 ### DNU\_ListToScreen\(list, ...\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>formats list for screen display</td>
-</tr>
-</table>
+|         |                                |
+|---------|--------------------------------|
+|purpose: | formats list for screen display|
 
 ### DNU\_ListToScreenColumns\(list, ...\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>formats list for screen display in columns</td>
-</tr>
-</table>
+|         |                                           |
+|---------|-------------------------------------------|
+|purpose: | formats list for screen display in columns|
 
 Programming functions<a id="programming"></a>
 ---------------------
@@ -371,21 +286,15 @@ These are utility functions that aid programming.
 
 ### DNU\_UnusedFunctions\(\[lower\], \[upper\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>checks for uncalled functions</td>
-</tr>
-</table>
+|         |                              |
+|---------|------------------------------|
+|purpose: | checks for uncalled functions|
 
 ### DNU\_InsertMode\(\[skip\]\)
 
-<table>
-<tr valign="top">
-<td>purpose:</td>
-<td>switch to insert mode</td>
-</tr>
-</table>
+|         |                      |
+|---------|----------------------|
+|purpose: | switch to insert mode|
 
 Version control function<a id="version"></a>
 ------------------------
@@ -520,24 +429,3 @@ Insert, normal and visual mappings for '&lt;LocalLeader&gt;ic', usually '\ic'.
 In normal and insert mode the current line is converted to initial capitals.
 
 In visual mode the selected text is converted to initial capitals.
-
-Templates<a id="templates"></a>
----------
-
-The following templates are provided in plugin directory `vim-dn-utils-templates`:
-
-* configfile.rc
-
-* Makefile.am
-
-* manpage.1
-
-* perlmod.pm
-
-* perlscript.pl
-
-* shellscript.sh
-
-* template.html
-
-* template.xhtml

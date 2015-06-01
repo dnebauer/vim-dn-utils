@@ -10,7 +10,7 @@ Dn Utilities Plugin                                          *vim-dn-utils*
      1. Contents .......................... |dn-utils-contents|
      2. Overview .......................... |dn-utils-overview|
      3. Variables ......................... |dn-utils-variables|
-     4. Bookmarking functions ............. |dn-utils-bookmarks|
+     4. Templates .......... .............. |dn-utils-templates|
      5. Date functions .................... |dn-utils-dates|
      6. File/directory functions .......... |dn-utils-files|
      7. User interactive functions ........ |dn-utils-user-interaction|

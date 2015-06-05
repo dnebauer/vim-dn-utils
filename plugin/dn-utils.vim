@@ -111,7 +111,8 @@ function! s:index_templates()
     let l:missing = deepcopy(s:expected_templates)
     let l:unexpected = []
     " find template directories
-    let l:dirs = globpath(&rtp, 'vim-dn-utils-templates', b:dn_true, b:dn_true)
+    let l:dirs = split(globpath(&rtp, 'vim-dn-utils-templates', 
+                \ b:dn_true, b:dn_true), '\n')
     " cycle through template directories
     for l:dir in l:dirs
         " get directory files

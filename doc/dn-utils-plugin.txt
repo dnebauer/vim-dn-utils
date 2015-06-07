@@ -154,11 +154,11 @@ DNU_NowDay()
     return:  current day in month (d) [integer]
 
                                                             *DNU_DayOfWeek*
-DNU_DayOfWeek( int, int, int )
+DNU_DayOfWeek(int, int, int)
     purpose: get name of weekday
-    params:  1 - year
-             2 - month
-             3 - day
+    params:  1 - year <required> <format=yyyy> [integer]
+             2 - month <required> <format=mm> [integer]
+             3 - day <required> <format=dd> [integer]
     insert:  nil
     return:  name of weekday [string]
 -------------------------------------------------------------------------
@@ -188,8 +188,19 @@ DNU_GetFileName()
                                                             *DNU-StripPath*
 DNU_StripPath(filepath)
     purpose: removes path from filepath
-    params:  1 - filepath to trim [string]
+    params:  1 - filepath to trim <required> [string]
     return:  file [string]
+
+                                                            *DNU-GetRtpDir*
+DNU_GetRtpDir(dir, [allow_multiples])
+    purpose: finds directory from runtimepath
+    params:  1 - directory name <required> [string]
+             2 - allow multiples <default=false> <optional> [boolean]
+    return:  imultiple=false (default): filepath [string], '0' if failure
+             multiple=true: filepaths [List], [] if failure
+    note:    default behaviour is to return a single filepath
+             - if multiple matches found get user to select one
+             if allow multiples, return list (even if only one match)
 -------------------------------------------------------------------------
                                                 *dn-utils-user-interaction*
 7. User interactive functions
@@ -199,15 +210,15 @@ These are functions that interact with users.
                                                               *DNU-ShowMsg*
 DNU_ShowMsg(message, [type])
     purpose: display message to user
-    params:  1 - message [string]
-             2 - message type ('generic' | 'warning' | 'info' |
-                 'question' | 'error') <optional> [string]
+    params:  1 - message <required> [string]
+             2 - message type <default=info> <optional> <values='generic'
+                 | 'warning' | 'info' | 'question' | 'error'> [string]
     return:  nil
 
                                                                 *DNU-Error*
 DNU_Error(message)
     purpose: display error message
-    params:  1 - error message [string]
+    params:  1 - error message <required> [string]
     insert:  nil
     prints:  error msg in error highlighting accompanied by system bell
     return:  nil
@@ -215,7 +226,7 @@ DNU_Error(message)
                                                                  *DNU-Warn*
 DNU_Warn(message)
     purpose: display warning message
-    params:  1 - warning message [string]
+    params:  1 - warning message <required> [string]
     insert:  nil
     prints:  warning msg in warning highlighting accompanied by system bell
     return:  nil
@@ -231,7 +242,7 @@ DNU_Prompt()
                                                                  *DNU-Wrap*
 DNU_Wrap(message)
     purpose: echoes text but wraps it sensibly
-    params:  1 - message [string]
+    params:  1 - message <required> [string]
     insert:  nil
     prints:  messages
     return:  nil
@@ -239,7 +250,7 @@ DNU_Wrap(message)
                                                            *DNU-MenuSelect*
 DNU_MenuSelect(items, [prompt])
     purpose: select item from menu
-    params:  1 - menu items [List,Dict]
+    params:  1 - menu items <required> [List, Dict]
              2 - prompt <default='Select an option:'> <optional> [string]
     insert:  nil
     return:  selected menu item ("" means no item selected) [string]
@@ -256,7 +267,7 @@ DNU_MenuSelect(items, [prompt])
                                                  *dn-util-changeHeaderCaps*
 DNU_ChangeHeaderCaps(mode)
     purpose: changes capitalisation of line or visual selection
-    params:  1 - calling mode ('n' | 'v' | 'i' ) [string]
+    params:  1 - calling mode ('n' | 'v' | 'i') [required]
     insert:  altered line or selection [string]
     return:  nil
     note:    if visual selection is present it will be processed, otherwise
@@ -272,7 +283,7 @@ Insert, Normal and Visual modes.
                                                                  *DNU-Help*
 DNU_Help([insert])
     purpose: user can select from help topics
-    params:  1 - insert mode [default=<false>, optional, boolean]
+    params:  1 - insert mode <default=false> <optional> [boolean]
     insert:  nil
     return:  nil
     note:    extensible help system relying on buffer Dictionary
@@ -294,23 +305,23 @@ DNU_Help([insert])
              to its plugin
     example: " this is example script for the foo plugin
              " add plugin name to list of plugins contributing help
-             if !exists( "b:dn_help_plugins" )
+             if !exists('b:dn_help_plugins')
                let b:dn_help_plugins = {}
              endif
-             if index( b:dn_help_plugins, 'foo', b:dn_true ) == -1
-               call add( b:dn_help_plugins, 'foo' )
+             if index(b:dn_help_plugins, 'foo', b:dn_true) == -1
+               call add(b:dn_help_plugins, 'foo')
              endif
              " add help topics for foo plugin to help menu
              " note that 'foo' is a top level menu item
              " all help topics are in its submenu
              " all 'leaf' entries have to be unique across *all* topics
              " all topics for this plugin get a unique prefix/namespace
-             if !exists( "b:dn_help_topics" )
+             if !exists('b:dn_help_topics')
                let b:dn_help_topics = {}
              endif
              let b:dn_help_topics['foo'] = { 'how to wibble': 'foo_wibble' }
              " add help data for each help topic
-             if !exists( "b:dn_help_data" )
+             if !exists('b:dn_help_data')
                let b:dn_help_data = {}
              endif
              let b:dn_help_data['foo_wibble'] =
@@ -329,31 +340,31 @@ operations that are not supported.
                                                   *DNU-ListGetPartialMatch*
 DNU_ListGetPartialMatch(list, fragment)
     purpose: get the first element containing given pattern
-    params:  1 - list to search [List]
-             2 - pattern fragment to match on [string]
+    params:  1 - list to search <required> [List]
+             2 - pattern fragment to match on <required> [string]
     return:  first matching element (empty string if no match) [string]
 
                                                     *DNU-ListExchangeItems*
 DNU_ListExchangeItems(list, index, index)
     purpose: exchange two elements in the same list
-    params:  1 - list to process [List]
-             2 - index of first element to exchange [integer]
-             3 - index of second element to exchange [integer]
+    params:  1 - list to process <required> [List]
+             2 - index of first element to exchange <required> [integer]
+             3 - index of second element to exchange <required> [integer]
     return:  whether items successfully exchanged [boolean]
     note:    by not copying input list are acting on original
 
                                                          *DNU-ListSubtract*
 DNU_ListSubtract(list, list)
     purpose: subtract one list from another
-    params:  1 - list to subtract from [List]
-             2 - list to be subtracted [List]
+    params:  1 - list to subtract from <required> [List]
+             2 - list to be subtracted <required> [List]
     return:  new list [List]
     note:    performs 'list_1 - list_2'
 
                                                          *DNU-ListToScreen*
 DNU_ListToScreen(list, [text_width], [column_width], [indent])
     purpose: formats list for screen display
-    params:  1 - list to format for display [List]
+    params:  1 - list to format for display <required> [List]
              2 - maximum width of text <default=60> <optional> [integer]
              3 - indext at start of line <default=0> <optional> [integer]
              4 - delimiter <default=' '> <optional> [char]
@@ -362,7 +373,7 @@ DNU_ListToScreen(list, [text_width], [column_width], [indent])
                                                   *DNU-ListToScreenColumns*
 DNU_ListToScreenColumns(list, [text_width], [column_width], [indent])
     purpose: formats list for screen display in columns
-    params:  1 - list to format for display [List]
+    params:  1 - list to format for display <required> [List]
              2 - maximum width of text <default=60> <optional> [integer]
              3 - column width = longest item strlen
                             + col_padding <default=1> <optional> [integer]
@@ -386,7 +397,7 @@ DNU_UnusedFunctions([lower], [upper])
                                                            *DNU-InsertMode*
 DNU_InsertMode([skip])
     purpose: switch to insert mode
-    params:  1 - right skip [integer]
+    params:  1 - right skip <default=0> <optional> [integer]
     insert:  nil
     return:  nil
     note:    this function is often used by other functions if they were
@@ -428,42 +439,42 @@ DNU_StripLastChar(text)
                                                          *DNU-InsertString*
 DNU_InsertString(text, [restrict])
     purpose: insert string at current cursor location
-    params:  1 - text for insertion [string]
+    params:  1 - text for insertion <required> [string]
              2 - use 'paste' setting <default=true> <optional> [boolean]
     return:  nil
-    usage:   function! doSomething( ... )
-                 let l:insert = ( a:0 > 0 && a:1 ) ? 1 : 0
+    usage:   function! doSomething(...)
+                 let l:insert = (a:0 > 0 && a:1) ? 1 : 0
                  ...
-                 call DNU_InsertString( l:string )
+                 call DNU_InsertString(l:string)
                  if l:insert | call DNU_InsertMode() | endif
              endfunction
 
                                                              *DNU-TrimChar*
 DNU_TrimChar(text, [char])
     purpose: removes leading and trailing chars from string
-    params:  1 - text to trim [string]
+    params:  1 - text to trim <required> [string]
              2 - char to trim <default=' '> <optional> [char]
     return:  trimmed text [string]
 
                                                              *DNU-Entitise*
 DNU_Entitise(text)
     purpose: replace special html characters with entities
-    params:  1 - text [string]
+    params:  1 - text <required> [string]
     insert:  nil
     return:  altered text [string]
 
                                                            *DNU-Deentitise*
 DNU_Deentitise(text)
     purpose: replace entities with characters for special html characters
-    params:  1 - text [string]
+    params:  1 - text <required> [string]
     insert:  nil
     return:  altered text [string]
 
                                                                *DNU-String*
-DNU_String(var)
-    purpose: convert variables to string
-    params:  1 - variable [any]
-             2 - quote_strings <optional> [boolean]
+DNU_Stringify(var, [quote_strings])
+    purpose: convert variable to string
+    params:  1 - variable <required> [any]
+             2 - quote_strings <default=false> <optional> [boolean]
     insert:  nil
     return:  converted variable [string]
     note:    number (integer) or float variables:
@@ -486,49 +497,49 @@ DNU_String(var)
                                                            *DNU-MatchCount*
 DNU_MatchCount(haystack, needle)
     purpose:  finds number of occurrences of a substring in a string
-    params:   1 - string to search for matches [string]
-              2 - substring to search for [string]
+    params:   1 - string to search for matches <required> [string]
+              2 - substring to search for <required> [string]
     insert:   nil
     return:   number of occurrences [number]
 
                                                             *DNU-StridxNum*
 DNU_StridxNum(haystack, needle, number)
     purpose: finds the X'th match of a substring in a string
-    params:  1 - string to search [string]
-             2 - substring to search for [string]
-             3 - which successive match to return index of [number]
+    params:  1 - string to search <required> [string]
+             2 - substring to search for <required> [string]
+             3 - which successive match to return index of <required> [number]
     insert:  nil
     return:  position of start of final match
              (-1 if match not found) [number]
     example: let l:string = 'inside Winston''s inner sanctum'
-             echo DNU_StridxNum( l:string, "in", 2 )  " 8
+             echo DNU_StridxNum(l:string, 'in', 2)  " 8
 
                                                           *DNU-PadInternal*
 DNU_PadInternal(string, start, target, [char])
     purpose: insert char at given position until initial location
              is at the desired location
-    params:  1 - initial string [string]
-             2 - position to insert at [number]
-             3 - target position [number]
+    params:  1 - initial string <required> [string]
+             2 - position to insert at <required> [number]
+             3 - target position <required> [number]
              4 - char to pad with <default=' '> <optional> [char]
     insert:  nil
     return:  altered string [string]
     note:    if arg 4 is string then only first char is used
-    example: let l:string1 = "Column Twenty & Column Twenty One"
-    example: let l:string2 = "Column Twenty Two & Column Twenty Three"
-             let l:string1 = DNU_PadInternal( l:string1, 14, 18 )
+    example: let l:string1 = 'Column Twenty & Column Twenty One'
+    example: let l:string2 = 'Column Twenty Two & Column Twenty Three'
+             let l:string1 = DNU_PadInternal(l:string1, 14, 18)
              echo l:string1  " Column Twenty     & Column Twenty One
              echo l:string2  " Column Twenty Two & Column Twenty Three
 
                                                      *DNU-ChangeHeaderCaps*
 DNU_ChangeHeaderCaps(mode)
     purpose: changes capitalisation of line or visual selection
-    params:  1 - calling mode ['n' | 'v' | 'i'] [char]
-             2 - capitalisation type ('upper' | 'lower' | 'sentence' |
-                 'start' |'title') [string]
+    params:  1 - calling mode <required> <values='n','v','i'> [char]
     insert:  nil
     return:  nil
     note:    newlines are not expected but happen to be preserved
+    note:    user selects capitalisation type from:
+             'upper', 'lower', 'sentence', 'start', 'title'
     note:    types of capitalisation:
                upper:    TO BE OR NOT TO BE
                lower:    to be or not to be
@@ -550,7 +561,7 @@ These functions manipulate numbers.
                                                           *DNU-ValidPosInt*
 DNU_ValidPosInt(int)
     purpose: check whether input is valid positive integer
-    params:  1 - value [integer]
+    params:  1 - value <required> [integer]
     insert:  nil
     return:  whether valid positive integer [boolean]
     note:    zero is not a positive integer
@@ -563,9 +574,9 @@ Functions that cannot be placed in any other category.
                                                             *DNU-JumpPlace*
 DNU_JumpPlace(start, end, direction)
     purpose: jump to placeholder
-    params:  1 - place holder start marker [string]
-             2 - place holder end marker [string]
-             3 - direction ('f', 'b') [string]
+    params:  1 - place holder start marker <required> [string]
+             2 - place holder end marker <required> [string]
+             3 - direction ('f', 'b') <required> [string]
     insert:  nil
     return:  nil
 
@@ -592,7 +603,7 @@ DNU_GetSelection()
                                                               *DNU-VarType*
 DNU_VarType(var)
     purpose: get variable type
-    params:  1 - variable to be analysed [various]
+    params:  1 - variable to be analysed <required> [various]
     insert:  nil
     return:  variable type ('number'\|'string'\|'funcref'\|'list'\|
                             'dictionary'\|'float'\|'unknown')

@@ -571,6 +571,45 @@ function! DNU_StripPath(filepath)
 	return fnamemodify(a:filepath, ':t')
 endfunction
 " -----------------------------------------------------------------------
+" Function: DNU_GetRtpDir                                            {{{3
+" Purpose:  finds directory in runtimepath
+" Params:   1 - directory name [string]
+"           2 - allow multiples [boolean,optional, default=false]
+" Return:   default: filepath [string], '0' if failure
+"           multiple=true: filepaths [List], [] if failure
+" Note:     default behaviour is to return a single filepath
+"           - if multiple matches found get user to select one
+"           if allow multiples, return list (even if only one match)
+function! DNU_GetRtpDir(dir, ...)
+    " set vars
+    if a:0 > 1 && a:1
+        let l:allow_multiples = b:dn_true
+    else
+        let l:allow_multiples = b:dn_false
+    endif
+    if a:dir = ''
+        if l:allow_multiples
+            return []
+        else
+            return 0
+        endif
+    endif
+    " search for directory
+    let l:matches = split(globpath(&rtp, a:dir), '\n')
+    " if allowing multiple matches
+    if l:allow_multiples
+        return l:matches
+    endif
+    " if insisting on single directory
+    if     len(l:matches) == 0
+        return 0
+    elseif len(l:matches) == 1
+        return l:matches[0]
+    else
+        return DNU_MenuSelect(l:matches, 'Select directory path:')
+    endif
+endfunction
+" -----------------------------------------------------------------------
 " 3.4  User interaction                                              {{{2
 " Functions related to user interaction
 " Function: DNU_ShowMsg                                              {{{3
@@ -1426,7 +1465,7 @@ endfunction
 " Function: DNU_Stringify                                            {{{3
 " Purpose:  convert variables to string
 " Params:   1 - variable [any]
-"           2 - quote_strings [optional, boolean]
+"           2 - quote_strings [optional, default=false, boolean]
 " Insert:   nil
 " Return:   converted variable [string]
 " Note:     if quoting then strings will be enclosed in single quotes

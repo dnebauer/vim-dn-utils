@@ -1882,6 +1882,23 @@ function! DNU_SelectWord()
 	return l:fragment
 endfunction
 " -----------------------------------------------------------------------
+" Function: DNU_VarType                                              {{{3
+" Purpose:  get variable type
+" Params:   1 - variable to be analysed
+" Insert:   nil
+" Return:   variable type ('number'|'string'|'funcref'|'list'|
+"                          'dictionary'|'float'|'unknown')
+function! s:VarType(var)
+    if     type(a:var) == type(0)              | return 'number'
+    elseif type(a:var) == type('')             | return 'string'
+    elseif type(a:var) == type(function('tr')) | return 'funcref'
+    elseif type(a:var) == type([])             | return 'List'
+    elseif type(a:var) == type({})             | return 'Dictionary'
+    elseif type(a:var) == type(0.0)            | return 'float'
+    else                                       | return 'unknown'
+    endif
+endfunction
+" -----------------------------------------------------------------------
 " Function: DNU_TestFn                                               {{{3
 " Purpose:  utility function used for testing purposes only
 " Params:   varies
@@ -1890,7 +1907,7 @@ endfunction
 function! DNU_TestFn() range
     let l:var = 'A RABBIT AND A DOG SHOW'
     call DNU_ShowMsg(string(l:var))
-endfunction
+endfunction 
 " -----------------------------------------------------------------------
 " _4.  CONTROL STATEMENTS                                            {{{1
 " restore user's cpoptions

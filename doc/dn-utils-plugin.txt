@@ -589,6 +589,14 @@ DNU_GetSelection()
              subsidiary function being called once per line if it does not
              handle the range (see |:call| and |function-range-example|)
 
+                                                              *DNU-VarType*
+DNU_VarType(var)
+    purpose: get variable type
+    params:  1 - variable to be analysed [various]
+    insert:  nil
+    return:  variable type ('number'\|'string'\|'funcref'\|'list'\|
+                            'dictionary'\|'float'\|'unknown')
+
                                                                *DNU-TestFn*
 DNU_TestFn()
     purpose: utility function used for testing purposes only

@@ -196,7 +196,7 @@ DNU_GetRtpDir(dir, [allow_multiples])
     purpose: finds directory from runtimepath
     params:  1 - directory name <required> [string]
              2 - allow multiples <default=false> <optional> [boolean]
-    return:  imultiple=false (default): filepath [string], '0' if failure
+    return:  multiple=false (default): filepath [string], '0' if failure
              multiple=true: filepaths [List], [] if failure
     note:    default behaviour is to return a single filepath
              - if multiple matches found get user to select one

@@ -177,6 +177,16 @@ These are functions that manipulate files and directories.
 |---------|---------------------------|
 |purpose: | removes path from filepath|
 
+##### DNU_GetRtpDir\(dir, \[allow_multiples\]\)
+
+|         |                                      |
+|---------|--------------------------------------|
+|purpose: | finds a directory on the runtimepath |
+
+If the `allow_multiple` argument is not supplied (default) the function returns a string result. If multiple matches are found the user selects a match. If the function is unable to find a match '0' is returned.
+
+If the `allow_multiple` parameter is present and true the function returns a List containing all matches. If the function is unable to find a match it returns an empty List.
+
 User interactive functions<a id="user"></a>
 --------------------------
 
@@ -403,15 +413,21 @@ Functions that cannot be placed in any other category.
 
 ##### DNU_JumpPlace\(start, end, direction\)
 
-|         |                    |
-|---------|--------------------|
-|purpose: | jump to placeholder|
+|         |                     |
+|---------|---------------------|
+|purpose: | jump to placeholder |
 
 ##### DNU_SelectWord\(\)
 
-|         |         |
-|---------|---------|
-|purpose: | selects |
+|         |                                   |
+|---------|-----------------------------------|
+|purpose: | selects &lt;cword&gt; under cursor|
+
+##### DNU_VarType\(var\)
+
+|         |                                              |
+|---------|----------------------------------------------|
+|purpose: | returns variable type \('number'\|'string'\|'funcref'\|'list'\|'dictionary'\|'float'\)|
 
 ##### DNU_TestFn\(\)
 

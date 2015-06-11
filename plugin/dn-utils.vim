@@ -587,7 +587,7 @@ function! DNU_GetRtpDir(dir, ...)
     else
         let l:allow_multiples = b:dn_false
     endif
-    if a:dir = ''
+    if a:dir == ''
         if l:allow_multiples
             return []
         else
@@ -620,6 +620,7 @@ endfunction
 " Return:   nil
 function! DNU_ShowMsg( msg, ... )
 	let l:msg = a:msg
+    let l:valid_types = {'warning': 1, 'info': 1, 'question': 1, 'error': 1}
 	let l:type = ''
 	" sanity check
 	let l:error = 0
@@ -629,9 +630,9 @@ function! DNU_ShowMsg( msg, ... )
 		let l:type = "Error"
 	endif
 	" set dialog type (if valid type supplied and not overridden by error)
-	if ! l:error
+	if !l:error
 		if a:0 > 0
-            if tolower(a:1) =~ '^warning$\|^info$\|^question$\|^error$'
+            if has_key(l:valid_types, tolower(a:1))
     			let l:type = tolower(a:1)
 	    	endif
         endif

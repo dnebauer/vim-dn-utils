@@ -355,7 +355,7 @@ endfunction
 " Insert:   nil
 " Return:   name of weekday [string]
 function! DNU_DayOfWeek(year, month, day)
-	if ! s:validCalInput(a:year, a:month, a:day) | return '' | endif
+	if !s:validCalInput(a:year, a:month, a:day) | return '' | endif
 	let l:doomsday = s:yearDoomsday(a:year)
 	let l:month_value = s:monthValue(a:year, a:month)
 	let l:day_number = (a:day - l:month_value + 14 + l:doomsday) % 7
@@ -470,15 +470,15 @@ endfunction
 " Return:   whether valid input [boolean]
 function! s:validCalInput(year, month, day)
 	let l:retval :dn_true
-	if ! s:validYear(a:year)
+	if !s:validYear(a:year)
 		let l:retval = b:dn_false
 		echo "Invalid year: '" . a:year . "'"
 	endif
-	if ! s:validMonth(a:month)
+	if !s:validMonth(a:month)
 		let l:retval = b:dn_false
 		echo "Invalid month: '" . a:month . "'"
 	endif
-	if ! s:validDay(a:year, a:month, a:day)
+	if !s:validDay(a:year, a:month, a:day)
 		let l:retval = b:dn_false
 		echo "Invalid day:   '" . a:day . "'"
 	endif
@@ -623,10 +623,10 @@ function! DNU_ShowMsg( msg, ... )
     let l:valid_types = {'warning': 1, 'info': 1, 'question': 1, 'error': 1}
 	let l:type = ''
 	" sanity check
-	let l:error = 0
+	let l:error = b:dn_false
 	if l:msg == ''
 		let l:msg = "No message supplied to 'DNU_ShowMsg'"
-		let l:error = 1
+		let l:error = b:dn_true
 		let l:type = "Error"
 	endif
 	" set dialog type (if valid type supplied and not overridden by error)
@@ -913,15 +913,15 @@ endfunction
 "           menu item reflecting the plugin name/type, and for the topic
 "           values to be made unique by appending to each a prefix unique to
 "           its plugin
-" Example:  if !exists( "b:dn_help_plugins" ) | let b:dn_help_plugins = {} | endif
+' Example:  if !exists('b:dn_help_plugins') | let b:dn_help_plugins = {} | endif
 "           if index( b:dn_help_plugins, 'foo', b:dn_true ) == -1
 "             call add( b:dn_help_plugins, 'foo' )
 "           endif
-"           if !exists( "b:dn_help_topics" ) | let b:dn_help_topics = {} | endif
+'           if !exists('b:dn_help_topics') | let b:dn_help_topics = {} | endif
 "           let b:dn_help_topics['foo'] = { 'how to wibble': 'foo_wibble' }
-"           if !exists( "b:dn_help_data" ) | let b:dn_help_data = {} | endif
+'           if !exists('b:dn_help_data') | let b:dn_help_data = {} | endif
 "           let b:dn_help_data['foo_wibble'] = [ 'How to wibble:', '', 'Details...' ]
-function! DNU_Help( ... )
+function! DNU_Help(...)
 	echo '' | " clear command line
     " variables
     let l:insert = (a:0 > 0 && a:1) ? b:dn_true : b:dn_false

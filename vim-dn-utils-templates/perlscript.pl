@@ -18,8 +18,8 @@ use Fatal qw(open close);
 use English qw(-no_match_vars);
 use Carp;
 use Readonly;
-use Dn::CommonPerl;
-my $cp = new Dn::CommonPerl;
+use Dn::Common;
+my $cp = new Dn::Common;
 use Dn::Menu;
 my $m = new Dn::Menu;
 

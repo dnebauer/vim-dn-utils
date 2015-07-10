@@ -35,9 +35,6 @@ $Data::Dumper::Deparse = $TRUE;
 
 # ATTRIBUTES
 
-# parameter: my_param
-#            public, scalar string, required, default='default'
-#            parameters require MooseX::App::Simple
 parameter 'param' => (
     is            => 'rw',
     isa           => 'Str',
@@ -47,19 +44,15 @@ parameter 'param' => (
     documentation => 'First parameter',
 );
 
-# option: -o
-#         public, boolean, optional, default=<false>
-#         options require MooseX::App::Simple
-option 'o' => (
+option 'option' => (
     is            => 'rw',
     isa           => 'Bool',
     default       => $FALSE,
     reader        => '_option',
+    cmd_aliases   => [qw(o)],
     documentation => 'Enable this to do fancy stuff',
 );
 
-# attribute: _attr_1
-#            private, scalar string, required
 has '_attr_1' => (
     is            => 'ro',
     isa           => 'Str',
@@ -73,8 +66,6 @@ method _build_attr_1 () {
 }
 
 
-# attribute: _attr_2
-#            private, scalar string, default='value'
 has '_attr_2' => (
     is            => 'ro',
     isa           => 'Str',
@@ -105,7 +96,7 @@ method _build_attr_5 () {
 
 # METHODS
 
-#   notify($msg, $type = 'info)
+#   method: notify($msg, $type = 'info')
 #
 #   does:   display notification
 #   params: msg  - message string
@@ -126,18 +117,6 @@ method notify ( $msg, $type = 'info' ) {
         type  => $type,
         icon  => '@pkgdata@/dn-keep-awake.png',
     );
-    return;
-}
-
-#   info($msg)
-#
-#   does:   display informational notification
-#   params: msg  - message string
-#                  (scalar, required)
-#   prints: nil
-#   return: nil
-method info ($msg) {
-    $self->notify($msg);
     return;
 }
 
@@ -172,13 +151,15 @@ B<myscript param> [ I<-o> ]
 
 B<myscript -h>
 
-=head1 REQUIRED OPTIONS
+=head1 REQUIRED ARGUMENTS
 
 =over
 
 =item B<param>
 
 Does... String.
+
+Required.
 
 =back
 
@@ -188,7 +169,9 @@ Does... String.
 
 =item B<o>
 
-Flag. Whether to... Boolean, Default=<false>.
+Flag. Whether to... Boolean.
+
+Optional. Default=<false>.
 
 =item B<-h>
 
@@ -196,15 +179,45 @@ Display help and exit.
 
 =back
 
-=head1 CONFIGURATION
+=head1 DEPENDENCIES
+
+=head2 Moose
+
+=head2 namespace::autoclean
+
+=head2 Moose::Util::TypeConstraints
+
+=head2 MooseX::Getopt::Usage
+
+=head2 MooseX::MakeImmutable
+
+=head2 MooseX::App::Simple
+
+=head2 Try::Tiny
+
+=head2 Fatal
+
+=head2 English
+
+=head2 Carp
+
+=head2 Function::Parameters
+
+=head2 Readonly
+
+Use modern perl features.
+
+=head2 Dn::Common
+
+Utility methods.
+
+=head2 Dn::Menu
+
+Provides graphical and console menus.
+
+=head1 CONFIGURATION AND ENVIRONMENT
 
 System-wide configuration file provides details of...
-
-=head1 EXIT VALUE
-
-Returns an error value if the script fails.
-
-=head1 FILES
 
 =over
 
@@ -214,8 +227,19 @@ Configuration file
 
 =back
 
-=head1 AUTHORS
+=head1 BUGS AND LIMITATIONS
 
-David Nebauer, L<david E<lt>atE<gt> nebauer E<lt>dotE<gt> org|mailto:david@nebauer.org>
+Please report any bugs to the author.
+
+=head1 AUTHOR
+
+David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (c) 2015 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
+
+This script is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut

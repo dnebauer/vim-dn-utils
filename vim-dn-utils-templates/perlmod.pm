@@ -1,4 +1,4 @@
-package Dn::Internal;
+package Dn::Package;
 
 use Moose;
 use 5.014_002;
@@ -32,9 +32,6 @@ $Data::Dumper::Deparse = $TRUE;
 
 # ATTRIBUTES
 
-# parameter: my_param
-#            public, scalar string, required, default='default'
-#            parameters require MooseX::App::Simple
 parameter 'param' => (
     is            => 'rw',
     isa           => 'Str',
@@ -44,19 +41,15 @@ parameter 'param' => (
     documentation => 'First parameter',
 );
 
-# option: -o
-#         public, boolean, optional, default=<false>
-#         options require MooseX::App::Simple
-option 'o' => (
+option 'option' => (
     is            => 'rw',
     isa           => 'Bool',
     default       => $FALSE,
     reader        => '_option',
+    cmd_aliases   => [qw(o)],
     documentation => 'Enable this to do fancy stuff',
 );
 
-# attribute: _attr_1
-#            private, scalar string, required
 has '_attr_1' => (
     is            => 'ro',
     isa           => 'Str',
@@ -70,8 +63,6 @@ method _build_attr_1 () {
 }
 
 
-# attribute: _attr_2
-#            private, scalar string, default='value'
 has '_attr_2' => (
     is            => 'ro',
     isa           => 'Str',
@@ -79,15 +70,11 @@ has '_attr_2' => (
     documentation => 'Shown in usage',
 );
 
-# attributes: _attr_3, _attr_4
-#             private, scalar integer
 has [ '_attr_3', '_attr_4' ] => (
     is  => 'rw',
     isa => 'Int',
 );
 
-# attribute: _attr_5
-#            private, class
 has '_attr_5' => (
     is      => 'rw',
     isa     => 'Net::DBus::RemoteObject',
@@ -126,28 +113,6 @@ method notify ( $msg, $type = 'info' ) {
     return;
 }
 
-#   info($msg)
-#
-#   does:   display informational notification
-#   params: msg  - message string
-#                  (scalar, required)
-#   prints: nil
-#   return: nil
-method info ($msg) {
-    $self->notify($msg);
-    return;
-}
-
-#   run()
-#
-#   does:   main method
-#   params: nil
-#   prints: feedback
-#   return: result
-method run () {
-    # do stuff...
-}
-
 MooseX::MakeImmutable->lock_down;
 
 1;
@@ -167,9 +132,25 @@ My::Module - what I do
 
 Full description. May have subsections.
 
-=head1 METHODS
+=head1 SUBROUTINES/METHODS
 
-=head2 method1(param)
+=head2 method1($param)
+
+=head3 Purpose
+
+Method purpose.
+
+=head3 Parameters
+
+=over
+
+=item $param
+
+Parameter details. Scalar string.
+
+Required.
+
+=back
 
 =head1 DIAGNOSTICS
 
@@ -188,9 +169,25 @@ Config variables, and available settings.
 
 =head1 DEPENDENCIES
 
-=head2 Dn::Common
+=head2 Moose
+=head2 MooseX::App::Simple
+=head2 namespace::autoclean
+=head2 MooseX::MakeImmutable
+=head2 Moose::Util::TypeConstraints
+=head2 MooseX::Getopt::Usage
+=head2 Function::Parameters
+=head2 Try::Tiny
+=head2 Fatal
+=head2 English
+=head2 Carp
+=head2 Readonly
 
-Common methods used in the author's scripts.
+Modern perl features.
+
+=head2 Dn::Common
+=head2 Dn::Menu
+
+Provide utility methods.
 
 =head2 INCOMPATIBILITIES
 
@@ -198,54 +195,17 @@ Modules this one cannot be used with, and why.
 
 =head1 BUGS AND LIMITATIONS
 
-There are no known bugs in this module.
-Please report problems to <Maintainer name(s)>
- (<contact address>)
-Patches are welcome.
+Please report any bugs to the author.
 
-=head1 AUTHORS/AUTHORS
+=head1 AUTHOR
 
-David Nebauer, L<david E<lt>atE<gt> nebauer E<lt>dotE<gt> org|mailto:david@nebauer.org>
+David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2015 David Nebauer <david@nebauer.org>
+Copyright (c) 2015 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
-<GPL3>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-<Perl>
-
-This is free software; you can redistribute it and/or modify it under
-the terms of the Artictic License 2.0.
-
-See <http://www.perlfoundation.org/artistic_license_2_0>
-
-<Perl or GPL>
-
-This is free software; you can redistribute it and/or modify it under
-the terms of either:
-
-a) the GNU General Public License as published by the Free Software
-Foundation; either version 1 <http://dev.perl.org/licenses/gpl1.html>,
-or (at your option) any later version
-<http://www.gnu.org/licenses/license-list.html#GNUGPL>,
-
-or
-
-b) the "Artistic License"
-<http://www.perlfoundation.org/artistic_license_2_0>.
+This script is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut

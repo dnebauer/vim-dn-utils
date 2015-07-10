@@ -19,6 +19,7 @@ use Dn::Common;
 my $cp = new Dn::Common;
 use Dn::Menu;
 my $m = new Dn::Menu;
+use experimental 'switch';
 
 with 'MooseX::Getopt::Usage';    # remove if using MooseX::App::Simple
 

@@ -19,9 +19,9 @@ use English qw(-no_match_vars);
 use Carp;
 use Readonly;
 use Dn::Common;
-my $cp = new Dn::Common;
+my $cp = Dn::Common->new();
 use Dn::Menu;
-my $m = new Dn::Menu;
+my $m = Dn::Menu->new();
 use experimental 'switch';
 
 with 'MooseX::Getopt::Usage';    # remove if using MooseX::App::Simple

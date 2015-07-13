@@ -180,6 +180,11 @@ Display help and exit.
 
 =back
 
+=head1 DESCRIPTION
+
+A full description of the application and its features.
+May include numerous subsections (i.e., =head2, =head3, etc.).
+
 =head1 DEPENDENCIES
 
 =head2 Moose

@@ -29,6 +29,10 @@ use version; our $VERSION = qv('0.1');
 
     with 'MooseX::Getopt::Usage';    # remove if using MooseX::App::Simple
 
+    sub getopt_usage_config {    # remove if using MooseX::App::Simple
+        return ( usage_sections => ['USAGE|OPTIONS|DESCRIPTION'] );
+    }
+
     Readonly my $TRUE  => 1;
     Readonly my $FALSE => 0;
 

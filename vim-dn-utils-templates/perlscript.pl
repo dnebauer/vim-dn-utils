@@ -134,7 +134,7 @@ use version; our $VERSION = qv('0.1');
     #   params: nil
     #   prints: feedback
     #   return: result
-    method run () {
+    method main () {
                     # do stuff...
     }
 

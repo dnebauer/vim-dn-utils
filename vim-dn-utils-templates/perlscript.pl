@@ -17,7 +17,7 @@ use version; our $VERSION = qv('0.1');
     use Moose::Util::TypeConstraints;
     use Function::Parameters;
     use Try::Tiny;
-    use Fatal qw(open close);
+    use autodie qw(open close);
     use English qw(-no_match_vars);
     use Carp;
     use Readonly;
@@ -204,7 +204,7 @@ May include numerous subsections (i.e., =head2, =head3, etc.).
 
 =head2 Try::Tiny
 
-=head2 Fatal
+=head2 autodie
 
 =head2 English
 

@@ -172,21 +172,33 @@ Config variables, and available settings.
 =head1 DEPENDENCIES
 
 =head2 Moose
+
 =head2 MooseX::App::Simple
+
 =head2 namespace::autoclean
+
 =head2 MooseX::MakeImmutable
+
 =head2 Moose::Util::TypeConstraints
+
 =head2 MooseX::Getopt::Usage
+
 =head2 Function::Parameters
+
 =head2 Try::Tiny
-=head2 Fatal
+
+=head2 autodie
+
 =head2 English
+
 =head2 Carp
+
 =head2 Readonly
 
 Modern perl features.
 
 =head2 Dn::Common
+
 =head2 Dn::Menu
 
 Provide utility methods.

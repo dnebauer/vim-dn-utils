@@ -5,138 +5,141 @@ use 5.014_002;
 use version; our $VERSION = qv('0.1');
 
 {
-package Dn::Internal;
 
-use MooseX::App::Simple qw(Color);    # requires exception on next line
-use namespace::autoclean -except => ['new_with_options'];
-#use namespace::autoclean;    # remove if using MooseX::App::Simple
-use MooseX::MakeImmutable;
-use Moose::Util::TypeConstraints;
-use Function::Parameters;
-use Try::Tiny;
-use Fatal qw(open close);
-use English qw(-no_match_vars);
-use Carp;
-use Readonly;
-use Dn::Common;
-my $cp = Dn::Common->new();
-use Dn::Menu;
-my $m = Dn::Menu->new();
-use experimental 'switch';
+    package Dn::Internal;
 
-with 'MooseX::Getopt::Usage';    # remove if using MooseX::App::Simple
+    use Moose;
+    use MooseX::App::Simple qw(Color);    # requires exception on next line
+    use namespace::autoclean -except => ['new_with_options'];
 
-Readonly my $TRUE  => 1;
-Readonly my $FALSE => 0;
+    #use namespace::autoclean;    # remove if using MooseX::App::Simple
+    use MooseX::MakeImmutable;
+    use Moose::Util::TypeConstraints;
+    use Function::Parameters;
+    use Try::Tiny;
+    use Fatal qw(open close);
+    use English qw(-no_match_vars);
+    use Carp;
+    use Readonly;
+    use Dn::Common;
+    my $cp = Dn::Common->new();
+    use Dn::Menu;
+    use Cwd qw(abs_path);
+    use experimental 'switch';
 
-# debug
-use Data::Dumper;
-$Data::Dumper::Useqq   = $TRUE;
-$Data::Dumper::Deparse = $TRUE;
+    with 'MooseX::Getopt::Usage';    # remove if using MooseX::App::Simple
 
-# ATTRIBUTES
+    Readonly my $TRUE  => 1;
+    Readonly my $FALSE => 0;
 
-parameter 'param' => (
-    is            => 'rw',
-    isa           => 'Str',
-    accessor      => '_param',
-    required      => $TRUE,
-    default       => 'default_value',
-    documentation => 'First parameter',
-);
+    # debug
+    use Data::Dumper::Simple;
 
-option 'option' => (
-    is            => 'rw',
-    isa           => 'Bool',
-    default       => $FALSE,
-    reader        => '_option',
-    cmd_aliases   => [qw(o)],
-    documentation => 'Enable this to do fancy stuff',
-);
+    # ATTRIBUTES
 
-has '_attr_1' => (
-    is            => 'ro',
-    isa           => 'Str',
-    required      => $TRUE,
-    builder       => '_build_attr_1',
-    documentation => 'Shown in usage',
-);
+    subtype 'FilePath' => as 'Str' => where { -f abs_path($_) } =>
+        message {qq[Invalid file '$_']};
 
-method _build_attr_1 () {
-    return My::App->new->get_value;
-}
-
-
-has '_attr_2' => (
-    is            => 'ro',
-    isa           => 'Str',
-    default       => 'value',
-    documentation => 'Shown in usage',
-);
-
-# attributes: _attr_3, _attr_4
-#             private, scalar integer
-has [ '_attr_3', '_attr_4' ] => (
-    is  => 'rw',
-    isa => 'Int',
-);
-
-# attribute: _attr_5
-#            private, class
-has '_attr_5' => (
-    is      => 'rw',
-    isa     => 'Net::DBus::RemoteObject',
-    traits  => ['NoGetOpts'],
-    builder => '_build_attr_5',
-);
-
-method _build_attr_5 () {
-    return Net::DBus->session->get_service('org.freedesktop.ScreenSaver')
-        ->get_object('/org/freedesktop/ScreenSaver');
-}
-
-# METHODS
-
-#   method: notify($msg, $type = 'info')
-#
-#   does:   display notification
-#   params: msg  - message string
-#                  (scalar, required)
-#           type - message type
-#                  (scalar, optional, default='info')
-#                  (must be 'info'|'warn'|'error')
-#   prints: nil
-#   return: nil
-method notify ( $msg, $type = 'info' ) {
-    my %valid_type = map { ( $_ => 1 ) } qw(info warn error);
-    if ( not $valid_type{$type} ) {
-        $type = 'info';
-    }
-    $cp->notify_sys(
-        msg   => $msg,
-        title => 'Keep Awake',
-        type  => $type,
-        icon  => '@pkgdata@/dn-keep-awake.png',
+    parameter 'param' => (
+        is            => 'rw',
+        isa           => 'Str',
+        accessor      => '_param',
+        required      => $TRUE,
+        default       => 'default_value',
+        documentation => 'First parameter',
     );
-    return;
-}
 
-#   run()
-#
-#   does:   main method
-#   params: nil
-#   prints: feedback
-#   return: result
-method run () {
-    # do stuff...
-}
+    option 'option' => (
+        is            => 'rw',
+        isa           => 'Bool',
+        default       => $FALSE,
+        reader        => '_option',
+        cmd_aliases   => [qw(o)],
+        documentation => 'Enable this to do fancy stuff',
+    );
 
-MooseX::MakeImmutable->lock_down;
+    has '_attr_1' => (
+        is            => 'ro',
+        isa           => 'Str',
+        required      => $TRUE,
+        builder       => '_build_attr_1',
+        documentation => 'Shown in usage',
+    );
+
+    method _build_attr_1 () {
+        return My::App->new->get_value;
+    }
+
+    has '_attr_2' => (
+        is            => 'ro',
+        isa           => 'Str',
+        default       => 'value',
+        documentation => 'Shown in usage',
+    );
+
+    # attributes: _attr_3, _attr_4
+    #             private, scalar integer
+    has [ '_attr_3', '_attr_4' ] => (
+        is  => 'rw',
+        isa => 'Int',
+    );
+
+    # attribute: _attr_5
+    #            private, class
+    has '_attr_5' => (
+        is      => 'rw',
+        isa     => 'Net::DBus::RemoteObject',
+        traits  => ['NoGetOpts'],
+        builder => '_build_attr_5',
+    );
+
+    method _build_attr_5 () {
+        return Net::DBus->session->get_service('org.freedesktop.ScreenSaver')
+            ->get_object('/org/freedesktop/ScreenSaver');
+    }
+
+    # METHODS
+
+    #   method: notify($msg, $type = 'info')
+    #
+    #   does:   display notification
+    #   params: msg  - message string
+    #                  (scalar, required)
+    #           type - message type
+    #                  (scalar, optional, default='info')
+    #                  (must be 'info'|'warn'|'error')
+    #   prints: nil
+    #   return: nil
+    method notify ( $msg, $type = 'info' ) {
+        my %valid_type = map { ( $_ => 1 ) } qw(info warn error);
+        if ( not $valid_type{$type} ) {
+            $type = 'info';
+        }
+        $cp->notify_sys(
+            msg   => $msg,
+            title => 'Keep Awake',
+            type  => $type,
+            icon  => '@pkgdata@/dn-keep-awake.png',
+        );
+        return;
+    }
+
+    #   main()
+    #
+    #   does:   main method
+    #   params: nil
+    #   prints: feedback
+    #   return: result
+    method run () {
+                    # do stuff...
+    }
+
+    MooseX::MakeImmutable->lock_down;
 }
 
 # MAIN PACKAGE
 
-my $p = Dn::Internal->new_with_options->run;
+my $p = Dn::Internal->new_with_options->main;
 
 1;
 

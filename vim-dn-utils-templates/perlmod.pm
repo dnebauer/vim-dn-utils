@@ -27,11 +27,12 @@ Readonly my $TRUE  => 1;
 Readonly my $FALSE => 0;
 
 # debug
-use Data::Dumper;
-$Data::Dumper::Useqq   = $TRUE;
-$Data::Dumper::Deparse = $TRUE;
+use Data::Dumper::Simple;
 
 # ATTRIBUTES
+
+subtype 'FilePath' => as 'Str' => where { -f abs_path($_) } =>
+    message {qq[Invalid file '$_']};
 
 parameter 'param' => (
     is            => 'rw',

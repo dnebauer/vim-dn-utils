@@ -1,27 +1,27 @@
 package Dn::Package;
 
-use Moose;
+use Moo;
+use strictures 2;
 use 5.014_002;
 use version; our $VERSION = qv('0.1');
+use namespace::clean;
 
-use MooseX::App::Simple qw(Color);    # requires exception on next line
-use namespace::autoclean -except => ['new_with_options'];
-#use namespace::autoclean;    # remove if using MooseX::App::Simple
-use MooseX::MakeImmutable;
-use Moose::Util::TypeConstraints;
-use Function::Parameters;
-use Try::Tiny;
-use Fatal qw(open close);
-use English qw(-no_match_vars);
+use autodie qw(open close);
 use Carp;
-use Readonly;
 use Dn::Common;
-my $cp = new Dn::Common;
 use Dn::Menu;
-my $m = new Dn::Menu;
+use English qw(-no_match_vars);
+use Function::Parameters;
+use MooX::HandlesVia;
+use Path::Tiny;
+use Readonly;
+use Try::Tiny;
+use Types::Common::Numeric qw(PositiveNum PositiveOrZeroNum SingleDigit);
+use Types::Common::String qw(NonEmptySimpleString LowerCaseSimpleStr);
+use Types::Standard qw(InstanceOf Int Str);
+use Types::Path::Tiny qw(AbsDir AbsPath)
 use experimental 'switch';
-
-with 'MooseX::Getopt::Usage';    # remove if using MooseX::App::Simple
+my $cp = new Dn::Common;
 
 Readonly my $TRUE  => 1;
 Readonly my $FALSE => 0;
@@ -31,30 +31,9 @@ use Data::Dumper::Simple;
 
 # ATTRIBUTES
 
-subtype 'FilePath' => as 'Str' => where { -f abs_path($_) } =>
-    message {qq[Invalid file '$_']};
-
-parameter 'param' => (
-    is            => 'rw',
-    isa           => 'Str',
-    accessor      => '_param',
-    required      => $TRUE,
-    default       => 'default_value',
-    documentation => 'First parameter',
-);
-
-option 'option' => (
-    is            => 'rw',
-    isa           => 'Bool',
-    default       => $FALSE,
-    reader        => '_option',
-    cmd_aliases   => [qw(o)],
-    documentation => 'Enable this to do fancy stuff',
-);
-
 has '_attr_1' => (
     is            => 'ro',
-    isa           => 'Str',
+    isa           => Types::Standard::Str,
     required      => $TRUE,
     builder       => '_build_attr_1',
     documentation => 'Shown in usage',
@@ -64,23 +43,34 @@ method _build_attr_1 () {
     return My::App->new->get_value;
 }
 
-
-has '_attr_2' => (
-    is            => 'ro',
-    isa           => 'Str',
-    default       => 'value',
-    documentation => 'Shown in usage',
+has '_attr_2_list' => (
+    is  => 'rw',
+    isa => Types::Standard::ArrayRef [
+        Types::Standard::InstanceOf ['Config::Simple']
+    ],
+    lazy        => $TRUE,
+    default     => sub { [] },
+    handles_via => 'Array',
+    handles     => {
+        _attrs    => 'elements',
+        _add_attr => 'push',
+        _has_attr => 'count',
+    },
+    documentation => q{Array of values},
 );
 
+# attributes: _attr_3, _attr_4
+#             private, scalar integer
 has [ '_attr_3', '_attr_4' ] => (
     is  => 'rw',
-    isa => 'Int',
+    isa => Types::Standard::Int,
 );
 
+# attribute: _attr_5
+#            private, class
 has '_attr_5' => (
     is      => 'rw',
-    isa     => 'Net::DBus::RemoteObject',
-    traits  => ['NoGetOpts'],
+    isa     => Types::Standard::InstanceOf['Net::DBus::RemoteObject'],
     builder => '_build_attr_5',
 );
 
@@ -91,31 +81,14 @@ method _build_attr_5 () {
 
 # METHODS
 
-#   notify($msg, $type = 'info)
+# my_method($thing)
 #
-#   does:   display notification
-#   params: msg  - message string
-#                  (scalar, required)
-#           type - message type
-#                  (scalar, optional, default='info')
-#                  (must be 'info'|'warn'|'error')
-#   prints: nil
-#   return: nil
-method notify ( $msg, $type = 'info' ) {
-    my %valid_type = map { ( $_ => 1 ) } qw(info warn error);
-    if ( not $valid_type{$type} ) {
-        $type = 'info';
-    }
-    $cp->notify_sys(
-        msg   => $msg,
-        title => 'Keep Awake',
-        type  => $type,
-        icon  => '@pkgdata@/dn-keep-awake.png',
-    );
-    return;
+# does:   it does stuff
+# params: $thing - for this [optional, default=grimm]
+# prints: nil
+# return: scalar boolean
+method my_method ($thing) {
 }
-
-MooseX::MakeImmutable->lock_down;
 
 1;
 
@@ -171,37 +144,47 @@ Config variables, and available settings.
 
 =head1 DEPENDENCIES
 
-=head2 Moose
+=over
 
-=head2 MooseX::App::Simple
+=item autodie
 
-=head2 namespace::autoclean
+=item Carp
 
-=head2 MooseX::MakeImmutable
+=item Dn::Common
 
-=head2 Moose::Util::TypeConstraints
+=item Dn::Menu
 
-=head2 MooseX::Getopt::Usage
+=item English
 
-=head2 Function::Parameters
+=item experimental
 
-=head2 Try::Tiny
+=item Function::Parameters
 
-=head2 autodie
+=item Moo
 
-=head2 English
+=item MooX::HandlesVia
 
-=head2 Carp
+=item namespace::clean
 
-=head2 Readonly
+=item Path::Tiny
 
-Modern perl features.
+=item Readonly
 
-=head2 Dn::Common
+=item strictures
 
-=head2 Dn::Menu
+=item Try::Tiny
 
-Provide utility methods.
+=item Types::Common::Numeric
+
+=item Types::Common::String
+
+=item Types::Path::Tiny
+
+=item Types::Standard
+
+=item version
+
+=back
 
 =head2 INCOMPATIBILITIES
 

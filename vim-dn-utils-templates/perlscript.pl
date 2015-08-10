@@ -1,6 +1,7 @@
 #!/usr/bin/perl 
 
-use Moose;
+use Moo;
+use strictures 2;
 use 5.014_002;
 use version; our $VERSION = qv('0.1');
 
@@ -8,30 +9,26 @@ use version; our $VERSION = qv('0.1');
 
     package Dn::Internal;
 
-    use Moose;
-    use MooseX::App::Simple qw(Color);    # requires exception on next line
-    use namespace::autoclean -except => ['new_with_options'];
-
-    #use namespace::autoclean;    # remove if using MooseX::App::Simple
-    use MooseX::MakeImmutable;
-    use Moose::Util::TypeConstraints;
-    use Function::Parameters;
-    use Try::Tiny;
+    use Moo;
+    use strictures 2;
+    use namespace::clean -except => [ '_options_data', '_options_config' ];
     use autodie qw(open close);
-    use English qw(-no_match_vars);
-    use Carp;
-    use Readonly;
+    use Carp qw(cluck confess);
     use Dn::Common;
-    my $cp = Dn::Common->new();
     use Dn::Menu;
-    use Cwd qw(abs_path);
+    use English qw(-no_match_vars);
+    use Function::Parameters;
+    use MooX::HandlesVia;
+    use MooX::Options;
+    use Path::Tiny;
+    use Readonly;
+    use Try::Tiny;
+    use Types::Common::Numeric qw(PositiveNum PositiveOrZeroNum SingleDigit);
+    use Types::Common::String qw(NonEmptySimpleString LowerCaseSimpleStr);
+    use Types::Standard qw(InstanceOf Int Str);
+    use Types::Path::Tiny qw(AbsDir AbsPath)
     use experimental 'switch';
-
-    with 'MooseX::Getopt::Usage';    # remove if using MooseX::App::Simple
-
-    sub getopt_usage_config {    # remove if using MooseX::App::Simple
-        return ( usage_sections => ['USAGE|OPTIONS|DESCRIPTION'] );
-    }
+    my $cp = Dn::Common->new();
 
     Readonly my $TRUE  => 1;
     Readonly my $FALSE => 0;
@@ -41,30 +38,24 @@ use version; our $VERSION = qv('0.1');
 
     # ATTRIBUTES
 
-    subtype 'FilePath' => as 'Str' => where { -f abs_path($_) } =>
-        message {qq[Invalid file '$_']};
-
-    parameter 'param' => (
+    option 'option' => (    # requires value
         is            => 'rw',
-        isa           => 'Str',
-        accessor      => '_param',
+        format        => 's',
         required      => $TRUE,
-        default       => 'default_value',
-        documentation => 'First parameter',
+        short         => 'o',
+        documentation => 'An option',
     );
 
-    option 'option' => (
+    option 'flag' => (    # flag (default format)
         is            => 'rw',
-        isa           => 'Bool',
-        default       => $FALSE,
-        reader        => '_option',
-        cmd_aliases   => [qw(o)],
-        documentation => 'Enable this to do fancy stuff',
+        required      => $FALSE,
+        short         => 'f',
+        documentation => 'A flag',
     );
 
     has '_attr_1' => (
         is            => 'ro',
-        isa           => 'Str',
+        isa           => Types::Standard::Str,
         required      => $TRUE,
         builder       => '_build_attr_1',
         documentation => 'Shown in usage',
@@ -74,26 +65,34 @@ use version; our $VERSION = qv('0.1');
         return My::App->new->get_value;
     }
 
-    has '_attr_2' => (
-        is            => 'ro',
-        isa           => 'Str',
-        default       => 'value',
-        documentation => 'Shown in usage',
+    has '_attr_2_list' => (
+        is  => 'rw',
+        isa => Types::Standard::ArrayRef [
+            Types::Standard::InstanceOf ['Config::Simple']
+        ],
+        lazy        => $TRUE,
+        default     => sub { [] },
+        handles_via => 'Array',
+        handles     => {
+            _attrs    => 'elements',
+            _add_attr => 'push',
+            _has_attr => 'count',
+        },
+        documentation => q{Array of values},
     );
 
     # attributes: _attr_3, _attr_4
     #             private, scalar integer
     has [ '_attr_3', '_attr_4' ] => (
         is  => 'rw',
-        isa => 'Int',
+        isa => Types::Standard::Int,
     );
 
     # attribute: _attr_5
     #            private, class
     has '_attr_5' => (
         is      => 'rw',
-        isa     => 'Net::DBus::RemoteObject',
-        traits  => ['NoGetOpts'],
+        isa     => Types::Standard::InstanceOf['Net::DBus::RemoteObject'],
         builder => '_build_attr_5',
     );
 
@@ -104,44 +103,16 @@ use version; our $VERSION = qv('0.1');
 
     # METHODS
 
-    #   method: notify($msg, $type = 'info')
+    # main()
     #
-    #   does:   display notification
-    #   params: msg  - message string
-    #                  (scalar, required)
-    #           type - message type
-    #                  (scalar, optional, default='info')
-    #                  (must be 'info'|'warn'|'error')
-    #   prints: nil
-    #   return: nil
-    method notify ( $msg, $type = 'info' ) {
-        my %valid_type = map { ( $_ => 1 ) } qw(info warn error);
-        if ( not $valid_type{$type} ) {
-            $type = 'info';
-        }
-        $cp->notify_sys(
-            msg   => $msg,
-            title => 'Keep Awake',
-            type  => $type,
-            icon  => '@pkgdata@/dn-keep-awake.png',
-        );
-        return;
-    }
-
-    #   main()
-    #
-    #   does:   main method
-    #   params: nil
-    #   prints: feedback
-    #   return: result
+    # does:   main method
+    # params: nil
+    # prints: feedback
+    # return: result
     method main () {
-                    # do stuff...
+        # do stuff...
     }
-
-    MooseX::MakeImmutable->lock_down;
 }
-
-# MAIN PACKAGE
 
 my $p = Dn::Internal->new_with_options->main;
 
@@ -194,39 +165,49 @@ May include numerous subsections (i.e., =head2, =head3, etc.).
 
 =head1 DEPENDENCIES
 
-=head2 Moose
+=over
 
-=head2 namespace::autoclean
+=item autodie
 
-=head2 Moose::Util::TypeConstraints
+=item Carp
 
-=head2 MooseX::Getopt::Usage
+=item Dn::Common
 
-=head2 MooseX::MakeImmutable
+=item Dn::Menu
 
-=head2 MooseX::App::Simple
+=item English
 
-=head2 Try::Tiny
+=item experimental
 
-=head2 autodie
+=item Function::Parameters
 
-=head2 English
+=item Moo
 
-=head2 Carp
+=item MooX::HandlesVia
 
-=head2 Function::Parameters
+=item MooX::Options
 
-=head2 Readonly
+=item namespace::clean
 
-Use modern perl features.
+=item Path::Tiny
 
-=head2 Dn::Common
+=item Readonly
 
-Utility methods.
+=item strictures
 
-=head2 Dn::Menu
+=item Try::Tiny
 
-Provides graphical and console menus.
+=item Types::Common::Numeric
+
+=item Types::Common::String
+
+=item Types::Path::Tiny
+
+=item Types::Standard
+
+=item version
+
+=back
 
 =head1 CONFIGURATION AND ENVIRONMENT
 

@@ -1,6 +1,6 @@
 package Dn::Package;
 
-use Moo;
+use Moo;    #                                                          {{{1
 use strictures 2;
 use 5.014_002;
 use version; our $VERSION = qv('0.1');
@@ -27,23 +27,25 @@ Readonly my $TRUE  => 1;
 Readonly my $FALSE => 0;
 
 # debug
-use Data::Dumper::Simple;
+use Data::Dumper::Simple;    #                                         }}}1
 
-# ATTRIBUTES
+# Attributes
 
-has '_attr_1' => (
+# has _attr                                                            {{{1
+has '_attr' => (
     is            => 'ro',
     isa           => Types::Standard::Str,
     required      => $TRUE,
-    builder       => '_build_attr_1',
-    documentation => 'Shown in usage',
+    builder       => '_build_attr',
+    documentation => 'Insert here',
 );
 
 method _build_attr_1 () {
     return My::App->new->get_value;
 }
 
-has '_attr_2_list' => (
+# has _attr_list                                                       {{{1
+has '_attr_list' => (
     is  => 'rw',
     isa => Types::Standard::ArrayRef [
         Types::Standard::InstanceOf ['Config::Simple']
@@ -57,41 +59,22 @@ has '_attr_2_list' => (
         _has_attr => 'count',
     },
     documentation => q{Array of values},
-);
+);    #                                                                }}}1
 
-# attributes: _attr_3, _attr_4
-#             private, scalar integer
-has [ '_attr_3', '_attr_4' ] => (
-    is  => 'rw',
-    isa => Types::Standard::Int,
-);
+# Methods
 
-# attribute: _attr_5
-#            private, class
-has '_attr_5' => (
-    is      => 'rw',
-    isa     => Types::Standard::InstanceOf['Net::DBus::RemoteObject'],
-    builder => '_build_attr_5',
-);
-
-method _build_attr_5 () {
-    return Net::DBus->session->get_service('org.freedesktop.ScreenSaver')
-        ->get_object('/org/freedesktop/ScreenSaver');
-}
-
-# METHODS
-
-# my_method($thing)
+# my_method($thing)                                                    {{{1
 #
 # does:   it does stuff
 # params: $thing - for this [optional, default=grimm]
 # prints: nil
 # return: scalar boolean
 method my_method ($thing) {
-}
+}    #                                                                 }}}1
 
 1;
 
+# POD                                                                  {{{1
 __END__
 
 =head1 NAME
@@ -107,7 +90,7 @@ My::Module - what I do
 
 Full description. May have subsections.
 
-=head1 SUBROUTINES/METHODS
+=head1 METHODS
 
 =head2 method1($param)
 
@@ -143,6 +126,8 @@ Config files and locations, and available settings.
 Config variables, and available settings.
 
 =head1 DEPENDENCIES
+
+=head2 Perl modules
 
 =over
 
@@ -186,6 +171,14 @@ Config variables, and available settings.
 
 =back
 
+=head2 Execuutables
+
+=over
+
+=item 
+
+=back
+
 =head2 INCOMPATIBILITIES
 
 Modules this one cannot be used with, and why.
@@ -206,3 +199,4 @@ This script is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
+# vim:fdm=marker

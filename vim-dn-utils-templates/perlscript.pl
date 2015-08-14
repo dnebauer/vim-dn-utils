@@ -1,15 +1,16 @@
 #!/usr/bin/perl 
 
-use Moo;
+use Moo;    #                                                          {{{1
 use strictures 2;
 use 5.014_002;
 use version; our $VERSION = qv('0.1');
+use namespace::clean;    #                                             }}}1
 
 {
 
     package Dn::Internal;
 
-    use Moo;
+    use Moo;                                                         # {{{1
     use strictures 2;
     use namespace::clean -except => [ '_options_data', '_options_config' ];
     use autodie qw(open close);
@@ -28,17 +29,19 @@ use version; our $VERSION = qv('0.1');
     use Types::Standard qw(InstanceOf Int Str);
     use Types::Path::Tiny qw(AbsDir AbsPath)
     use experimental 'switch';
+
     my $cp = Dn::Common->new();
 
     Readonly my $TRUE  => 1;
     Readonly my $FALSE => 0;
 
     # debug
-    use Data::Dumper::Simple;
+    use Data::Dumper::Simple;    #                                     }}}1
 
-    # ATTRIBUTES
+    # Options
 
-    option 'option' => (    # requires value
+    # option option (-o)                                               {{{1
+    option 'option' => (
         is            => 'rw',
         format        => 's',
         required      => $TRUE,
@@ -46,13 +49,17 @@ use version; our $VERSION = qv('0.1');
         documentation => 'An option',
     );
 
-    option 'flag' => (    # flag (default format)
+    # option flag   (-f)                                               {{{1
+    option 'flag' => (
         is            => 'rw',
         required      => $FALSE,
         short         => 'f',
         documentation => 'A flag',
-    );
+    );    #                                                            }}}1
 
+    # Attributes
+
+    # has _attr                                                        {{{1
     has '_attr_1' => (
         is            => 'ro',
         isa           => Types::Standard::Str,
@@ -65,6 +72,7 @@ use version; our $VERSION = qv('0.1');
         return My::App->new->get_value;
     }
 
+    # has _attr_list                                                   {{{1
     has '_attr_2_list' => (
         is  => 'rw',
         isa => Types::Standard::ArrayRef [
@@ -79,45 +87,37 @@ use version; our $VERSION = qv('0.1');
             _has_attr => 'count',
         },
         documentation => q{Array of values},
-    );
+    );    #                                                            }}}1
 
-    # attributes: _attr_3, _attr_4
-    #             private, scalar integer
-    has [ '_attr_3', '_attr_4' ] => (
-        is  => 'rw',
-        isa => Types::Standard::Int,
-    );
+    # Methods
 
-    # attribute: _attr_5
-    #            private, class
-    has '_attr_5' => (
-        is      => 'rw',
-        isa     => Types::Standard::InstanceOf['Net::DBus::RemoteObject'],
-        builder => '_build_attr_5',
-    );
-
-    method _build_attr_5 () {
-        return Net::DBus->session->get_service('org.freedesktop.ScreenSaver')
-            ->get_object('/org/freedesktop/ScreenSaver');
-    }
-
-    # METHODS
-
-    # main()
+    # main()                                                           {{{1
     #
     # does:   main method
     # params: nil
     # prints: feedback
-    # return: result
+    # return: n/a, dies on failure
     method main () {
         # do stuff...
     }
+
+    # _other()                                                         {{{1
+    #
+    # does:   something
+    # params: nil
+    # prints: nil, except error messages
+    # return: scalar string
+    method _other () {
+        # do more stuff...
+    }    #                                                             }}}1
+
 }
 
 my $p = Dn::Internal->new_with_options->main;
 
 1;
 
+# POD                                                                  {{{1
 __END__
 
 =head1 NAME
@@ -146,7 +146,7 @@ Required.
 
 =over
 
-=item B<o>
+=item B<-o>
 
 Flag. Whether to... Boolean.
 
@@ -164,6 +164,8 @@ A full description of the application and its features.
 May include numerous subsections (i.e., =head2, =head3, etc.).
 
 =head1 DEPENDENCIES
+
+=head2 Perl modules
 
 =over
 
@@ -209,7 +211,21 @@ May include numerous subsections (i.e., =head2, =head3, etc.).
 
 =back
 
+=head2 Executables
+
+=over
+
+=item 
+
+=back
+
 =head1 CONFIGURATION AND ENVIRONMENT
+
+=head2 Autostart
+
+To run this automatically at KDE5 (and possible other desktop environments) startup, place a symlink to the F<dn-konsole-su.desktop> file in a user's F<~/.config/autostart> directory. While this appears to be the preferred method, it is also possible to place a symlink to the F<dn-konsole-su> script in a user's F<~/.config/autostart-scripts> directory. (See L<KDE bug 338242|https://bugs.kde.org/show_bug.cgi?id=338242> for further details.)
+
+=head2 Configuration files
 
 System-wide configuration file provides details of...
 
@@ -237,3 +253,4 @@ This script is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
+# vim:fdm=marker

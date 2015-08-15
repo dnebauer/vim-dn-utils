@@ -148,7 +148,7 @@ Required.
 
 =item B<-o>
 
-Flag. Whether to . Boolean.
+Whether to . Boolean.
 
 Optional. Default: false.
 

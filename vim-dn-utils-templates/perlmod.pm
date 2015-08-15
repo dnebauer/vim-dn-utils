@@ -19,7 +19,7 @@ use Try::Tiny;
 use Types::Common::Numeric qw(PositiveNum PositiveOrZeroNum SingleDigit);
 use Types::Common::String qw(NonEmptySimpleString LowerCaseSimpleStr);
 use Types::Standard qw(InstanceOf Int Str);
-use Types::Path::Tiny qw(AbsDir AbsPath)
+use Types::Path::Tiny qw(AbsDir AbsPath);
 use experimental 'switch';
 my $cp = new Dn::Common;
 

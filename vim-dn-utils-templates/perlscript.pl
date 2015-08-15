@@ -148,9 +148,9 @@ Required.
 
 =item B<-o>
 
-Flag. Whether to... Boolean.
+Flag. Whether to . Boolean.
 
-Optional. Default=<false>.
+Optional. Default: false.
 
 =item B<-h>
 

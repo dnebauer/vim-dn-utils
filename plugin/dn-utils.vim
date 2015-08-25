@@ -41,15 +41,16 @@ let b:dn_help_data['vim_version_control'] = [
 let s:templates = {}
 " - templates expected to be found
 let s:expected_templates = {
-            \ 'configfile.rc' : 'configfile'  ,
-            \ 'Makefile.am'   : 'makefile.am' ,
-            \ 'manpage.1'     : 'manpage'     ,
-            \ 'markdown.md'   : 'markdown'    ,
-            \ 'perlmod.pm'    : 'perlmod'     ,
-            \ 'perlscript.pl' : 'perlscript'  ,
-            \ 'shellscript.sh': 'shellscript' ,
-            \ 'template.html' : 'html'        ,
-            \ 'template.xhtml': 'xhtml'       ,
+            \ 'configfile.rc'    : 'configfile'  ,
+            \ 'Makefile.am'      : 'makefile.am' ,
+            \ 'manpage.1'        : 'manpage'     ,
+            \ 'markdown.md'      : 'markdown'    ,
+            \ 'perlmod.pm'       : 'perlmod'     ,
+            \ 'perlscript.pl'    : 'perlscript'  ,
+            \ 'shellscript.sh'   : 'shellscript' ,
+            \ 'template.desktop' : 'desktop'     ,
+            \ 'template.html'    : 'html'        ,
+            \ 'template.xhtml'   : 'xhtml'       ,
             \ }                                                    " }}}2
 
 " 3.  FUNCTIONS                                                      {{{1

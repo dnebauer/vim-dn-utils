@@ -19,6 +19,7 @@ use namespace::clean;    #                                             }}}1
     use Dn::Menu;
     use English qw(-no_match_vars);
     use Function::Parameters;
+    use Getopt::Long::Descriptive qw(describe_options);
     use MooX::HandlesVia;
     use MooX::Options;
     use Path::Tiny;
@@ -99,6 +100,21 @@ use namespace::clean;    #                                             }}}1
     # return: n/a, dies on failure
     method main () {
         # do stuff...
+    }
+
+    # _help                                                            {{{1
+    #
+    # does:   if help is requested, display it and exit
+    #
+    # params: nil
+    # prints: help message if requested
+    # return: n/a, exits after displaying help
+    method _help () {
+        my ($opt, $usage) = Getopt::Long::Descriptive::describe_options(
+            'dn-show-time %o',
+            [ 'help|h', 'print usage message and exit' ],
+        );
+        print($usage->text), exit if $opt->help;
     }
 
     # _other()                                                         {{{1

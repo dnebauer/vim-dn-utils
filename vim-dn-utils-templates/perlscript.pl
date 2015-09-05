@@ -60,7 +60,7 @@ use namespace::clean;    #                                             }}}1
 
     # Attributes
 
-    # has _attr                                                        {{{1
+    # _attr                                                            {{{1
     has '_attr_1' => (
         is            => 'ro',
         isa           => Types::Standard::Str,
@@ -73,7 +73,7 @@ use namespace::clean;    #                                             }}}1
         return My::App->new->get_value;
     }
 
-    # has _attr_list                                                   {{{1
+    # _attr_list                                                       {{{1
     has '_attr_2_list' => (
         is  => 'rw',
         isa => Types::Standard::ArrayRef [

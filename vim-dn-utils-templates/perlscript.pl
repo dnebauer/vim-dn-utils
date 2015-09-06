@@ -99,7 +99,6 @@ use namespace::clean;    #                                             }}}1
     # prints: feedback
     # return: n/a, dies on failure
     method main () {
-        # do stuff...
     }
 
     # _help                                                            {{{1
@@ -124,7 +123,6 @@ use namespace::clean;    #                                             }}}1
     # prints: nil, except error messages
     # return: scalar string
     method _other () {
-        # do more stuff...
     }    #                                                             }}}1
 
 }

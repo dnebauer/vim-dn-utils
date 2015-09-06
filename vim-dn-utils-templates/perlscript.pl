@@ -39,9 +39,9 @@ use namespace::clean;    #                                             }}}1
     # debug
     use Data::Dumper::Simple;    #                                     }}}1
 
-    # Options
+    # options
 
-    # option option (-o)                                               {{{1
+    # option (-o)                                                      {{{1
     option 'option' => (
         is            => 'rw',
         format        => 's',
@@ -50,7 +50,7 @@ use namespace::clean;    #                                             }}}1
         documentation => 'An option',
     );
 
-    # option flag   (-f)                                               {{{1
+    # flag   (-f)                                                      {{{1
     option 'flag' => (
         is            => 'rw',
         required      => $FALSE,
@@ -58,7 +58,7 @@ use namespace::clean;    #                                             }}}1
         documentation => 'A flag',
     );    #                                                            }}}1
 
-    # Attributes
+    # attributes
 
     # _attr                                                            {{{1
     has '_attr_1' => (
@@ -90,7 +90,7 @@ use namespace::clean;    #                                             }}}1
         documentation => q{Array of values},
     );    #                                                            }}}1
 
-    # Methods
+    # methods
 
     # main()                                                           {{{1
     #

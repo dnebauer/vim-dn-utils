@@ -2,7 +2,8 @@
 
 use Moo;    #                                                          {{{1
 use strictures 2;
-use 5.014_002;
+use 5.006;
+use v5.22.1;
 use version; our $VERSION = qv('0.1');
 use namespace::clean;    #                                             }}}1
 
@@ -14,7 +15,7 @@ use namespace::clean;    #                                             }}}1
     use strictures 2;
     use namespace::clean -except => [ '_options_data', '_options_config' ];
     use autodie qw(open close);
-    use Carp qw(cluck confess);
+    use Carp qw(confess);
     use Dn::Common;
     use Dn::Menu;
     use English qw(-no_match_vars);
@@ -25,10 +26,7 @@ use namespace::clean;    #                                             }}}1
     use Path::Tiny;
     use Readonly;
     use Try::Tiny;
-    use Types::Common::Numeric qw(PositiveNum PositiveOrZeroNum SingleDigit);
-    use Types::Common::String qw(NonEmptySimpleString LowerCaseSimpleStr);
-    use Types::Standard qw(InstanceOf Int Str);
-    use Types::Path::Tiny qw(AbsDir AbsPath);
+    use Types::Standard;
     use experimental 'switch';
 
     my $cp = Dn::Common->new();
@@ -43,7 +41,7 @@ use namespace::clean;    #                                             }}}1
 
     # option (-o)                                                      {{{1
     option 'option' => (
-        is            => 'rw',
+        is            => 'ro',
         format        => 's',
         required      => $TRUE,
         short         => 'o',
@@ -52,8 +50,7 @@ use namespace::clean;    #                                             }}}1
 
     # flag   (-f)                                                      {{{1
     option 'flag' => (
-        is            => 'rw',
-        required      => $FALSE,
+        is            => 'ro',
         short         => 'f',
         documentation => 'A flag',
     );    #                                                            }}}1
@@ -62,14 +59,12 @@ use namespace::clean;    #                                             }}}1
 
     # _attr                                                            {{{1
     has '_attr_1' => (
-        is            => 'ro',
+        is            => 'lazy',
         isa           => Types::Standard::Str,
-        required      => $TRUE,
-        builder       => '_build_attr_1',
         documentation => 'Shown in usage',
     );
 
-    method _build_attr_1 () {
+    method _build__attr_1 () {
         return My::App->new->get_value;
     }
 
@@ -87,7 +82,7 @@ use namespace::clean;    #                                             }}}1
             _add_attr => 'push',
             _has_attr => 'count',
         },
-        documentation => q{Array of values},
+        documentation => 'Array of values',
     );    #                                                            }}}1
 
     # methods
@@ -101,7 +96,7 @@ use namespace::clean;    #                                             }}}1
     method main () {
     }
 
-    # _help                                                            {{{1
+    # _help()                                                          {{{1
     #
     # does:   if help is requested, display it and exit
     #
@@ -114,6 +109,8 @@ use namespace::clean;    #                                             }}}1
             [ 'help|h', 'print usage message and exit' ],
         );
         print($usage->text), exit if $opt->help;
+
+        return;
     }
 
     # _other()                                                         {{{1
@@ -122,6 +119,7 @@ use namespace::clean;    #                                             }}}1
     # params: nil
     # prints: nil, except error messages
     # return: scalar string
+    #         dies on failure
     method _other () {
     }    #                                                             }}}1
 
@@ -140,7 +138,7 @@ myscript - does stuff ...
 
 =head1 USAGE
 
-B<myscript param> [ I<-o> ]
+B<myscript param> [ B<-o> ]
 
 B<myscript -h>
 
@@ -150,9 +148,21 @@ B<myscript -h>
 
 =item B<param>
 
-Does... String.
+Does...
 
-Required.
+Scalar string. Required.
+
+=back
+
+=head1 REQUIRED OPTIONS
+
+=over
+
+=item B<-o>  B<--option>
+
+Does...
+
+Scalar string. Required.
 
 =back
 
@@ -160,11 +170,11 @@ Required.
 
 =over
 
-=item B<-o>
+=item B<-o>  B<--option>
 
-Whether to . Boolean.
+Whether to .
 
-Optional. Default: false.
+Boolean. Optional. Default: false.
 
 =item B<-h>
 
@@ -177,61 +187,24 @@ Display help and exit.
 A full description of the application and its features.
 May include numerous subsections (i.e., =head2, =head3, etc.).
 
+=head1 DIAGNOSTICS
+
+Supposedly a listing of every error and warning message
+that the module can generate (even the ones that will
+"never happen"), with a full explanation of each problem,
+one or more likely causes, and any suggested remedies.
+
+Really?
+
 =head1 DEPENDENCIES
 
 =head2 Perl modules
 
-=over
-
-=item autodie
-
-=item Carp
-
-=item Dn::Common
-
-=item Dn::Menu
-
-=item English
-
-=item experimental
-
-=item Function::Parameters
-
-=item Moo
-
-=item MooX::HandlesVia
-
-=item MooX::Options
-
-=item namespace::clean
-
-=item Path::Tiny
-
-=item Readonly
-
-=item strictures
-
-=item Try::Tiny
-
-=item Types::Common::Numeric
-
-=item Types::Common::String
-
-=item Types::Path::Tiny
-
-=item Types::Standard
-
-=item version
-
-=back
+autodie, Carp, Dn::Common, Dn::Menu, English, experimental, Function::Parameters, Moo, MooX::HandlesVia, MooX::Options, namespace::clean, Path::Tiny, Readonly, strictures, Try::Tiny, Types::Common::Numeric, Types::Common::String, Types::Path::Tiny, Types::Standard, version.
 
 =head2 Executables
 
-=over
-
-=item 
-
-=back
+wget.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -261,7 +234,7 @@ David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2015 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
+Copyright (c) 2016 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
 This script is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

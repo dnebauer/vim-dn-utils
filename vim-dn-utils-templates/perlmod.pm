@@ -2,7 +2,8 @@ package Dn::Package;
 
 use Moo;    #                                                          {{{1
 use strictures 2;
-use 5.014_002;
+use 5.006;
+use v5.22.1;
 use version; our $VERSION = qv('0.1');
 use namespace::clean;
 
@@ -16,13 +17,10 @@ use MooX::HandlesVia;
 use Path::Tiny;
 use Readonly;
 use Try::Tiny;
-use Types::Common::Numeric qw(PositiveNum PositiveOrZeroNum SingleDigit);
-use Types::Common::String qw(NonEmptySimpleString LowerCaseSimpleStr);
-use Types::Standard qw(InstanceOf Int Str);
-use Types::Path::Tiny qw(AbsDir AbsPath);
+use Types::Standard;
 use experimental 'switch';
-my $cp = new Dn::Common;
 
+my $cp = Dn::Common->new();
 Readonly my $TRUE  => 1;
 Readonly my $FALSE => 0;
 
@@ -31,16 +29,14 @@ use Data::Dumper::Simple;    #                                         }}}1
 
 # Attributes
 
-# has _attr                                                            {{{1
-has '_attr' => (
-    is            => 'ro',
+# has _attr_1                                                          {{{1
+has '_attr_1' => (
+    is            => 'lazy',
     isa           => Types::Standard::Str,
-    required      => $TRUE,
-    builder       => '_build_attr',
     documentation => 'Insert here',
 );
 
-method _build_attr_1 () {
+method _build__attr_1 () {
     return My::App->new->get_value;
 }
 
@@ -58,7 +54,7 @@ has '_attr_list' => (
         _add_attr => 'push',
         _has_attr => 'count',
     },
-    documentation => q{Array of values},
+    documentation => 'Array of values',
 );    #                                                                }}}1
 
 # Methods
@@ -89,6 +85,14 @@ My::Module - what I do
 =head1 DESCRIPTION
 
 Full description. May have subsections.
+
+=head1 ATTRIBUTES
+
+=head2 attr_1
+
+Does stuff...
+
+Scalar string. Required.
 
 =head1 METHODS
 
@@ -129,55 +133,13 @@ Config variables, and available settings.
 
 =head2 Perl modules
 
-=over
-
-=item autodie
-
-=item Carp
-
-=item Dn::Common
-
-=item Dn::Menu
-
-=item English
-
-=item experimental
-
-=item Function::Parameters
-
-=item Moo
-
-=item MooX::HandlesVia
-
-=item namespace::clean
-
-=item Path::Tiny
-
-=item Readonly
-
-=item strictures
-
-=item Try::Tiny
-
-=item Types::Common::Numeric
-
-=item Types::Common::String
-
-=item Types::Path::Tiny
-
-=item Types::Standard
-
-=item version
+autodie, Carp, Dn::Common, Dn::Menu, English, experimental, Function::Parameters, Moo, MooX::HandlesVia, namespace::clean, Path::Tiny, Readonly, strictures, Try::Tiny, Types::Common::Numeric, Types::Common::String, Types::Path::Tiny, Types::Standard, version.
 
 =back
 
-=head2 Execuutables
+=head2 Executables
 
-=over
-
-=item 
-
-=back
+wget.
 
 =head2 INCOMPATIBILITIES
 
@@ -193,7 +155,7 @@ David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2015 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
+Copyright (c) 2016 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
 This script is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

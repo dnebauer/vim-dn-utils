@@ -3,7 +3,7 @@
 use Moo;    #                                                          {{{1
 use strictures 2;
 use 5.006;
-use v5.22.1;
+use 5.22.1;
 use version; our $VERSION = qv('0.1');
 use namespace::clean;    #                                             }}}1
 

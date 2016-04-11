@@ -8,28 +8,43 @@ use version; our $VERSION = qv('0.1');
 use namespace::clean;
 
 use autodie qw(open close);
-use Carp;
+use Carp qw(confess);
 use Dn::Common;
+use Dn::InteractiveIO;
 use Dn::Menu;
 use English qw(-no_match_vars);
 use Function::Parameters;
 use MooX::HandlesVia;
 use Path::Tiny;
 use Readonly;
+use Sys::Syslog qw(:DEFAULT setlogsock);
 use Try::Tiny;
 use Types::Standard;
 use experimental 'switch';
 
-my $cp = Dn::Common->new();
 Readonly my $TRUE  => 1;
 Readonly my $FALSE => 0;
+my $cp = Dn::Common->new();
+my $io = Dn::InteractiveIO->new;
+Sys::Syslog::openlog( 'ident', 'user' );    #                        }}}1
+        # ident is prepended to every message - adapt to module
+        # user is the most commonly used facility - leave as is
 
 # debug
-use Data::Dumper::Simple;    #                                         }}}1
+use Data::Dumper::Simple;
 
-# Attributes
+# attributes
 
-# has _attr_1                                                          {{{1
+# log                                                                  {{{1
+has 'log' => (
+    is            => 'ro',
+    isa           => Types::Standard::Bool,
+    required      => $FALSE,
+    default       => $FALSE,
+    documentation => 'Whether to write status messages to system log',
+);
+
+# _attr_1                                                              {{{1
 has '_attr_1' => (
     is            => 'lazy',
     isa           => Types::Standard::Str,
@@ -40,7 +55,7 @@ method _build__attr_1 () {
     return My::App->new->get_value;
 }
 
-# has _attr_list                                                       {{{1
+# _attr_list                                                       ____{{{1
 has '_attr_list' => (
     is  => 'rw',
     isa => Types::Standard::ArrayRef [
@@ -57,7 +72,7 @@ has '_attr_list' => (
     documentation => 'Array of values',
 );    #                                                                }}}1
 
-# Methods
+# methods
 
 # my_method($thing)                                                    {{{1
 #
@@ -66,7 +81,69 @@ has '_attr_list' => (
 # prints: nil
 # return: scalar boolean
 method my_method ($thing) {
+    $io->say('This is feedback');
+}
+
+# _log($msg, [$type])                                              {{{1
+#
+# does:   log message if logging
+# params: $msg  - message [scalar string, optional, no default]
+#         $type - message type [scalar string, optional, default=INFO]
+#                 can be EMERG|ALERT|CRIT|ERR|WARNING|NOTICE|INFO|DEBUG
+# prints: nil
+# return: n/a, dies on failure
+# note:   appends most recent system error message for message types
+#         EMERG, ALERT, CRIT and ERR
+method _log ($msg, $type) {
+
+    # only log if logging
+    return if not $self->log;
+
+    # check params
+    return if not defined $msg;
+    if ( not $type ) { $type = 'INFO'; }
+    my %valid_type = map { ( $_ => $TRUE ) }
+        qw(EMERG ALERT CRIT ERR WARNING NOTICE INFO DEBUG);
+    if ( not $valid_type{$type} ) { $self->_fail("Invalid type '$type'"); }
+
+    # display system error message for serious message types
+    my %error_type = map { ( $_ => $TRUE ) } qw(EMERG ALERT CRIT ERR);
+    if ( $error_type{$type} ) { $msg .= ': %m'; }
+
+    # log message
+    Sys::Syslog::syslog( $type, $msg );
+
+    return;
+}
+
+# _fail($err)                                                          {{{1
+#
+# does:   print stack trace if interactive, log message if logging,
+#         and exit with error status
+#
+# params: $err - error message [scalar string, required]
+# prints: error message
+# return: n/a, dies on completion
+method _fail ($err) {
+
+    # log error message (if logging)
+    $self->_log( $err, 'ERR' );
+
+    # exit with failure status, printing stack trace if interactive
+    if   ( $io->interactive ) { confess $err; }
+    else                      { exit 1; }
+}
+
+# _other($err)                                                         {{{1
+#
+# does:   do the other thing
+#
+# params: nil
+# prints: error message
+# return: n/a, dies on completion
+method _other () {
 }    #                                                                 }}}1
+
 
 1;
 
@@ -133,7 +210,7 @@ Config variables, and available settings.
 
 =head2 Perl modules
 
-autodie, Carp, Dn::Common, Dn::Menu, English, experimental, Function::Parameters, Moo, MooX::HandlesVia, namespace::clean, Path::Tiny, Readonly, strictures, Try::Tiny, Types::Common::Numeric, Types::Common::String, Types::Path::Tiny, Types::Standard, version.
+autodie, Carp, Dn::InteractiveIO, Dn::Common, Dn::Menu, English, experimental, Function::Parameters, Moo, MooX::HandlesVia, namespace::clean, Path::Tiny, Readonly, Sys::Syslog, strictures, Try::Tiny, Types::Common::Numeric, Types::Common::String, Types::Path::Tiny, Types::Standard, version.
 
 =back
 

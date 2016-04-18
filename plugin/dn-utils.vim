@@ -5,8 +5,8 @@
 
 " _1.  CONTROL STATEMENTS                                            {{{1
 " Only do this when not done yet for this buffer                     {{{2
-if exists("b:do_not_load_dn_utils") | finish | endif
-let b:do_not_load_dn_utils = 1                                     " }}}2
+if exists("b:loaded_dn_utils") | finish | endif
+let b:loaded_dn_utils = 1                                          " }}}2
 " Use default cpoptions                                              {{{2
 " - avoids unpleasantness from customised 'compatible' settings
 let s:save_cpo = &cpo

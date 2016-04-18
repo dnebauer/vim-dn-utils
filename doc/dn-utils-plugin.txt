@@ -1,11 +1,11 @@
-*dn-utils-plugin.txt*    For Vim version 7.3        Last changed: 2013 May 01
+*dn-utils-plugin.txt*	For Vim version 7.3	Last changed: 2016 April 18
 
 Plugin supplies Dn library of vim utilities               *dn-utils-plugin*
                                                                *DNU_plugin*
 Dn Utilities Plugin                                          *vim-dn-utils*
 -------------------------------------------------------------------------
                                                         *dn-utils-contents*
-1. Contents
+1. Contents~
 
      1. Contents .......................... |dn-utils-contents|
      2. Overview .......................... |dn-utils-overview|
@@ -23,7 +23,7 @@ Dn Utilities Plugin                                          *vim-dn-utils*
     14. Miscellaneous mappings ............ |dn-utils-mappings|
 -------------------------------------------------------------------------
                                                         *dn-utils-overview*
-2. Overview
+2. Overview~
 
 A plugin to provide useful generic functions. It is intended to be available
 to all files being edited.
@@ -37,7 +37,7 @@ to try and avoid namespace collisions.
 Some mappings and autocommands are also provided.
 -------------------------------------------------------------------------
                                                        *dn-utils-variables*
-3. Variables
+3. Variables~
 
 The plugin provides some useful convenience variables that can be used by other
 plugins.
@@ -52,7 +52,7 @@ The extensible help system relies on buffer Dictionary variables
 b:dn_help_plugins, b:dn_help_topics and b:dn_help_data.
 -------------------------------------------------------------------------
                                                        *dn-utils-templates*
-4. Template functions
+4. Template functions~
 
 This utility provides templates that can be loaded into new files, or
 inserted into empty existing files.
@@ -102,10 +102,10 @@ DNU_LoadTemplate(template_key)
     note:    designed for use with autocommands triggered by the
              BufNewFile event
     usage:   here is how this function might be used in a vim
-             configuration file:
+             configuration file:>
                  au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
                 
-                                                       *DNU-InsertTemplate*
+<                                                      *DNU-InsertTemplate*
 DNU_InsertTemplate(template_key)
     purpose: insert template file into current buffer
     params:  1 - template file key <required> [string]
@@ -117,11 +117,11 @@ DNU_InsertTemplate(template_key)
     note:    designed for use with autocommands triggered by the
              BufRead event
     usage:   here is how this function might be used in a vim
-             configuration file:
+             configuration file:>
                  au BufRead *.[0-9] call DNU_InsertTemplate('manpage')
 -------------------------------------------------------------------------
                                                            *dn-utils-dates*
-5. Date functions
+5. Date functions~
 
 A series of functions that manipulate dates.
 
@@ -163,7 +163,7 @@ DNU_DayOfWeek(int, int, int)
     return:  name of weekday [string]
 -------------------------------------------------------------------------
                                       *dn-utils-files* *dn-utils-directories*
-6. File/directory functions
+6. File/directory functions~
 
 These are functions that manipulate files and directories.
 
@@ -203,7 +203,7 @@ DNU_GetRtpDir(dir, [allow_multiples])
              if allow multiples, return list (even if only one match)
 -------------------------------------------------------------------------
                                                 *dn-utils-user-interaction*
-7. User interactive functions
+7. User interactive functions~
 
 These are functions that interact with users.
 
@@ -332,7 +332,7 @@ This function is mapped by default to '<LocalLeader>hh', usually '\hh', in both
 Insert and Normal modes.
 -------------------------------------------------------------------------
                                                            *dn-utils-lists*
-8. List functions
+8. List functions~
 
 While vim provides a good suite of list functions there are some
 operations that are not supported.
@@ -381,7 +381,7 @@ DNU_ListToScreenColumns(list, [text_width], [column_width], [indent])
     return:  formatted display [string]
 -------------------------------------------------------------------------
                                                      *dn-utils-programming*
-9. Programming functions
+9. Programming functions~
 
 These are utility functions that aid programming.
 
@@ -404,9 +404,17 @@ DNU_InsertMode([skip])
              called from insert mode; in such cases it will usually be
              invoked with one right skip to compensate for the left skip
              that occured when initially escaping from insert mode
+
+                                                  *DNU-ExecuteShellCommand*
+DNU_ExecuteShellCommand(cmd, [msg])
+    purpose: execute shell command
+    params:  1 - shell command <required> [string]
+             2 - error message <default='Error occured:'> <optional> [List]
+    insert:  nil
+    return:  return status of command as vim boolean [boolean]
 -------------------------------------------------------------------------
                                                              *dn-utils-vcs*
-10. Version control functions
+10. Version control functions~
 
 These functions enable version control from within vim.
 
@@ -426,7 +434,7 @@ This function is mapped by default to '<LocalLeader>git', usually '\git', in
 both Insert and Normal modes.
 -------------------------------------------------------------------------
                                                          *dn-utils-strings*
-11. String functions
+11. String functions~
 
 These functions manipulate strings.
 
@@ -442,13 +450,14 @@ DNU_InsertString(text, [restrict])
     params:  1 - text for insertion <required> [string]
              2 - use 'paste' setting <default=true> <optional> [boolean]
     return:  nil
-    usage:   function! doSomething(...)
+    usage:>
+            function! doSomething(...)
                  let l:insert = (a:0 > 0 && a:1) ? 1 : 0
                  ...
                  call DNU_InsertString(l:string)
                  if l:insert | call DNU_InsertMode() | endif
              endfunction
-
+<
                                                              *DNU-TrimChar*
 DNU_TrimChar(text, [char])
     purpose: removes leading and trailing chars from string
@@ -554,7 +563,7 @@ This subsidiary function is used by the header-related function just described:
     s:headerCapsEngine(string, type)
 -------------------------------------------------------------------------
                                                          *dn-utils-numbers*
-12. Number functions
+12. Number functions~
 
 These functions manipulate numbers.
 
@@ -567,7 +576,7 @@ DNU_ValidPosInt(int)
     note:    zero is not a positive integer
 -------------------------------------------------------------------------
                                                             *dn-utils-misc*
-13. Miscellaneous functions
+13. Miscellaneous functions~
 
 Functions that cannot be placed in any other category.
 
@@ -616,7 +625,7 @@ DNU_TestFn()
     return:  varies
 -------------------------------------------------------------------------
                                                         *dn-utils-mappings*
-14. Miscellaneous mappings
+14. Miscellaneous mappings~
 
 Mappings not associated with functions.
 
@@ -632,4 +641,4 @@ Initial capitals
 This functionality is mapped by default to '<LocalLeader>ic', usually
 '\ic', in Insert, Normal and Visual modes.
 -------------------------------------------------------------------------
- vim:tw=78:fo=tcq2:ts=4:ft=help:
+ vim:tw=78:ts=8:ft=help:norl:

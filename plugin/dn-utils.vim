@@ -1250,6 +1250,37 @@ function! DNU_InsertMode(...)
 	else                                | startinsert  " =~ 'i'
 	endif
 endfunction                                                        " }}}3
+" Function: DNU_ExecuteShellCommand                                  {{{3
+" Purpose:  execute shell command
+" Params:   1 - shell command [required, string]
+"           2 - error message [optional, List, default='Error occured:']
+" Prints:   if error display user error message and shell feedback
+" Return:   return status of command as vim boolean
+function! DNU_ExecuteShellCommand(cmd, ...)
+	echo '' | " clear command line
+    " variables
+    if a:0 > 0
+        let l:errmsg = a:1
+    else
+        let l:errmsg = ['Error occurred:']
+    endif
+    " run command
+    let l:shell_feedback = system(a:cmd)
+    " if failed display error message and shell feedback
+    if v:shell_error
+        echo ' ' |    " previous output was echon
+        for l:line in l:errmsg
+            call DNU_Error(l:line)
+        endfor
+        echo '--------------------------------------'
+        echo l:shell_feedback
+        echo '--------------------------------------'
+        return b:dn_false
+    else
+        return b:dn_true
+    endif
+endfunction                                                        " }}}3
+" ------------------------------------------------------------------------
 
 " 3.7  Version control                                               {{{2
 " Functions related to version control

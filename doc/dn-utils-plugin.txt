@@ -540,6 +540,14 @@ DNU_PadInternal(string, start, target, [char])
              echo l:string1  " Column Twenty     & Column Twenty One
              echo l:string2  " Column Twenty Two & Column Twenty Three
 
+                                                   *DNU-GlobalSubstitution*
+DNU_GlobalSubstitution(pattern, substitution)
+    purpose: perform global substitution in file
+    params:  1 - pattern <required> [string]
+             2 - substitution <required> [string]
+    insert:  nil
+    return:  nil
+
                                                      *DNU-ChangeHeaderCaps*
 DNU_ChangeHeaderCaps(mode)
     purpose: changes capitalisation of line or visual selection

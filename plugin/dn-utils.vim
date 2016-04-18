@@ -65,18 +65,18 @@ let s:expected_templates = {
 "              au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
 function! DNU_LoadTemplate(key)
 	" load script templates variable with available template files
-    call s:index_templates()
+    call s:indexTemplates()
     " get template file
-    let l:template = s:template_filepath(a:key)
+    let l:template = s:templateFilepath(a:key)
     if l:template == '' | return | endif
     " insert template file
     call append(0, readfile(l:template))
     " perform substitutions
-    call s:template_substitutions()
+    call s:templateSubstitutions()
     " detect filetype 
     execute ':filetype detect'
     " goto start token, delete it and enter insert mode
-    call s:template_goto_start()
+    call s:templateGotoStart()
 endfunction                                                        " }}}3
 " Function: DNU_InsertTemplate                                       {{{3
 " Purpose:  insert template file
@@ -93,12 +93,12 @@ function! DNU_InsertTemplate(key)
         call DNU_LoadTemplate(a:key)
     endif
 endfunction                                                        " }}}3
-" Function: s:index_templates                                        {{{3
+" Function: s:indexTemplates                                         {{{3
 " Purpose:  index template files in variable s:templates
 " Prints:   nil
 " Params:   nil
 " Return:   boolean (indicating outcome)
-function! s:index_templates()
+function! s:indexTemplates()
 	" variables
     let s:templates = {}
     let l:missing = deepcopy(s:expected_templates)
@@ -161,14 +161,14 @@ function! s:index_templates()
     endif
     call DNU_Error(l:err)
 endfunction                                                        " }}}3
-" Function: s:template_filepath                                      {{{3
+" Function: s:templateFilepath                                       {{{3
 " Purpose:  get template filepath
 " Prints:   error feedback
 " Params:   1 - template key (corresponds to s:templates keys)
 " Return:   template filepath ('' if none found)
 " Note:     relies on populated variable s:template
-"           run function 's:index_templates' before this function
-function! s:template_filepath(key)
+"           run function 's:indexTemplates' before this function
+function! s:templateFilepath(key)
     if has_key(s:templates, a:key)
         let l:templates = s:templates[a:key]
         if len(l:templates) == 0
@@ -189,7 +189,7 @@ function! s:template_filepath(key)
     endif
     return l:template
 endfunction                                                        " }}}3
-" Function: s:template_substitutions                                 {{{3
+" Function: s:templateSubstitutions                                  {{{3
 " Purpose:  perform substitutions on tokens in template
 " Prints:   error feedback
 " Params:   nil
@@ -204,20 +204,20 @@ endfunction                                                        " }}}3
 "           <TITLE_NAME>     -> manpage title name,
 "                               use file basename in initial caps
 "           <START>          -> where to start editing
-function! s:template_substitutions()
+function! s:templateSubstitutions()
     " <FILENAME> -> file name
     let l:filename = expand('%')
-    call s:global_substitution('<FILENAME>', l:filename)
+    call DNU_GlobalSubstitution('<FILENAME>', l:filename)
     " <BASENAME> -> file basename
     let l:basename = strpart(l:filename, 0, stridx(l:filename, '.'))
-    call s:global_substitution('<BASENAME>', l:basename)
+    call DNU_GlobalSubstitution('<BASENAME>', l:basename)
     " <NAME> -> use file basename
-    call s:global_substitution('<NAME>', l:basename)
+    call DNU_GlobalSubstitution('<NAME>', l:basename)
     " <DATE> -> yyyy-mm-dd
     let l:date = strftime('%Y-%m-%d')
-    call s:global_substitution('<DATE>', l:date)
+    call DNU_GlobalSubstitution('<DATE>', l:date)
     " <HEADER_NAME> -> manpage header, use file basename
-    call s:global_substitution('<HEADER_NAME>', l:basename)
+    call DNU_GlobalSubstitution('<HEADER_NAME>', l:basename)
     " <HEADER_SECTION> -> manpage section, use file extension
     let l:got_section = b:dn_false
     let l:ext = ''    " intentional non-numeric value
@@ -231,36 +231,18 @@ function! s:template_substitutions()
         let l:remnant = fnamemodify(l:remnant, ':r')
     endwhile
     if l:got_section
-        call s:global_substitution('<HEADER_SECTION>', l:ext)
+        call DNU_GlobalSubstitution('<HEADER_SECTION>', l:ext)
     endif
     " <TITLE_NAME> -> use file basename in initial caps
     let l:title = substitute(l:basename, '\v<(.)(\w*)>', '\u\1\L\2', 'g')
-    call s:global_substitution('<TITLE_NAME>', l:title)
+    call DNU_GlobalSubstitution('<TITLE_NAME>', l:title)
 endfunction                                                        " }}}3
-" Function: s:global_substitution                                    {{{3
-" Purpose:  perform global substitution in file
-" Prints:   nil
-" Params:   1 - pattern
-"           2 - substitution
-" Return:   nil
-function! s:global_substitution(pattern, substitute)
-    call setpos('.', [0, 1, 1, 0])
-    let l:line_num = search(a:pattern, 'nW')
-    while l:line_num > 0
-        let l:line = getline(l:line_num)
-        let l:new_line = substitute(l:line, a:pattern, a:substitute, 'g')
-        if l:new_line != l:line
-            call setline(l:line_num, l:new_line)
-        endif
-        let l:line_num = search(a:pattern, 'nW')
-    endwhile
-endfunction                                                        " }}}3
-" Function: s:template_goto_start                                    {{{3
+" Function: s:templateGotoStart                                      {{{3
 " Purpose:  goto start token in file, delete it and enter insert mode
 " Prints:   nil
 " Params:   nil
 " Return:   nil
-function! s:template_goto_start()
+function! s:templateGotoStart()
     call setpos('.', [0, 1, 1, 0])
     let l:pattern = '<START>'
     let [l:line_num, l:col] = searchpos(l:pattern, 'nW')
@@ -1600,6 +1582,24 @@ function! DNU_PadInternal(string, start, target, ...)
     return strpart(a:string, 0, a:start) 
                 \ . l:pad 
                 \ . strpart(a:string, a:start)
+endfunction                                                        " }}}3
+" Function: DNU_GlobalSubstitution                                   {{{3
+" Purpose:  perform global substitution in file
+" Insert:   nil
+" Params:   1 - pattern
+"           2 - substitution
+" Return:   nil
+function! DNU_GlobalSubstitution(pattern, substitute)
+    call setpos('.', [0, 1, 1, 0])
+    let l:line_num = search(a:pattern, 'nW')
+    while l:line_num > 0
+        let l:line = getline(l:line_num)
+        let l:new_line = substitute(l:line, a:pattern, a:substitute, 'g')
+        if l:new_line != l:line
+            call setline(l:line_num, l:new_line)
+        endif
+        let l:line_num = search(a:pattern, 'nW')
+    endwhile
 endfunction                                                        " }}}3
 " Function: DNU_ChangeHeaderCaps                                     {{{3
 " Purpose:  changes capitalisation of line or visual selection

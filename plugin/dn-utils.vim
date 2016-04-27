@@ -1384,6 +1384,148 @@ function! DNU_GitMake(...)
     call DNU_ShowMsg(l:msg)
     if a:0 > 0 && a:1 | call DNU_InsertMode(1) | endif
 endfunction
+
+" DNU_LocalGitRepoFetch(dir, [prefix])                                 {{{3
+" does:   perform a fetch on a local git repository
+" params: dir    - path to '.git' subdirectory in repository [required]
+"         prefix - prepend string to all output
+"                  must include any additional punctuation, e.g., ': '
+"                  [optional, default='dn-utils: ']
+" prints: error messages if fails
+" return: boolean (whether fetch successful)
+function! DNU_LocalGitRepoFetch(dir, ...)
+    echo '' | " clear command line
+    " set prefix
+    let l:prefix = 'dn-utils: '
+    if a:0 > 0 && strlen(a:1) > 0
+        let l:prefix = a:1
+    endif
+    " check directory
+    let l:dir = resolve(expand(a:dir))
+    if ! isdirectory(l:dir)
+        echoerr l:prefix . "invalid repository '.git' directory ('" 
+                    \ . a:dir . "')"
+        return
+    endif
+    " need git
+    if ! executable('git')  " need git to update
+        echoerr l:prefix . "cannot find 'git'"
+        echoerr l:prefix . 'unable to perform fetch operation'
+        return
+    endif
+    " do fetch
+    let l:cmd = "git --git-dir='" . l:dir . "' fetch"
+    if exists('l:err') | unlet l:err | endif
+    let l:err = systemlist(l:cmd)
+    if v:shell_error
+        echoerr l:prefix . "unable to perform fetch operation on '" 
+                    \ . a:dir . "'"
+        if len(l:err) > 0
+            echoerr l:prefix . 'error message:'
+            for l:line in l:err | echoerr '  ' . l:line | endfor
+        endif
+        return
+    endif  " v:shell_error
+    " success if still here
+    return 1
+endfunction
+
+" DNU_LocalGitRepoUpdatedRecently(dir, time, [prefix])                    {{{3
+" does:   check that a local repository has been updated
+"         within a given time period
+" params: dir    - directory containing local repository [required]
+"         time   - time in seconds [required]
+"         prefix - prepend string to all output
+"                  must include any additional punctuation, e.g., ': '
+"                  [optional, default='dn-utils: ']
+" prints: error messages if setup fails
+" return: boolean
+" note:   determines time of last 'fetch' operation
+"         (so also 'pull' operations)
+" note:   uses python and python modules 'os' and 'time'
+" note:   designed to determine whether repo needs to be
+"         updated, so if it fails it returns false,
+"         presumably triggering an update
+" note:   a week is 604800 seconds
+" note:   will display error message if:
+"         - cannot find '.git/FETCH_HEAD' file in directory
+"         - time value is invalid
+"         - python is absent
+"         - python command fails or returns unexpected output
+function! DNU_LocalGitRepoUpdatedRecently(dir, time, ...)
+    " check parameters
+    " - set prefix
+    let l:prefix = 'dn-utils: '
+    if a:0 > 0 && strlen(a:1) > 0
+        let l:prefix = a:1
+    endif
+    " - check directory
+    let l:dir = resolve(expand(a:dir))
+    if ! isdirectory(l:dir)
+        echoerr l:prefix . "not a valid directory ('" . l:dir . "')"
+        return
+    endif
+    let l:fetch = l:dir . '/.git/FETCH_HEAD'
+    if ! filereadable(l:fetch)
+        echoerr l:prefix . "not a valid git repository ('" . l:dir . "')"
+        return
+    endif
+    " - check time
+    if a:time !~ '^0$\|^[1-9][0-9]*$'
+        echoerr l:prefix . "not a valid time ('" . a:time . "')"
+    endif
+    " need python
+    if ! executable('python')
+        echoerr l:prefix . "cannot find 'python'"
+        echoerr l:prefix . 'unable to get time of last fetch operation'
+        return
+    endif
+    " get time of last fetch (in seconds since epoch)
+    let l:cmd = "python -c \"import os;print os.stat('"
+                \ . l:fetch . "').st_mtime\""
+    let l:last_fetch_list = systemlist(l:cmd)
+    if v:shell_error
+        echoerr l:prefix . "modify-time query of '" . l:fetch . "' failed"
+        if len(l:last_fetch_list) > 0
+            echoerr l:prefix . 'error message:'
+            for l:line in l:last_fetch_list
+                echoerr '  ' . l:line
+            endfor
+        endif
+        return
+    endif
+    if type(l:last_fetch_list) != type([])
+                \ || len(l:last_fetch_list) != 1
+                \ || len(l:last_fetch_list[0]) == 0
+        " expected single-item list
+        echoerr l:prefix . 'unexpected output from modify-time query'
+        return
+    endif
+    let l:last_fetch = l:last_fetch_list[0]
+    " get current time (in seconds since epoch)
+    let l:cmd = "python -c \"import time;print int(time.time())\""
+    let l:now_list = systemlist(l:cmd)
+    if v:shell_error
+        echoerr l:prefix . 'python now-time query failed'
+        if len(l:now_list) > 0
+            echoerr l:prefix . 'error message:'
+            for l:line in l:now_list | echoerr '  ' . l:line | endfor
+        endif
+        return
+    endif
+    if type(l:now_list) != type([])
+                \ || len(l:now_list) != 1
+                \ || len(l:now_list[0]) == 0
+        " expected single-item list
+        echoerr l:prefix . 'unexpected output from now-time query'
+        return
+    endif
+    let l:now = l:now_list[0]
+    " have both time values
+    " - if less than the supplied time then return true
+    let l:diff = l:now - l:last_fetch
+    if l:diff < a:time | return b:dn_true | else | return | endif
+endfunction
 " ================================================================== }}}3
 " 3.8  Strings                                                       {{{2
 " Functions related to strings

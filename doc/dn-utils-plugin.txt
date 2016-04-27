@@ -93,23 +93,23 @@ their significance:
 Templates do not have to contain all, or even any, tokens.
 
                                                          *DNU-LoadTemplate*
-DNU_LoadTemplate(template_key)
+DNU_LoadTemplate(key)
     purpose: load template file into current buffer
-    params:  1 - template file key <required> [string]
-                 see above for key values
+    params:  key - template file key <required> [string]
+                   see above for key values
     insert:  template file contents
     return:  nil
     note:    designed for use with autocommands triggered by the
              BufNewFile event
     usage:   here is how this function might be used in a vim
-             configuration file:>
+             configuration file:
                  au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
                 
-<                                                      *DNU-InsertTemplate*
-DNU_InsertTemplate(template_key)
+                                                       *DNU-InsertTemplate*
+DNU_InsertTemplate(key)
     purpose: insert template file into current buffer
-    params:  1 - template file key <required> [string]
-                 see above for key values
+    params:  key - template file key <required> [string]
+                   see above for key values
     insert:  template file contents
     return:  nil
     note:    will insert template file contents only if current buffer is
@@ -117,7 +117,7 @@ DNU_InsertTemplate(template_key)
     note:    designed for use with autocommands triggered by the
              BufRead event
     usage:   here is how this function might be used in a vim
-             configuration file:>
+             configuration file:
                  au BufRead *.[0-9] call DNU_InsertTemplate('manpage')
 -------------------------------------------------------------------------
                                                            *dn-utils-dates*
@@ -126,9 +126,9 @@ DNU_InsertTemplate(template_key)
 A series of functions that manipulate dates.
 
                                                     *DNU-InsertCurrentDate*
-DNU_InsertCurrentDate([insert_mode])
+DNU_InsertCurrentDate([insert])
     purpose: insert current date in ISO format (yyyy-mm-dd)
-    params:  1 - whether called from insert mode <optional> [boolean]
+    params:  insert - whether called from insert mode <optional> [boolean]
     insert:  current date in ISO format (yyyy-mm-dd)
     return:  nil
 
@@ -423,15 +423,50 @@ The function |dn-util-gitMake| is required because VCSCommand does not handle
 git repository creation.
 
                                                               *DNU-GitMake*
-DNU_GitMake()
+DNU_GitMake([insert])
     purpose: creates git repo in current directory and commits file
-    params:  1 - called from insert mode <default=false> <optional> [boolean]
+    params:  insert - called from insert mode
+                      <default=false> <optional> [boolean]
     insert:  nil
     return:  nil
 
                                                            *dn-mapping-git*
 This function is mapped by default to '<LocalLeader>git', usually '\git', in
 both Insert and Normal modes.
+
+                                                    *DNU-LocalGitRepoFetch*
+DNU_LocalGitRepoFetch(dir, [prefix])
+    purpose: perform a fetch on a local git repository
+    params:  dir    - path to '.git' subdirectory in repository
+                      <required> [string]
+             prefix - string prepended to (error) messages
+                      must include any additional punctuation, e.g., ': '
+                      <default='dn-utils: '> <optional> [string]
+    prints:  error messages if fails
+    return:  whether fetch successful [boolean]
+
+                                          *DNU-LocalGitRepoUpdatedRecently*
+DNU_LocalGitRepoUpdatedRecently(dir, time, [prefix])
+    purpose: check that a local repository has been updated
+             within a given time period
+    params:  dir    - directory containing local repository
+                      <required> [string]
+             time   - time in seconds <required> [integer]
+                      e.g., a week is 604800 seconds
+             prefix - string prepended to (error) messages
+                      must include any additional punctuation, e.g., ': '
+                      <default='dn-utils: '> <optional> [string]
+    prints:  error messages if fails
+    return:  whether updated within specified time [boolean]
+    needs:   python and python modules 'os' and 'time'
+    usage:   designed to determine whether repo needs to be
+             updated, so if it fails it returns false,
+             presumably triggering an update
+    note:    displays error message if:
+             - cannot find '.git/FETCH_HEAD' file in directory
+             - time value is invalid
+             - python is absent
+             - python command fails or returns unexpected output
 -------------------------------------------------------------------------
                                                          *dn-utils-strings*
 11. String functions~
@@ -447,43 +482,43 @@ DNU_StripLastChar(text)
                                                          *DNU-InsertString*
 DNU_InsertString(text, [restrict])
     purpose: insert string at current cursor location
-    params:  1 - text for insertion <required> [string]
-             2 - use 'paste' setting <default=true> <optional> [boolean]
+    params:  text     - text for insertion <required> [string]
+             restrict - use 'paste' setting
+                        <default=true> <optional> [boolean]
     return:  nil
-    usage:>
-            function! doSomething(...)
+    usage:   function! doSomething(...)
                  let l:insert = (a:0 > 0 && a:1) ? 1 : 0
                  ...
                  call DNU_InsertString(l:string)
                  if l:insert | call DNU_InsertMode() | endif
              endfunction
-<
+
                                                              *DNU-TrimChar*
 DNU_TrimChar(text, [char])
     purpose: removes leading and trailing chars from string
-    params:  1 - text to trim <required> [string]
-             2 - char to trim <default=' '> <optional> [char]
+    params:  text - text to trim <required> [string]
+             char - char to trim <default=' '> <optional> [char]
     return:  trimmed text [string]
 
                                                              *DNU-Entitise*
 DNU_Entitise(text)
     purpose: replace special html characters with entities
-    params:  1 - text <required> [string]
+    params:  text - text <required> [string]
     insert:  nil
     return:  altered text [string]
 
                                                            *DNU-Deentitise*
 DNU_Deentitise(text)
     purpose: replace entities with characters for special html characters
-    params:  1 - text <required> [string]
+    params:  text - text <required> [string]
     insert:  nil
     return:  altered text [string]
 
                                                                *DNU-String*
-DNU_Stringify(var, [quote_strings])
+DNU_Stringify(var, [quote])
     purpose: convert variable to string
-    params:  1 - variable <required> [any]
-             2 - quote_strings <default=false> <optional> [boolean]
+    params:  var   - variable <required> [any]
+             quote - quote strings <default=false> <optional> [boolean]
     insert:  nil
     return:  converted variable [string]
     note:    number (integer) or float variables:
@@ -506,17 +541,18 @@ DNU_Stringify(var, [quote_strings])
                                                            *DNU-MatchCount*
 DNU_MatchCount(haystack, needle)
     purpose:  finds number of occurrences of a substring in a string
-    params:   1 - string to search for matches <required> [string]
-              2 - substring to search for <required> [string]
+    params:   haystack - string to search for matches <required> [string]
+              needle   - substring to search for <required> [string]
     insert:   nil
     return:   number of occurrences [number]
 
                                                             *DNU-StridxNum*
 DNU_StridxNum(haystack, needle, number)
     purpose: finds the X'th match of a substring in a string
-    params:  1 - string to search <required> [string]
-             2 - substring to search for <required> [string]
-             3 - which successive match to return index of <required> [number]
+    params:  haystack - string to search <required> [string]
+             needle   - substring to search for <required> [string]
+             number   - which successive match to return index of
+                        <required> [number]
     insert:  nil
     return:  position of start of final match
              (-1 if match not found) [number]
@@ -527,13 +563,13 @@ DNU_StridxNum(haystack, needle, number)
 DNU_PadInternal(string, start, target, [char])
     purpose: insert char at given position until initial location
              is at the desired location
-    params:  1 - initial string <required> [string]
-             2 - position to insert at <required> [number]
-             3 - target position <required> [number]
-             4 - char to pad with <default=' '> <optional> [char]
+    params:  string - initial string <required> [string]
+             start  - position to insert at <required> [number]
+             target - target position <required> [number]
+             char   - char to pad with <default=' '> <optional> [char]
     insert:  nil
     return:  altered string [string]
-    note:    if arg 4 is string then only first char is used
+    note:    if 'char' is a string then only the first char is used
     example: let l:string1 = 'Column Twenty & Column Twenty One'
     example: let l:string2 = 'Column Twenty Two & Column Twenty Three'
              let l:string1 = DNU_PadInternal(l:string1, 14, 18)
@@ -543,15 +579,15 @@ DNU_PadInternal(string, start, target, [char])
                                                    *DNU-GlobalSubstitution*
 DNU_GlobalSubstitution(pattern, substitution)
     purpose: perform global substitution in file
-    params:  1 - pattern <required> [string]
-             2 - substitution <required> [string]
+    params:  pattern      - pattern to search for <required> [string]
+             substitution - string to substitute <required> [string]
     insert:  nil
     return:  nil
 
                                                      *DNU-ChangeHeaderCaps*
 DNU_ChangeHeaderCaps(mode)
     purpose: changes capitalisation of line or visual selection
-    params:  1 - calling mode <required> <values='n','v','i'> [char]
+    params:  mode - calling mode <required> <values='n','v','i'> [char]
     insert:  nil
     return:  nil
     note:    newlines are not expected but happen to be preserved
@@ -578,7 +614,7 @@ These functions manipulate numbers.
                                                           *DNU-ValidPosInt*
 DNU_ValidPosInt(int)
     purpose: check whether input is valid positive integer
-    params:  1 - value <required> [integer]
+    params:  int - value to check <required> [integer]
     insert:  nil
     return:  whether valid positive integer [boolean]
     note:    zero is not a positive integer
@@ -591,9 +627,9 @@ Functions that cannot be placed in any other category.
                                                             *DNU-JumpPlace*
 DNU_JumpPlace(start, end, direction)
     purpose: jump to placeholder
-    params:  1 - place holder start marker <required> [string]
-             2 - place holder end marker <required> [string]
-             3 - direction ('f', 'b') <required> [string]
+    params:  start     - place holder start marker <required> [string]
+             end       - place holder end marker <required> [string]
+             direction - direction of jump ('f', 'b') <required> [string]
     insert:  nil
     return:  nil
 
@@ -620,7 +656,7 @@ DNU_GetSelection()
                                                               *DNU-VarType*
 DNU_VarType(var)
     purpose: get variable type
-    params:  1 - variable to be analysed <required> [various]
+    params:  var - variable to be analysed <required> [various]
     insert:  nil
     return:  variable type ('number'\|'string'\|'funcref'\|'list'\|
                             'dictionary'\|'float'\|'unknown')

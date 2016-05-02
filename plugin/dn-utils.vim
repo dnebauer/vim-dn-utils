@@ -108,7 +108,7 @@ function! s:indexTemplates()
     let l:unexpected = []
     " find template directories
     let l:template_dir = 'vim-dn-utils-templates'
-    let l:dirs = split(globpath(&rtp, l:template_dir, b:dn_true), ',')
+    let l:dirs = globpath(&rtp, l:template_dir, b:dn_true, b:dn_true)
     " cycle through template directories
     for l:dir in l:dirs
         " get directory files
@@ -565,7 +565,7 @@ function! DNU_GetRtpDir(dir, ...)
         endif
     endif
     " search for directory
-    let l:matches = split(globpath(&rtp, a:dir, b:dn_false), ',')
+    let l:matches = globpath(&rtp, a:dir, b:dn_true, b:dn_true)
     " if allowing multiple matches
     if l:allow_multiples
         return l:matches

@@ -931,10 +931,8 @@ function! DNU_SelectWithCompletion(single, plural, items)
     let l:opts += ["'name-plural'", l:plural_str]
     let l:tmp_str = "'" . fnameescape(l:tmp) . "'"
     let l:opts += ["'output-file'", l:tmp_str]
-    for l:item in a:items
-        let l:opt_str = "'" . l:item . "'"
-        let l:opts += [l:opt_str]
-    endfor
+    call map(a:items, "'''' . v:val . ''''")
+    call extend(l:opts, a:items)
     let l:cmd = '!perl ' . l:script . ' ' . join(l:opts, ' ')
     " run script to select docbook element                             {{{4
     silent execute l:cmd 

@@ -33,18 +33,6 @@ while ( my $opt = shift @ARGV ) {
             my $val = shift @ARGV;
             if ( defined $val and $val ne q{} ) { $output_file = $val; }
         }
-        when (/^fail-if-no-items\z/) {
-            my $val = shift @ARGV;
-            if ( defined $val and $val ne q{} ) {
-                $fail_if_no_items = $val;
-            }
-        }
-        when (/^fail-if-no-selection\z/) {
-            my $val = shift @ARGV;
-            if ( defined $val and $val ne q{} ) {
-                $fail_if_no_selection = $val;
-            }
-        }
         default { push @items, $opt; }
     }
 }

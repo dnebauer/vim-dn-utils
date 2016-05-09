@@ -3,19 +3,19 @@
 " Maintainer:  David Nebauer <david@nebauer.org>
 " License:     Public domain
 
-" _1.  CONTROL STATEMENTS                                            {{{1
-" Only do this when not done yet for this buffer                     {{{2
+" _1.  CONTROL STATEMENTS                                              {{{1
+" Only do this when not done yet for this buffer                       {{{2
 if exists("b:loaded_dn_utils") | finish | endif
-let b:loaded_dn_utils = 1                                          " }}}2
-" Use default cpoptions                                              {{{2
+let b:loaded_dn_utils = 1                                            " }}}2
+" Use default cpoptions                                                {{{2
 " - avoids unpleasantness from customised 'compatible' settings
 let s:save_cpo = &cpo
-set cpo&vim                                                        " }}}2
+set cpo&vim                                                          " }}}2
 
-" _2.  VARIABLES                                                     {{{1
-" bools                                                              {{{2
-let b:dn_true = 1 | let b:dn_false = 0                             " }}}2
-" help                                                               {{{2
+" _2.  VARIABLES                                                       {{{1
+" bools                                                                {{{2
+let b:dn_true = 1 | let b:dn_false = 0                               " }}}2
+" help                                                                 {{{2
 if !exists('b:dn_help_plugins') | let b:dn_help_plugins = [] | endif
 call add(b:dn_help_plugins, 'dn-utils')
 if !exists('b:dn_help_topics') | let b:dn_help_topics = {} | endif
@@ -35,8 +35,8 @@ let b:dn_help_data['vim_version_control'] = [
             \ '  commit changes: \cc',
             \ '',
             \ 'For more information try ''h vcscommand''.', 
-            \ ]                                                    " }}}2
-" templates                                                          {{{2
+            \ ]                                                      " }}}2
+" templates                                                            {{{2
 " - templates found on system
 let s:templates = {}
 " - templates expected to be found
@@ -51,12 +51,12 @@ let s:expected_templates = {
             \ 'template.desktop' : 'desktop'     ,
             \ 'template.html'    : 'html'        ,
             \ 'template.xhtml'   : 'xhtml'       ,
-            \ }                                                    " }}}2
+            \ }                                                      " }}}2
 
-" 3.  FUNCTIONS                                                      {{{1
-" 3.1  Templates                                                     {{{2
+" 3.  FUNCTIONS                                                        {{{1
+" 3.1  Templates                                                       {{{2
 " Functions related to template files
-" DNU_LoadTemplate(key)                                              {{{3
+" DNU_LoadTemplate(key)                                                {{{3
 " does:   load template file
 " params: key - template key (extension or filename)
 " insert: nil
@@ -79,8 +79,8 @@ function! DNU_LoadTemplate(key)
     " goto start token, delete it and enter insert mode
     call s:templateGotoStart()
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_InsertTemplate(key)                                            {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_InsertTemplate(key)                                              {{{3
 " does:   insert template file
 " params: key - template key (extension or filename)
 " prints: error feedback
@@ -95,8 +95,8 @@ function! DNU_InsertTemplate(key)
         call DNU_LoadTemplate(a:key)
     endif
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:indexTemplates()                                                 {{{3
+" -------------------------------------------------------------------- }}}3
+" s:indexTemplates()                                                   {{{3
 " does:   index template files in variable s:templates
 " params: nil
 " prints: nil
@@ -164,8 +164,8 @@ function! s:indexTemplates()
     endif
     call DNU_Error(l:err)
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:templateFilepath(key)                                            {{{3
+" -------------------------------------------------------------------- }}}3
+" s:templateFilepath(key)                                              {{{3
 " does:   get template filepath
 " params: key - template key (corresponds to s:templates keys)
 " prints: error feedback
@@ -193,8 +193,8 @@ function! s:templateFilepath(key)
     endif
     return l:template
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:templateSubstitutions()                                          {{{3
+" -------------------------------------------------------------------- }}}3
+" s:templateSubstitutions()                                            {{{3
 " does:   perform substitutions on tokens in template
 " params: nil
 " prints: error feedback
@@ -242,8 +242,8 @@ function! s:templateSubstitutions()
     let l:title = substitute(l:basename, '\v<(.)(\w*)>', '\u\1\L\2', 'g')
     call DNU_GlobalSubstitution('<TITLE_NAME>', l:title)
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:templateGotoStart()                                              {{{3
+" -------------------------------------------------------------------- }}}3
+" s:templateGotoStart()                                                {{{3
 " does:   goto start token in file, delete it and enter insert mode
 " params: nil
 " prints: nil
@@ -262,10 +262,10 @@ function! s:templateGotoStart()
     call setpos('.', [0, l:line_num, l:col, 0])
     call DNU_InsertMode()
 endfunction
-" ================================================================== }}}3
-" 3.2  Dates                                                         {{{2
+" ==================================================================== }}}3
+" 3.2  Dates                                                           {{{2
 " Functions related to dates
-" API:                                                               {{{3
+" API:                                                                 {{{3
 " DNU_InsertCurrentDate([bool])
 "   params: 1 - whether in insert mode
 "   insert: current date in ISO format [string]
@@ -282,7 +282,7 @@ endfunction
 "           3 - day
 "   insert: nil
 "   return: name of weekday [string]                                 }}}3
-" DNU_InsertCurrentDate([insert])                                    {{{3
+" DNU_InsertCurrentDate([insert])                                      {{{3
 " does:   insert current date in ISO format
 " params: insert - whether called from insert mode
 "                  [optional, default=false, boolean]
@@ -296,8 +296,8 @@ function! DNU_InsertCurrentDate(...)
 	" if finishing in insert mode move cursor to right
 	if a:0 > 0 && a:1 | execute 'normal l' | startinsert | endif
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_NowYear()                                                      {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_NowYear()                                                        {{{3
 " does:   get current year
 " params: nil
 " insert: nil
@@ -305,8 +305,8 @@ endfunction
 function! DNU_NowYear()
 	return strftime('%Y')
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_NowMonth()                                                     {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_NowMonth()                                                       {{{3
 " does:   get current month
 " params: nil
 " insert: nil
@@ -314,8 +314,8 @@ endfunction
 function! DNU_NowMonth()
 	return substitute(strftime('%m'), '^0', '', '')
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_NowDay()                                                       {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_NowDay()                                                         {{{3
 " does:   get current day in month
 " params: nil
 " insert: nil
@@ -323,8 +323,8 @@ endfunction
 function! DNU_NowDay()
 	return substitute(strftime('%d'), '^0', '', '')
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_DayOfWeek(year, month, day)                                    {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_DayOfWeek(year, month, day)                                      {{{3
 " does:   get name of weekday
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -341,8 +341,8 @@ function! DNU_DayOfWeek(year, month, day)
                 \ : l:day_number
 	return s:dayValue(l:day_number)
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:centuryDoomsday(year)                                            {{{3
+" -------------------------------------------------------------------- }}}3
+" s:centuryDoomsday(year)                                              {{{3
 " does:   return doomsday for century
 " params: year - year [integer]
 " insert: nil
@@ -356,8 +356,8 @@ function! s:centuryDoomsday(year)
 				\ l:base_century == 1 ? 1 :
 				\ l:base_century == 2 ? 6 : 0
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:currentIsoDate()                                                 {{{3
+" -------------------------------------------------------------------- }}}3
+" s:currentIsoDate()                                                   {{{3
 " does:   return current date in ISO format (yyyy-mm-dd)
 " params: nil
 " insert: nil
@@ -365,8 +365,8 @@ endfunction
 function! s:currentIsoDate()
 	return strftime('%Y-%m-%d')
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:dayValue(day)                                                    {{{3
+" -------------------------------------------------------------------- }}}3
+" s:dayValue(day)                                                      {{{3
 " does:   get matching day name for day number
 " params: day - day number [integer]
 " insert: nil
@@ -381,8 +381,8 @@ function! s:dayValue(day)
 				\ a:day == 6 ? 'Friday'    :
 				\ a:day == 7 ? 'Saturday'  : ''
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:leapYear(year)                                                   {{{3
+" -------------------------------------------------------------------- }}}3
+" s:leapYear(year)                                                     {{{3
 " does:   determine whether leap year or not
 " params: year - year [integer]
 " insert: nil
@@ -394,8 +394,8 @@ function! s:leapYear(year)
     else
         return b:dn_false
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:monthLength(year, month)                                         {{{3
+" -------------------------------------------------------------------- }}}3
+" s:monthLength(year, month)                                           {{{3
 " does:   get length of month in days
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -415,8 +415,8 @@ function! s:monthLength(year, month)
 				\ a:month == 11 ? 30 :
 				\ a:month == 12 ? 31 : 0
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:monthValue(year, month)                                          {{{3
+" -------------------------------------------------------------------- }}}3
+" s:monthValue(year, month)                                            {{{3
 " does:   get day in month that is same day of week as year doomsday
 " params: year - year [integer]
 "         month - month number [integer]
@@ -437,8 +437,8 @@ function! s:monthValue(year, month)
 				\ a:month == 11 ? 7  :
 				\ a:month == 12 ? 12 : 0
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:validCalInput(year, month, day)                                  {{{3
+" -------------------------------------------------------------------- }}}3
+" s:validCalInput(year, month, day)                                    {{{3
 " does:   check validity of calendrical input
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -462,8 +462,8 @@ function! s:validCalInput(year, month, day)
 	endif
 	return l:retval
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:validDay(year, month, day)                                       {{{3
+" -------------------------------------------------------------------- }}}3
+" s:validDay(year, month, day)                                         {{{3
 " does:   check day validity
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -478,8 +478,8 @@ function! s:validDay(year, month, day)
 	endif
 	return b:dn_false
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:validMonth(month)                                                {{{3
+" -------------------------------------------------------------------- }}}3
+" s:validMonth(month)                                                  {{{3
 " does:   check month validity
 " params: month - month integer [integer]
 " insert: nil
@@ -490,8 +490,8 @@ function! s:validMonth (month)
     endif
 	return b:dn_false
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:validYear(year)                                                  {{{3
+" -------------------------------------------------------------------- }}}3
+" s:validYear(year)                                                    {{{3
 " does:   check year validity
 " params: year - year [integer]
 " insert: nil
@@ -499,8 +499,8 @@ endfunction
 function! s:validYear(year)
 	return DNU_ValidPosInt(a:year)
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:yearDoomsday(year)                                               {{{3
+" -------------------------------------------------------------------- }}}3
+" s:yearDoomsday(year)                                                 {{{3
 " does:   return doomsday for year
 " params: year - year [integer]
 " insert: nil
@@ -514,34 +514,34 @@ function! s:yearDoomsday(year)
 	let l:century_doomsday = s:centuryDoomsday(a:year)
 	return (l:P + l:Q + l:R + l:century_doomsday) % 7
 endfunction
-" ================================================================== }}}3
-" 3.3  File/directory                                                {{{2
+" ==================================================================== }}}3
+" 3.3  File/directory                                                  {{{2
 " Functions related to files and directories
-" DNU_GetFilePath()                                                  {{{3
+" DNU_GetFilePath()                                                    {{{3
 " does:   get filepath of file being edited
 " params: nil
 " return: filepath [string]
 function! DNU_GetFilePath()
 	return expand('%:p')
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_GetFileDir()                                                   {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_GetFileDir()                                                     {{{3
 " does:   get directory of file being edited
 " params: nil
 " return: directory [string]
 function! DNU_GetFileDir()
     return expand('%:p:h')
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_GetFileName()                                                  {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_GetFileName()                                                    {{{3
 " does:   get name of file being edited
 " params: nil
 " return: directory [string]
 function! DNU_GetFileName()
     return expand('%:p:t')
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_GetRtpDir(dir, [multiple])                                     {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_GetRtpDir(dir, [multiple])                                       {{{3
 " does:   finds directory in runtimepath
 " params: dir      - directory name [string]
 "         multiple - allow multiples [boolean,optional, default=false]
@@ -579,10 +579,55 @@ function! DNU_GetRtpDir(dir, ...)
         return DNU_MenuSelect(l:matches, 'Select directory path:')
     endif
 endfunction
-" ================================================================== }}}3
-" 3.4  User interaction                                              {{{2
+" ==================================================================== }}}3
+" DNU_GetRtpFile(file, [multiple])                                     {{{3
+" does:   finds file under directories in runtimepath
+" params: file     - file name [required, string]
+"         multiple - allow multiples [boolean, optional, default=false]
+" return: default: filepath [string], '0' if failure
+"         multiple=true: filepaths [List], [] if failure
+" note:   default behaviour is to return a single filepath
+"         if multiple matches found get user to select one
+"         if allow multiples, return list (even if only one match)
+function! DNU_GetRtpFile(file, ...)
+    " set vars
+    if a:0 > 1 && a:1
+        let l:allow_multiples = b:dn_true
+    else
+        let l:allow_multiples = b:dn_false
+    endif
+    if a:file == ''
+        if l:allow_multiples
+            return []
+        else
+            return 0
+        endif
+    endif
+    " search for directory
+    let l:search_term = '**/' . a:file
+    let l:matches_raw = globpath(&rtp, l:search_term, 1, 1)
+    " - globpath can produce duplicates
+    let l:matches = filter(
+                \ copy(l:matches_raw),
+                \ 'index(l:matches_raw, v:val, v:key+1) == -1'
+                \ )
+    " if allowing multiple matches
+    if l:allow_multiples
+        return l:matches
+    endif
+    " if insisting on single file
+    if     len(l:matches) == 0
+        return 0
+    elseif len(l:matches) == 1
+        return l:matches[0]
+    else
+        return DNU_MenuSelect(l:matches, 'Select file path:')
+    endif
+endfunction
+" ==================================================================== }}}3
+" 3.4  User interaction                                                {{{2
 " Functions related to user interaction
-" DNU_ShowMsg(msg, [type])                                           {{{3
+" DNU_ShowMsg(msg, [type])                                             {{{3
 " does:   display message to user
 " params: 1 - message [string]
 "         2 - message type [allowed values='generic'|'warning'|'info'|
@@ -617,8 +662,8 @@ function! DNU_ShowMsg(msg, ...)
 	" display message
 	call confirm(l:msg, '&OK', 1, l:type)
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_Error(msg)                                                     {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_Error(msg)                                                       {{{3
 " does:   display error message
 " params: msg - error message [string]
 " insert: nil
@@ -632,8 +677,8 @@ function! DNU_Error(msg)
 	echo a:msg
 	echohl Normal 
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_Warn(msg)                                                      {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_Warn(msg)                                                        {{{3
 " does:   display warning message
 " params: msg - warning message [string]
 " insert: nil
@@ -645,8 +690,8 @@ function! DNU_Warn(msg)
 	echo a:msg
 	echohl Normal 
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_Prompt([prompt])                                               {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_Prompt([prompt])                                                 {{{3
 " does:   display prompt message
 " params: prompt - prompt [default='Press [Enter] to continue...', 
 "                  optional, string]
@@ -664,8 +709,8 @@ function! DNU_Prompt(...)
 	echohl Normal
     echo "\n"
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_Wrap(msg)                                                      {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_Wrap(msg)                                                        {{{3
 " does:   echoes text but wraps it sensibly
 " params: msg - message [string]
 " insert: nil
@@ -709,8 +754,8 @@ function! DNU_Wrap(msg)
         endif
     endwhile
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_MenuSelect(items, [prompt])                                    {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_MenuSelect(items, [prompt])                                      {{{3
 " does:   select item from menu
 " params: items  - menu items [List,Dict]
 "         prompt - prompt [default='Select an option:', optional, string]
@@ -861,7 +906,51 @@ function! DNU_MenuSelect(items, ...)
         return ''
 	endif
 endfunction
-" ------------------------------------------------------------------ }}}3
+" -------------------------------------------------------------------- }}}3
+" DNU_SelectWithCompletion(single, plural, items)                      {{{3
+" does:   select item from list using word completion
+" params: single - item singular name [required, string]
+"         plural - item plural name [required, string]
+"         items  - items to select from [required, List]
+" insert: nil
+" return: selected item ("" means no item selected) [string]
+" usage:  let l:element = DNU_SelectWithCompletion(
+"                   \ 'Element name', 'Element names', l:items)
+function! DNU_SelectWithCompletion(single, plural, items)
+    " assemble shell command to run script                             {{{4
+    let l:script = DNU_GetRtpFile('vim-dn-utils-select-with-completion')
+    if l:script == ""
+        echoerr 'dn-utils: cannot find select-with-completion script'
+        return
+    endif
+    let l:tmp = tempname()
+    let l:opts = []
+    let l:single_str = "'" . a:single . "'"
+    let l:opts += ["'name-single'", l:single_str]
+    let l:plural_str = "'" . a:plural . "'"
+    let l:opts += ["'name-plural'", l:plural_str]
+    let l:tmp_str = "'" . fnameescape(l:tmp) . "'"
+    let l:opts += ["'output-file'", l:tmp_str]
+    for l:item in a:items
+        let l:opt_str = "'" . l:item . "'"
+        let l:opts += [l:opt_str]
+    endfor
+    let l:cmd = '!perl ' . l:script . ' ' . join(l:opts, ' ')
+    " run script to select docbook element                             {{{4
+    silent execute l:cmd 
+    redraw!
+    " retrieve result                                                  {{{4
+    if ! filereadable(l:tmp)  " assume script aborted and reported error
+        return ""
+    endif
+    let l:output = readfile(l:tmp)
+    if len(l:output) != 1
+        echoerr "dn-utils: unexpected output:" . l:output
+    endif
+    let l:element = l:output[0]
+    " return result                                                    {{{4
+    return l:element
+endfunction                                                          " }}}3
 " DNU_Help([insert])                                                 {{{3
 " does:   user can select from help topics
 " params: insert - insert mode [default=false, optional, boolean]
@@ -959,7 +1048,7 @@ function! DNU_Help(...)
     " return to calling mode
     if l:insert | call DNU_InsertMode(1) | endif
 endfunction
-" ------------------------------------------------------------------ }}}3
+" -------------------------------------------------------------------- }}}3
 " DNU_GetSelection()                                                 {{{3
 " does:   returns selected text
 " params: nil
@@ -979,10 +1068,10 @@ function! DNU_GetSelection()
         let @a = l:a_save
     endtry
 endfunction
-" ================================================================== }}}3
-" 3.5  Lists                                                         {{{2
+" ==================================================================== }}}3
+" 3.5  Lists                                                           {{{2
 " Functions related to lists
-" DNU_ListGetPartialMatch(list, pattern)                             {{{3
+" DNU_ListGetPartialMatch(list, pattern)                               {{{3
 " does:   get the first element containing given pattern
 " params: 1 - list to search [List]
 "         2 - pattern fragment to match on [string]
@@ -996,8 +1085,8 @@ function! DNU_ListGetPartialMatch(list, pattern)
 	else                | return index(a:list, l:matches[0])
 	endif
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_ListExchangeItems(list, index1, index2)                        {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_ListExchangeItems(list, index1, index2)                          {{{3
 " does:   exchange two elements in the same list
 " params: list    - list to process [List]
 "         insert1 - index of first element to exchange [integer]
@@ -1012,8 +1101,8 @@ function! DNU_ListExchangeItems(list, index1, index2)
     let a:list[a:index2] = l:item1
 	return b:dn_true
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_ListSubtract(list1, list2)                                     {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_ListSubtract(list1, list2)                                       {{{3
 " does:   subtract one list from another
 " params: list1 - list to subtract from [List]
 "         list2 - list to be subtracted [List]
@@ -1030,8 +1119,8 @@ function! DNU_ListSubtract(list_1, list_2)
 	endfor
 	return l:list_new
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_ListToScreen(list, width, start, delimiter)                    {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_ListToScreen(list, width, start, delimiter)                      {{{3
 " does:   formats list for screen display
 " params: list      - list to format for display [List]
 "         width     - maximum width of text
@@ -1077,8 +1166,8 @@ function! DNU_ListToScreen(list, ...)
 	" return formatted string
 	return l:msg
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_ListToScreenColumns(list, max, width, indent)                  {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_ListToScreenColumns(list, max, width, indent)                    {{{3
 " does:   formats list for screen display in columns
 " params: list   - list to format for display [List]
 "         max    - maximum width of text (default: 60) [optional, integer]
@@ -1249,8 +1338,8 @@ function! DNU_UnusedFunctions(...)
 		return l:retval
 	endtry
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_InsertMode([skip])                                             {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_InsertMode([skip])                                               {{{3
 " does:   switch to insert mode
 " params: skip - right skip [optional, integer]
 " insert: nil
@@ -1272,8 +1361,8 @@ function! DNU_InsertMode(...)
 	else                                | startinsert  " =~ 'i'
 	endif
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_ExecuteShellCommand(cmd, [msg])                                {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_ExecuteShellCommand(cmd, [msg])                                  {{{3
 " does:   execute shell command
 " params: cmd - shell command [required, string]
 "         msg - error message [optional, List, default='Error occured:']
@@ -1303,11 +1392,11 @@ function! DNU_ExecuteShellCommand(cmd, ...)
         return b:dn_true
     endif
 endfunction
-" ================================================================== }}}3
-" 3.7  Version control                                               {{{2
+" ==================================================================== }}}3
+" 3.7  Version control                                                 {{{2
 " Functions related to version control
 " RCS functions are deprecated in favour of git functions
-" DNU_GitMake([insert])                                              {{{3
+" DNU_GitMake([insert])                                                {{{3
 " does:   creates git repo, adds current file and does first commit
 " params: insert - called from insert mode
 "                  [optional, default=false, boolean]
@@ -1430,7 +1519,7 @@ function! DNU_LocalGitRepoFetch(dir, ...)
     return 1
 endfunction
 
-" DNU_LocalGitRepoUpdatedRecently(dir, time, [prefix])                    {{{3
+" DNU_LocalGitRepoUpdatedRecently(dir, time, [prefix])                 {{{3
 " does:   check that a local repository has been updated
 "         within a given time period
 " params: dir    - directory containing local repository [required]
@@ -1526,10 +1615,10 @@ function! DNU_LocalGitRepoUpdatedRecently(dir, time, ...)
     let l:diff = l:now - l:last_fetch
     if l:diff < a:time | return b:dn_true | else | return | endif
 endfunction
-" ================================================================== }}}3
-" 3.8  Strings                                                       {{{2
+" ==================================================================== }}}3
+" 3.8  Strings                                                         {{{2
 " Functions related to strings
-" DNU_StripLastChar(str)                                             {{{3
+" DNU_StripLastChar(str)                                               {{{3
 " does:   removes last character from string
 " params: str - string to edit [string]
 " return: altered string [string]
@@ -1540,8 +1629,8 @@ function! DNU_StripLastChar(edit_string)
 				\ 	strlen(a:edit_string) - 1
 				\ )
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_InsertString(str, [paste])                                     {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_InsertString(str, [paste])                                       {{{3
 " does:   insert string at current cursor location
 " params: str   - string for insertion [string]
 "         paste - use 'paste' setting  [optional, default=true, boolean]
@@ -1561,8 +1650,8 @@ function! DNU_InsertString(inserted_text, ...)
 	silent execute 'normal a' . a:inserted_text
 	if l:restrictive && ! l:paste_setting | set nopaste | endif
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_TrimChar(str, [char])                                          {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_TrimChar(str, [char])                                            {{{3
 " does:   removes leading and trailing chars from string
 " params: str  - string to trim [string]
 "         char - char to trim [optional, default=' ', char]
@@ -1579,8 +1668,8 @@ function! DNU_TrimChar(edit_string, ...)
 	let l:string = substitute(a:edit_string, l:left_match_str, '', '')
 	return substitute(l:string, l:right_match_str, '', '')
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_Entitise(str)                                                  {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_Entitise(str)                                                    {{{3
 " does:   replace special html characters with entities
 " params: str - string [string]
 " insert: nil
@@ -1594,8 +1683,8 @@ function! DNU_Entitise(str)
 	let l:str = substitute(l:str, '"', '&quot;', 'g')
 	return l:str
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_Deentitise(str)                                                {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_Deentitise(str)                                                  {{{3
 " does:   replace entities with characters for special html characters
 " params: str - string [string]
 " insert: nil
@@ -1609,8 +1698,8 @@ function! DNU_Deentitise(str)
 	let l:str = substitute(l:str, '&amp;',  '&', 'g')
 	return l:str
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_Stringify(var, [quote])                                        {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_Stringify(var, [quote])                                          {{{3
 " does:   convert variables to string
 " params: var   - variable [any]
 "         quote - quote_strings [optional, default=false, boolean]
@@ -1668,8 +1757,8 @@ function! DNU_Stringify(var, ...)
         return b:dn_false
     endif    
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_MatchCount(haystack, needle)                                   {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_MatchCount(haystack, needle)                                     {{{3
 " does:   finds number of occurrences of a substring in a string
 " params: haystack - string to search [string]
 "         needle   - substring to search for [string]
@@ -1692,8 +1781,8 @@ function! DNU_MatchCount(haystack, needle)
     " return count
     return l:matches
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_StridxNum(haystack, needle, index)                             {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_StridxNum(haystack, needle, index)                               {{{3
 " does:   finds position of the X'th match of a substring in a string
 " params: haystack - string to search [string]
 "         needle   - substring to search for [string]
@@ -1727,8 +1816,8 @@ function! DNU_StridxNum(haystack, needle, number)
         if l:search_count == a:number | return l:pos | endif
     endwhile
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_PadInternal(str, start, finish, char)                          {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_PadInternal(str, start, finish, char)                            {{{3
 " does:   insert char at given position until initial location is at
 "         the desired location
 " params: str    - initial string [string]
@@ -1774,8 +1863,8 @@ function! DNU_PadInternal(string, start, target, ...)
                 \ . l:pad 
                 \ . strpart(a:string, a:start)
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_GlobalSubstitution(pattern, substitution)                      {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_GlobalSubstitution(pattern, substitution)                        {{{3
 " does:   perform global substitution in file
 " insert: nil
 " params: pattern      - string to search for [string]
@@ -1793,8 +1882,8 @@ function! DNU_GlobalSubstitution(pattern, substitute)
         let l:line_num = search(a:pattern, 'nW')
     endwhile
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_ChangeHeaderCaps(mode)                                         {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_ChangeHeaderCaps(mode)                                           {{{3
 " does:   changes capitalisation of line or visual selection
 " params: mode - calling mode ['n'|'v'|'i']
 " insert: replaces line or selection with altered line or selection
@@ -1856,8 +1945,8 @@ function! DNU_ChangeHeaderCaps(mode)
     " return to insert mode if called from there
     if l:mode == 'i' | call DNU_InsertMode(1) | endif
 endfunction
-" ------------------------------------------------------------------ }}}3
-" s:headerCapsEngine(header, type)                                   {{{3
+" -------------------------------------------------------------------- }}}3
+" s:headerCapsEngine(header, type)                                     {{{3
 " does:   change capitalisation of header
 " params: header - header to convert [string]
 "         type   - caps type
@@ -1968,10 +2057,10 @@ catch
     call DNU_Error(v:exception . ' at ' . v:throwpoint)
 endtry
 endfunction
-" ================================================================== }}}3
-" 3.9  Numbers                                                       {{{2
+" ==================================================================== }}}3
+" 3.9  Numbers                                                         {{{2
 " Functions related to numbers
-" DNU_ValidPosInt(val                                                {{{3
+" DNU_ValidPosInt(val                                                  {{{3
 " does:   check whether input is valid positive integer
 " params: val - value to check [integer]
 " insert: nil
@@ -1980,10 +2069,10 @@ endfunction
 function! DNU_ValidPosInt(value)
 	return a:value =~ '^[1-9]\{1}[0-9]\{}$'
 endfunction
-" ================================================================== }}}3
-" 3.10 Miscellaneous                                                 {{{2
+" ==================================================================== }}}3
+" 3.10 Miscellaneous                                                   {{{2
 " Functions that cannot be placed in any other category 
-" DNU_JumpPlace(start, end, direction)                               {{{3
+" DNU_JumpPlace(start, end, direction)                                 {{{3
 " does:   jump to placeholder
 " params: start     - place holder start marker [string]
 "         end       - place holder end marker [string]
@@ -2039,8 +2128,8 @@ function! DNU_JumpPlace(begin, end, direction)
 					\ . s:RemoveLastHistoryItem . "\<CR>gv\<C-g>"
 	endif
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_SelectWord()                                                   {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_SelectWord()                                                     {{{3
 " does:   selects <cword> under cursor (must be only [0-9a-zA-Z_]
 " params: nil
 " insert: nil
@@ -2083,8 +2172,8 @@ function! DNU_SelectWord()
 	" done
 	return l:fragment
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_VarType(var)                                                   {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_VarType(var)                                                     {{{3
 " does:   get variable type
 " params: var - variable to be analysed
 " insert: nil
@@ -2100,8 +2189,8 @@ function! s:VarType(var)
     else                                       | return 'unknown'
     endif
 endfunction
-" ------------------------------------------------------------------ }}}3
-" DNU_TestFn()                                                       {{{3
+" -------------------------------------------------------------------- }}}3
+" DNU_TestFn()                                                         {{{3
 " does:   utility function used for testing purposes only
 " params: varies
 " insert: varies
@@ -2109,16 +2198,15 @@ endfunction
 function! DNU_TestFn() range
     let l:var = 'A RABBIT AND A DOG SHOW'
     call DNU_ShowMsg(string(l:var))
-endfunction                                                        " }}}3
-                                                                   " }}}2
-                                                                   " }}}3
+endfunction                                                          " }}}3
+                                                                     " }}}2
 
-" _4.  CONTROL STATEMENTS                                            {{{1
-" restore user's cpoptions                                           {{{2
-let &cpo = s:save_cpo                                              " }}}2
+" _4.  CONTROL STATEMENTS                                              {{{1
+" restore user's cpoptions                                             {{{2
+let &cpo = s:save_cpo                                                " }}}2
 
-" _5.  MAPPINGS                                                      {{{1
-" \git  : put file under git version control                         {{{3
+" _5.  MAPPINGS                                                        {{{1
+" \git  : put file under git version control                           {{{3
 if !hasmapto('<Plug>DnGMI')
 	imap <buffer> <unique> <LocalLeader>git <Plug>DnGMI
 endif
@@ -2127,8 +2215,8 @@ if !hasmapto('<Plug>DnRMN')
 	nmap <buffer> <unique> <LocalLeader>git <Plug>DnGMN
 endif
 nmap <buffer> <unique> <Plug>DnGMN :call DNU_GitMake()<CR>
-                                                                   " }}}3
-" \ic   : initial caps in selection or line                          {{{3
+                                                                     " }}}3
+" \ic   : initial caps in selection or line                            {{{3
 if !hasmapto('<Plug>DnICI')
 	imap <buffer> <unique> <LocalLeader>ic <Plug>DnICI
 endif
@@ -2168,8 +2256,8 @@ endif
     "   character (&), and
     " return to mark (`v)
 vmap <buffer> <unique> <Plug>DnICV mvugv:s/\%V\<./\u&/<CR>`v
-                                                                   " }}}3
-" \hh   : provide user help                                          {{{3
+                                                                     " }}}3
+" \hh   : provide user help                                            {{{3
 if !hasmapto('<Plug>DnHI')
 	imap <buffer> <unique> <LocalLeader>hh <Plug>DnHI
 endif
@@ -2178,8 +2266,8 @@ if !hasmapto('<Plug>DnHN')
 	nmap <buffer> <unique> <LocalLeader>hh <Plug>DnHN
 endif
 nmap <buffer> <unique> <Plug>DnHN :call DNU_Help()<CR>
-                                                                   " }}}3
-" \hc   : change header case                                         {{{3
+                                                                     " }}}3
+" \hc   : change header case                                           {{{3
 if !hasmapto('<Plug>DnHCI')
     imap <buffer> <unique> <LocalLeader>hc <Plug>DNHCI
 endif
@@ -2192,8 +2280,8 @@ if !hasmapto('<Plug>DnHCV')
     vmap <buffer> <unique> <LocalLeader>hc <Plug>DNHCV
 endif
 vmap <buffer> <unique> <Plug>DNHCV :call DNU_ChangeHeaderCaps('v')<CR>
-                                                                   " }}}3
-" \tt   : execute test function                                      {{{3
+                                                                     " }}}3
+" \tt   : execute test function                                        {{{3
 if !hasmapto('<Plug>DnTI')
 	imap <buffer> <unique> <LocalLeader>tt <Plug>DnTI
 endif
@@ -2206,5 +2294,5 @@ if !hasmapto('<Plug>DnTV')
 	vmap <buffer> <unique> <LocalLeader>tt <Plug>DnTV
 endif
 vmap <buffer> <unique> <Plug>DnTV :call DNU_TestFn()<CR>
-                                                                   " }}}1
+                                                                     " }}}1
 " vim: set foldmethod=marker :

@@ -102,9 +102,9 @@ DNU_LoadTemplate(key)
     note:    designed for use with autocommands triggered by the
              BufNewFile event
     usage:   here is how this function might be used in a vim
-             configuration file:
+             configuration file:>
                  au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
-                
+<                
                                                        *DNU-InsertTemplate*
 DNU_InsertTemplate(key)
     purpose: insert template file into current buffer
@@ -117,8 +117,9 @@ DNU_InsertTemplate(key)
     note:    designed for use with autocommands triggered by the
              BufRead event
     usage:   here is how this function might be used in a vim
-             configuration file:
+             configuration file:>
                  au BufRead *.[0-9] call DNU_InsertTemplate('manpage')
+<
 -------------------------------------------------------------------------
                                                            *dn-utils-dates*
 5. Date functions~
@@ -196,6 +197,17 @@ DNU_GetRtpDir(dir, [allow_multiples])
     purpose: finds directory from runtimepath
     params:  1 - directory name <required> [string]
              2 - allow multiples <default=false> <optional> [boolean]
+    return:  multiple=false (default): dirpath [string], '0' if failure
+             multiple=true: filepaths [List], [] if failure
+    note:    default behaviour is to return a single dirpath
+             - if multiple matches found get user to select one
+             if allow multiples, return list (even if only one match)
+
+                                                           *DNU-GetRtpFile*
+DNU_GetRtpFile(file, [allow_multiples])
+    purpose: finds file(s) in directories under runtimepath
+    params:  1 - file name <required> [string]
+             2 - allow multiples <default=false> <optional> [boolean]
     return:  multiple=false (default): filepath [string], '0' if failure
              multiple=true: filepaths [List], [] if failure
     note:    default behaviour is to return a single filepath
@@ -264,6 +276,18 @@ DNU_MenuSelect(items, [prompt])
     note:    to indicate a submenu this function appends an arrow (->) to the
              end of the parent menu option
 
+                                                 *DNU-SelectWithCompletion*
+DNU_SelectWithCompletion(single, plural, items)
+    purpose: user selects item from list using word completion
+    params:  1 - singular name of item <required> [string]
+             2 - plural name for items <required> [string]
+             3 - items to select from <required> [List]
+    insert:  nil
+    return:  selected item ("" means no item selected) [string]
+    usage:>
+             let l:element = DNU_SelectWithCompletion(
+                    \ 'element name', 'element names', l:items)
+<
                                                  *dn-util-changeHeaderCaps*
 DNU_ChangeHeaderCaps(mode)
     purpose: changes capitalisation of line or visual selection
@@ -486,13 +510,14 @@ DNU_InsertString(text, [restrict])
              restrict - use 'paste' setting
                         <default=true> <optional> [boolean]
     return:  nil
-    usage:   function! doSomething(...)
+    usage:>
+             function! doSomething(...)
                  let l:insert = (a:0 > 0 && a:1) ? 1 : 0
                  ...
                  call DNU_InsertString(l:string)
                  if l:insert | call DNU_InsertMode() | endif
              endfunction
-
+<
                                                              *DNU-TrimChar*
 DNU_TrimChar(text, [char])
     purpose: removes leading and trailing chars from string

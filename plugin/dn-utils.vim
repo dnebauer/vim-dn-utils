@@ -918,22 +918,21 @@ endfunction
 "                   \ 'Element name', 'Element names', l:items)
 function! DNU_SelectWithCompletion(single, plural, items)
     " assemble shell command to run script                             {{{4
+    let l:cmd = '!perl'
     let l:script = DNU_GetRtpFile('vim-dn-utils-select-with-completion')
     if l:script == ""
         echoerr 'dn-utils: cannot find select-with-completion script'
         return
     endif
-    let l:tmp = tempname()
+    let l:cmd .= ' ' . l:script
     let l:opts = []
-    let l:single_str = "'" . a:single . "'"
-    let l:opts += ["'name-single'", l:single_str]
-    let l:plural_str = "'" . a:plural . "'"
-    let l:opts += ["'name-plural'", l:plural_str]
-    let l:tmp_str = "'" . fnameescape(l:tmp) . "'"
-    let l:opts += ["'output-file'", l:tmp_str]
-    call map(a:items, "'''' . v:val . ''''")
+    let l:opts += ['name-single', a:single]
+    let l:opts += ['name-plural', a:plural]
+    let l:tmp = tempname()
+    let l:opts += ['output-file', fnameescape(l:tmp)]
     call extend(l:opts, a:items)
-    let l:cmd = '!perl ' . l:script . ' ' . join(l:opts, ' ')
+    call map(l:opts, 'shellescape(v:val)')
+    let l:cmd .= ' ' . join(l:opts, ' ')
     " run script to select docbook element                             {{{4
     silent execute l:cmd 
     redraw!

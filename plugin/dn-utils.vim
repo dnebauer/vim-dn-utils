@@ -931,7 +931,9 @@ function! DNU_SelectWithCompletion(single, plural, items)
     let l:tmp = tempname()
     let l:opts += ['output-file', fnameescape(l:tmp)]
     call extend(l:opts, a:items)
-    call map(l:opts, 'shellescape(v:val)')
+    call map(l:opts, 'shellescape(v:val)')  " encloses in triple single quotes
+    " - remove enclosing triple single quotes
+    call map(l:opts, 'substitute(v:val, ''^''''\(.*\)''''$'', ''\1'', '''')')
     let l:cmd .= ' ' . join(l:opts, ' ')
     " run script to select docbook element                             {{{4
     silent execute l:cmd 

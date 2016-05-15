@@ -52,6 +52,10 @@ let s:expected_templates = {
             \ 'template.html'    : 'html'        ,
             \ 'template.xhtml'   : 'xhtml'       ,
             \ }                                                      " }}}2
+" temporary file                                                       {{{2
+if ! exists('s:temp_file')
+    let s:temp_file = tempname()
+endif                                                                " }}}2
 
 " 3.  FUNCTIONS                                                        {{{1
 " 3.1  Templates                                                       {{{2
@@ -907,48 +911,67 @@ function! DNU_MenuSelect(items, ...)
 	endif
 endfunction
 " -------------------------------------------------------------------- }}}3
-" DNU_SelectWithCompletion(single, plural, items)                      {{{3
-" does:   select item from list using word completion
+" DNU_ConsoleSelect(single, plural, items, method)                     {{{3
+" does:   select item from list using the console
 " params: single - item singular name [required, string]
 "         plural - item plural name [required, string]
 "         items  - items to select from [required, List]
+"         method - selection method
+"                  [required, string, one of 'complete'|'filter']
 " insert: nil
 " return: selected item ("" means no item selected) [string]
 " usage:  let l:element = DNU_SelectWithCompletion(
 "                   \ 'Element name', 'Element names', l:items)
-function! DNU_SelectWithCompletion(single, plural, items)
-    " assemble shell command to run script                             {{{4
-    let l:cmd = '!perl'
-    let l:script = DNU_GetRtpFile('vim-dn-utils-select-with-completion')
-    if l:script == ""
-        echoerr 'dn-utils: cannot find select-with-completion script'
-        return
+function! DNU_ConsoleSelect(single, plural, items, method)
+    " check variables                                                  {{{4
+    for l:var in ['single', 'plural', 'items', 'method']
+        if empty(a:{l:var})
+            echoerr "No '" . l:var . "' parameter provided"
+            return ""
+        endif
+    endfor
+    if a:method !~ 'complete\|filter'
+        echoerr "Invalid method: '" . a:method . "'"
+        return ""
     endif
-    let l:cmd .= ' ' . l:script
+    " check required files                                             {{{4
+    " - temporary file must be writable and start empty
+    let l:write_result = writefile([], s:temp_file)
+    if l:write_result != 0  " -1 = error, 0 = success
+        echoerr "Cannot write to temp file '" . s:temp_file . "'"
+        return ""
+    endif
+    " - script file must be located
+    let l:script = DNU_GetRtpFile('vim-dn-utils-console-select')
+    if l:script == ""
+        echoerr 'dn-utils: cannot find console-select script'
+        return ""
+    endif
+    " assemble shell command to run script                             {{{4
     let l:opts = []
-    let l:opts += ['name-single', a:single]
-    let l:opts += ['name-plural', a:plural]
-    let l:tmp = tempname()
-    let l:opts += ['output-file', fnameescape(l:tmp)]
-    call extend(l:opts, a:items)
-    call map(l:opts, 'shellescape(v:val)')  " encloses in triple single quotes
-    " - remove enclosing triple single quotes
-    call map(l:opts, 'substitute(v:val, ''^''''\(.*\)''''$'', ''\1'', '''')')
-    let l:cmd .= ' ' . join(l:opts, ' ')
+    let l:opts += ['--name-single', a:single]
+    let l:opts += ['--name-plural', a:plural]
+    let l:opts += ['--output-file', fnameescape(s:temp_file)]
+    let l:opts += ['--items', join(a:items, "\t")]
+    let l:opts += ['--select-method', a:method]
+    call map(l:opts, 'shellescape(v:val)')
+    let l:cmd = '!perl' . ' ' . l:script . ' ' . join(l:opts, ' ')
     " run script to select docbook element                             {{{4
     silent execute l:cmd 
     redraw!
-    " retrieve result                                                  {{{4
-    if ! filereadable(l:tmp)  " assume script aborted and reported error
+    " retrieve and return result                                       {{{4
+    if ! filereadable(s:temp_file)  " assume script aborted with error
         return ""
     endif
-    let l:output = readfile(l:tmp)
-    if len(l:output) != 1
-        echoerr "dn-utils: unexpected output:" . l:output
+    let l:output = readfile(s:temp_file)
+    if     len(l:output) == 0
+        return ""
+    elseif len(l:output) == 1  " success
+        return l:output[0]
+    else  " more than one line of output!
+        echoerr 'dn-utils: unexpected output:' . l:output
+        return ""
     endif
-    let l:element = l:output[0]
-    " return result                                                    {{{4
-    return l:element
 endfunction                                                          " }}}3
 " DNU_Help([insert])                                                 {{{3
 " does:   user can select from help topics

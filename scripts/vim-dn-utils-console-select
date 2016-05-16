@@ -237,7 +237,7 @@ Enable user to select an item from a list on the console. This script is designe
 
 =head2 Selection methods
 
-There are two methods for selecting a list item:
+There are two methods for selecting a list item. Both can be used when list items contain spaces.
 
 =over
 
@@ -267,15 +267,13 @@ Erase all input.
 
 =back
 
-Note that this method can still be used when list items contain spaces.
-
 Uses the L<Term::Complete> module.
 
 =item filter and select
 
 This method is used if C<filter> is supplied as the C<--select-method> (C<-m>) option.
 
-The user enter a fragment of the target item and selects from those items that contain that fragment.
+The user enter a fragment of the target item and selects from those items that contain that fragment. E<lt>C-dE<gt> aborts the selection process.
 
 Uses the L<Term::Clui> module.
 

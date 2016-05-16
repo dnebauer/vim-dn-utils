@@ -128,7 +128,8 @@ for ($select_method) {
 
     # use filter and select
     when ( $_ eq 'filter' ) {
-        my $filter = Term::Clui::ask("Enter part of $name_single:");
+        my $prompt = "Enter part of $name_single [<C-d> to quit]:");
+        my $filter = Term::Clui::ask($prompt);
         my @matches;
         if ($filter) {
             @matches = grep {/$filter/xsmi} @items;

@@ -545,23 +545,23 @@ function! DNU_GetFileName()
     return expand('%:p:t')
 endfunction
 " -------------------------------------------------------------------- }}}3
-" DNU_GetRtpDir(dir, [multiple])                                       {{{3
+" DNU_GetRtpDir(name, [multiple])                                      {{{3
 " does:   finds directory in runtimepath
-" params: dir      - directory name [string]
+" params: name     - directory name [string]
 "         multiple - allow multiples [boolean,optional, default=false]
 " return: default: filepath [string], '0' if failure
 "         multiple=true: filepaths [List], [] if failure
 " note:   default behaviour is to return a single filepath
 "         if multiple matches found get user to select one
 "         if allow multiples, return list (even if only one match)
-function! DNU_GetRtpDir(dir, ...)
+function! DNU_GetRtpDir(name, ...)
     " set vars
     if a:0 > 1 && a:1
         let l:allow_multiples = b:dn_true
     else
         let l:allow_multiples = b:dn_false
     endif
-    if a:dir == ''
+    if a:name == ''
         if l:allow_multiples
             return []
         else
@@ -569,7 +569,7 @@ function! DNU_GetRtpDir(dir, ...)
         endif
     endif
     " search for directory
-    let l:matches = globpath(&rtp, a:dir, b:dn_true, b:dn_true)
+    let l:matches = globpath(&rtp, a:name, b:dn_true, b:dn_true)
     " if allowing multiple matches
     if l:allow_multiples
         return l:matches
@@ -584,23 +584,23 @@ function! DNU_GetRtpDir(dir, ...)
     endif
 endfunction
 " ==================================================================== }}}3
-" DNU_GetRtpFile(file, [multiple])                                     {{{3
+" DNU_GetRtpFile(name, [multiple])                                     {{{3
 " does:   finds file under directories in runtimepath
-" params: file     - file name [required, string]
+" params: name     - file name [required, string]
 "         multiple - allow multiples [boolean, optional, default=false]
 " return: default: filepath [string], '0' if failure
 "         multiple=true: filepaths [List], [] if failure
 " note:   default behaviour is to return a single filepath
 "         if multiple matches found get user to select one
 "         if allow multiples, return list (even if only one match)
-function! DNU_GetRtpFile(file, ...)
+function! DNU_GetRtpFile(name, ...)
     " set vars
     if a:0 > 1 && a:1
         let l:allow_multiples = b:dn_true
     else
         let l:allow_multiples = b:dn_false
     endif
-    if a:file == ''
+    if a:name == ''
         if l:allow_multiples
             return []
         else
@@ -608,7 +608,7 @@ function! DNU_GetRtpFile(file, ...)
         endif
     endif
     " search for directory
-    let l:search_term = '**/' . a:file
+    let l:search_term = '**/' . a:name
     let l:matches_raw = globpath(&rtp, l:search_term, 1, 1)
     " - globpath can produce duplicates
     let l:matches = filter(
@@ -911,28 +911,43 @@ function! DNU_MenuSelect(items, ...)
 	endif
 endfunction
 " -------------------------------------------------------------------- }}}3
-" DNU_ConsoleSelect(single, plural, items, method)                     {{{3
+" DNU_ConsoleSelect(single, plural, items, [method])                   {{{3
 " does:   select item from list using the console
 " params: single - item singular name [required, string]
 "         plural - item plural name [required, string]
 "         items  - items to select from [required, List]
 "         method - selection method
-"                  [required, string, one of 'complete'|'filter']
+"                  [default='filter', optional, values='complete'|'filter']
 " insert: nil
 " return: selected item ("" means no item selected) [string]
-" usage:  let l:element = DNU_SelectWithCompletion(
-"                   \ 'Element name', 'Element names', l:items)
-function! DNU_ConsoleSelect(single, plural, items, method)
+" note:   both methods requires perl to be installed on the system
+" note:   method 'complete' uses Term::Complete::complete function
+"         which uses word completion
+" note:   method 'filter' enables the user to type a fragment of
+"         the item and uses Term::Clui::choose to enable the user
+"         select from a list of matching items
+" note:   both methods handle items containing spaces
+" usage:  let l:element = DNU_ConsoleSelect(
+"                   \ 'Element name', 'Element names', l:items 'complete')
+function! DNU_ConsoleSelect(single, plural, items, ...)
     " check variables                                                  {{{4
-    for l:var in ['single', 'plural', 'items', 'method']
+    for l:var in ['single', 'plural', 'items']
         if empty(a:{l:var})
             echoerr "No '" . l:var . "' parameter provided"
             return ""
         endif
     endfor
-    if a:method !~ 'complete\|filter'
-        echoerr "Invalid method: '" . a:method . "'"
-        return ""
+    let l:method = 'filter'
+    if a:0 >= 1
+        if a:0 > 1
+            echoerr 'Ignoring extra arguments: ' . join(a:000[1:], ', ')
+        endif
+        if a:1 =~ '^complete$\|^filter$'
+            let l:method = a:1
+        else
+            echoerr "Invalid method: '" . a:1 . "'"
+            return ""
+        endif
     endif
     " check required files                                             {{{4
     " - temporary file must be writable and start empty
@@ -953,7 +968,7 @@ function! DNU_ConsoleSelect(single, plural, items, method)
     let l:opts += ['--name-plural', a:plural]
     let l:opts += ['--output-file', fnameescape(s:temp_file)]
     let l:opts += ['--items', join(a:items, "\t")]
-    let l:opts += ['--select-method', a:method]
+    let l:opts += ['--select-method', l:method]
     call map(l:opts, 'shellescape(v:val)')
     let l:cmd = '!perl' . ' ' . l:script . ' ' . join(l:opts, ' ')
     " run script to select docbook element                             {{{4

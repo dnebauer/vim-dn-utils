@@ -155,11 +155,11 @@ DNU_NowDay()
     return:  current day in month (d) [integer]
 
                                                             *DNU_DayOfWeek*
-DNU_DayOfWeek(int, int, int)
+DNU_DayOfWeek(year, month, day)
     purpose: get name of weekday
-    params:  1 - year <required> <format=yyyy> [integer]
-             2 - month <required> <format=mm> [integer]
-             3 - day <required> <format=dd> [integer]
+    params:  year  - <required> <format=yyyy> [integer]
+             month - <required> <format=mm> [integer]
+             day   - <required> <format=dd> [integer]
     insert:  nil
     return:  name of weekday [string]
 -------------------------------------------------------------------------
@@ -189,14 +189,15 @@ DNU_GetFileName()
                                                             *DNU-StripPath*
 DNU_StripPath(filepath)
     purpose: removes path from filepath
-    params:  1 - filepath to trim <required> [string]
+    params:  filepath - path to trim <required> [string]
     return:  file [string]
 
                                                             *DNU-GetRtpDir*
-DNU_GetRtpDir(dir, [allow_multiples])
+DNU_GetRtpDir(name, [multiple])
     purpose: finds directory from runtimepath
-    params:  1 - directory name <required> [string]
-             2 - allow multiples <default=false> <optional> [boolean]
+    params:  name     - directory name <required> [string]
+             multiple - allow multiples <default=false>
+                        <optional> [boolean]
     return:  multiple=false (default): dirpath [string], '0' if failure
              multiple=true: filepaths [List], [] if failure
     note:    default behaviour is to return a single dirpath
@@ -204,10 +205,10 @@ DNU_GetRtpDir(dir, [allow_multiples])
              if allow multiples, return list (even if only one match)
 
                                                            *DNU-GetRtpFile*
-DNU_GetRtpFile(file, [allow_multiples])
+DNU_GetRtpFile(name, [multiple])
     purpose: finds file(s) in directories under runtimepath
-    params:  1 - file name <required> [string]
-             2 - allow multiples <default=false> <optional> [boolean]
+    params:  name     - file name <required> [string]
+             multiple - allow multiples <default=false> <optional> [boolean]
     return:  multiple=false (default): filepath [string], '0' if failure
              multiple=true: filepaths [List], [] if failure
     note:    default behaviour is to return a single filepath
@@ -220,41 +221,42 @@ DNU_GetRtpFile(file, [allow_multiples])
 These are functions that interact with users.
 
                                                               *DNU-ShowMsg*
-DNU_ShowMsg(message, [type])
+DNU_ShowMsg(msg, [type])
     purpose: display message to user
-    params:  1 - message <required> [string]
-             2 - message type <default=info> <optional> <values='generic'
-                 | 'warning' | 'info' | 'question' | 'error'> [string]
+    params:  msg  - message <required> [string]
+             type - message type <default=info> <optional> <values=
+                    'generic','warning','info','question','error'>
     return:  nil
 
                                                                 *DNU-Error*
-DNU_Error(message)
+DNU_Error(msg)
     purpose: display error message
-    params:  1 - error message <required> [string]
+    params:  msg - error message <required> [string]
     insert:  nil
     prints:  error msg in error highlighting accompanied by system bell
     return:  nil
 
                                                                  *DNU-Warn*
-DNU_Warn(message)
+DNU_Warn(msg)
     purpose: display warning message
-    params:  1 - warning message <required> [string]
+    params:  msg - warning message <required> [string]
     insert:  nil
     prints:  warning msg in warning highlighting accompanied by system bell
     return:  nil
 
                                                                *DNU-Prompt*
-DNU_Prompt()
+DNU_Prompt([msg])
     purpose: display prompt message
-    params:  1 - message <default='Press [Enter] to continue...'>
-                         <optional> [string]
+    params:  msg - prompt message
+                   <default='Press [Enter] to continue...'> <optional>
+                   [string]
     insert:  prompt message
     return:  nil
 
                                                                  *DNU-Wrap*
-DNU_Wrap(message)
+DNU_Wrap(msg)
     purpose: echoes text but wraps it sensibly
-    params:  1 - message <required> [string]
+    params:  msg - message <required> [string]
     insert:  nil
     prints:  messages
     return:  nil
@@ -262,8 +264,9 @@ DNU_Wrap(message)
                                                            *DNU-MenuSelect*
 DNU_MenuSelect(items, [prompt])
     purpose: select item from menu
-    params:  1 - menu items <required> [List, Dict]
-             2 - prompt <default='Select an option:'> <optional> [string]
+    params:  items  - menu items <required> [List, Dict]
+             prompt - prompt <default='Select an option:'>
+                      <optional> [string]
     insert:  nil
     return:  selected menu item ("" means no item selected) [string]
     warning: if an empty menu item is provided it can be selected and returned
@@ -276,22 +279,32 @@ DNU_MenuSelect(items, [prompt])
     note:    to indicate a submenu this function appends an arrow (->) to the
              end of the parent menu option
 
-                                                 *DNU-SelectWithCompletion*
-DNU_SelectWithCompletion(single, plural, items)
-    purpose: user selects item from list using word completion
-    params:  1 - singular name of item <required> [string]
-             2 - plural name for items <required> [string]
-             3 - items to select from <required> [List]
+                                                        *DNU-ConsoleSelect*
+DNU_ConsoleSelect(single, plural, items, [method])
+    purpose: select item from list using the console
+    params:  single - noun for a single item <required> [string]
+             plural - collective noun for items <required> [string]
+             items  - tab-separated list of items to select from
+                      <required> [List]
+             method - selection method <default='filter'> <optional>
+                      <values='complete'|'filter'>
     insert:  nil
     return:  selected item ("" means no item selected) [string]
+    note:    both methods requires perl to be installed on the system
+    note:    method 'complete' uses Term::Complete::complete function
+             which uses word completion
+    note:    method 'filter' enables the user to type a fragment of
+             the item and uses Term::Clui::choose to enable the user
+             select from a list of matching items
+    note:    both methods handle items containing spaces
     usage:>
-             let l:element = DNU_SelectWithCompletion(
-                    \ 'element name', 'element names', l:items)
+             let l:element = DNU_ConsoleSelect('element name',
+                    \ 'element names', l:items, 'complete')
 <
                                                  *dn-util-changeHeaderCaps*
 DNU_ChangeHeaderCaps(mode)
     purpose: changes capitalisation of line or visual selection
-    params:  1 - calling mode ('n' | 'v' | 'i') [required]
+    params:  mode - calling mode <required> <values='n','v','i'>
     insert:  altered line or selection [string]
     return:  nil
     note:    if visual selection is present it will be processed, otherwise
@@ -307,7 +320,8 @@ Insert, Normal and Visual modes.
                                                                  *DNU-Help*
 DNU_Help([insert])
     purpose: user can select from help topics
-    params:  1 - insert mode <default=false> <optional> [boolean]
+    params:  insert - whether called from insert mode
+                      <default=false> <optional> [boolean]
     insert:  nil
     return:  nil
     note:    extensible help system relying on buffer Dictionary
@@ -364,44 +378,50 @@ operations that are not supported.
                                                   *DNU-ListGetPartialMatch*
 DNU_ListGetPartialMatch(list, fragment)
     purpose: get the first element containing given pattern
-    params:  1 - list to search <required> [List]
-             2 - pattern fragment to match on <required> [string]
+    params:  list     - list to search <required> [List]
+             fragment - pattern fragment to match on <required> [string]
     return:  first matching element (empty string if no match) [string]
 
                                                     *DNU-ListExchangeItems*
-DNU_ListExchangeItems(list, index, index)
+DNU_ListExchangeItems(list, index1, index2)
     purpose: exchange two elements in the same list
-    params:  1 - list to process <required> [List]
-             2 - index of first element to exchange <required> [integer]
-             3 - index of second element to exchange <required> [integer]
+    params:  list   - list to process <required> [List]
+             index1 - index of first element to exchange
+                      <required> [integer]
+             index2 - index of second element to exchange 
+                      <required> [integer]
     return:  whether items successfully exchanged [boolean]
     note:    by not copying input list are acting on original
 
                                                          *DNU-ListSubtract*
-DNU_ListSubtract(list, list)
+DNU_ListSubtract(list1, list2)
     purpose: subtract one list from another
-    params:  1 - list to subtract from <required> [List]
-             2 - list to be subtracted <required> [List]
+    params:  list1 - list to subtract from <required> [List]
+             list2 - list to be subtracted <required> [List]
     return:  new list [List]
     note:    performs 'list_1 - list_2'
 
                                                          *DNU-ListToScreen*
-DNU_ListToScreen(list, [text_width], [column_width], [indent])
+DNU_ListToScreen(list, [text_width], [col_width], [indent])
     purpose: formats list for screen display
-    params:  1 - list to format for display <required> [List]
-             2 - maximum width of text <default=60> <optional> [integer]
-             3 - indext at start of line <default=0> <optional> [integer]
-             4 - delimiter <default=' '> <optional> [char]
+    params:  list       - list to format for display <required> [List]
+             text_width - maximum width of text
+                          <default=60> <optional> [integer]
+             col_width  - indext at start of line
+                          <default=0> <optional> [integer]
+             indent     - delimiter <default=' '> <optional> [char]
     return:  formatted display [string]
 
                                                   *DNU-ListToScreenColumns*
-DNU_ListToScreenColumns(list, [text_width], [column_width], [indent])
+DNU_ListToScreenColumns(list, [text_width], [col_width], [indent])
     purpose: formats list for screen display in columns
-    params:  1 - list to format for display <required> [List]
-             2 - maximum width of text <default=60> <optional> [integer]
-             3 - column width = longest item strlen
-                            + col_padding <default=1> <optional> [integer]
-             4 - indent at start of line <default=0> <optional> [integer]
+    params:  list       - list to format for display <required> [List]
+             text_width - maximum width of text
+                          <default=60> <optional> [integer]
+             col_width  - column width = longest item strlen
+                          + col_padding <default=1> <optional> [integer]
+             indent     - indent at start of line
+                          <default=0> <optional> [integer]
     return:  formatted display [string]
 -------------------------------------------------------------------------
                                                      *dn-utils-programming*
@@ -412,16 +432,16 @@ These are utility functions that aid programming.
                                                       *DNU-UnusedFunctions*
 DNU_UnusedFunctions([lower], [upper])
     purpose: checks for uncalled functions
-    params:  1 - lower line boundary within which to search
-                 <default=1> <optional> [integer]
-             2 - upper line boundary within which to search
-                 <default=last line> <optional> [integer]
+    params:  lower - lower line boundary within which to search
+                     <default=1> <optional> [integer]
+             upper - upper line boundary within which to search
+                     <default=last line> <optional> [integer]
     return:  list of unused functions [string]
 
                                                            *DNU-InsertMode*
 DNU_InsertMode([skip])
     purpose: switch to insert mode
-    params:  1 - right skip <default=0> <optional> [integer]
+    params:  skip - right skip <default=0> <optional> [integer]
     insert:  nil
     return:  nil
     note:    this function is often used by other functions if they were
@@ -432,8 +452,9 @@ DNU_InsertMode([skip])
                                                   *DNU-ExecuteShellCommand*
 DNU_ExecuteShellCommand(cmd, [msg])
     purpose: execute shell command
-    params:  1 - shell command <required> [string]
-             2 - error message <default='Error occured:'> <optional> [List]
+    params:  cmd - shell command <required> [string]
+             msg - error message
+                   <default='Error occured:'> <optional> [List]
     insert:  nil
     return:  return status of command as vim boolean [boolean]
 -------------------------------------------------------------------------

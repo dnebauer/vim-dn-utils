@@ -5,7 +5,7 @@
 
 " _1.  CONTROL STATEMENTS                                              {{{1
 " Only do this when not done yet for this buffer                       {{{2
-if exists("b:loaded_dn_utils") | finish | endif
+if exists('b:loaded_dn_utils') | finish | endif
 let b:loaded_dn_utils = 1                                            " }}}2
 " Use default cpoptions                                                {{{2
 " - avoids unpleasantness from customised 'compatible' settings
@@ -21,7 +21,7 @@ call add(b:dn_help_plugins, 'dn-utils')
 if !exists('b:dn_help_topics') | let b:dn_help_topics = {} | endif
 let b:dn_help_topics['vim'] = { 'version control': 'vim_version_control' }
 if !exists('b:dn_help_data') | let b:dn_help_data = {} | endif
-let b:dn_help_data['vim_version_control'] = [ 
+let b:dn_help_data['vim_version_control'] = [
             \ 'Version control is handled by git and the vcscommand plugin.',
             \ '',
             \ 'Here is how the most common operations are performed.',
@@ -34,7 +34,7 @@ let b:dn_help_data['vim_version_control'] = [
             \ '',
             \ '  commit changes: \cc',
             \ '',
-            \ 'For more information try ''h vcscommand''.', 
+            \ 'For more information try ''h vcscommand''.',
             \ ]                                                      " }}}2
 " templates                                                            {{{2
 " - templates found on system
@@ -73,12 +73,12 @@ function! DNU_LoadTemplate(key)
     call s:indexTemplates()
     " get template file
     let l:template = s:templateFilepath(a:key)
-    if l:template == '' | return | endif
+    if l:template ==? '' | return | endif
     " insert template file
     call append(0, readfile(l:template))
     " perform substitutions
     call s:templateSubstitutions()
-    " detect filetype 
+    " detect filetype
     execute ':filetype detect'
     " goto start token, delete it and enter insert mode
     call s:templateGotoStart()
@@ -116,7 +116,7 @@ function! s:indexTemplates()
     " cycle through template directories
     for l:dir in l:dirs
         " get directory files
-        let l:dir_fps = glob(l:dir . "/*", b:dn_false, b:dn_true)
+        let l:dir_fps = glob(l:dir . '/*', b:dn_false, b:dn_true)
         " process directory files
         for l:dir_fp in l:dir_fps
             let l:dir_filename = fnamemodify(l:dir_fp, ':t')    " get filename
@@ -161,9 +161,9 @@ function! s:indexTemplates()
     for l:file in keys(l:missing)
         let l:err .= l:pad . l:pad . l:file . "\n"
     endfor
-    if l:err != ''
+    if l:err !=? ''
         let l:err = "vim-dn-utils plugin encountered trouble\n"
-                    \ . "while searching for templates:\n" 
+                    \ . "while searching for templates:\n"
                     \ . l:err
     endif
     call DNU_Error(l:err)
@@ -186,7 +186,7 @@ function! s:templateFilepath(key)
             let l:template = l:templates[0]    " success
         else
             let l:template = DNU_MenuSelect(l:templates, 'Select template to use:')
-            if l:template == ''
+            if l:template ==? ''
                 call DNU_Error('No template selected')
                 let l:template = ''    " failed
             endif
@@ -294,7 +294,7 @@ endfunction
 " return: nil
 function! DNU_InsertCurrentDate(...)
 	" if call from command line then move cursor left
-	if !(a:0 > 0 && a:1) | execute "normal h" | endif
+	if !(a:0 > 0 && a:1) | execute 'normal h' | endif
 	" insert date
 	execute 'normal a' . s:currentIsoDate()
 	" if finishing in insert mode move cursor to right
@@ -341,7 +341,7 @@ function! DNU_DayOfWeek(year, month, day)
 	let l:month_value = s:monthValue(a:year, a:month)
 	let l:day_number = (a:day - l:month_value + 14 + l:doomsday) % 7
 	let l:day_number = (l:day_number == 0)
-                \ ? 7 
+                \ ? 7
                 \ : l:day_number
 	return s:dayValue(l:day_number)
 endfunction
@@ -397,6 +397,7 @@ function! s:leapYear(year)
         return b:dn_true
     else
         return b:dn_false
+    endif
 endfunction
 " -------------------------------------------------------------------- }}}3
 " s:monthLength(year, month)                                           {{{3
@@ -561,7 +562,7 @@ function! DNU_GetRtpDir(name, ...)
     else
         let l:allow_multiples = b:dn_false
     endif
-    if a:name == ''
+    if a:name ==? ''
         if l:allow_multiples
             return []
         else
@@ -600,7 +601,7 @@ function! DNU_GetRtpFile(name, ...)
     else
         let l:allow_multiples = b:dn_false
     endif
-    if a:name == ''
+    if a:name ==? ''
         if l:allow_multiples
             return []
         else
@@ -643,10 +644,10 @@ function! DNU_ShowMsg(msg, ...)
 	let l:type = ''
 	" sanity check
 	let l:error = 0
-	if l:msg == ''
+	if l:msg ==? ''
 		let l:msg = "No message supplied to 'DNU_ShowMsg'"
 		let l:error = 1
-		let l:type = "Error"
+		let l:type = 'Error'
 	endif
 	" set dialog type (if valid type supplied and not overridden by error)
 	if !l:error
@@ -657,10 +658,10 @@ function! DNU_ShowMsg(msg, ...)
         endif
 	endif
 	" for non-gui environment add message type to output
-	if !has ('gui_running') && l:type != ''
-		let l:msg = toupper(strpart(l:type, 0, 1)) 
+	if !has ('gui_running') && l:type !=? ''
+		let l:msg = toupper(strpart(l:type, 0, 1))
 					\ . tolower(strpart(l:type, 1))
-					\ . ": " 
+					\ . ': '
 					\ . l:msg
 	endif
 	" display message
@@ -676,10 +677,10 @@ endfunction
 function! DNU_Error(msg)
     " require double quoting of execution string so backslash
     " is interpreted as an escape token
-	if mode() == 'i' | execute "normal \<Esc>" | endif
+	if mode() ==# 'i' | execute "normal \<Esc>" | endif
 	echohl ErrorMsg
 	echo a:msg
-	echohl Normal 
+	echohl Normal
 endfunction
 " -------------------------------------------------------------------- }}}3
 " DNU_Warn(msg)                                                        {{{3
@@ -689,15 +690,15 @@ endfunction
 " prints: warning msg in warning highlighting accompanied by system bell
 " return: nil
 function! DNU_Warn(msg)
-	if mode() == 'i' | execute "normal \<Esc>" | endif
+	if mode() ==# 'i' | execute "normal \<Esc>" | endif
 	echohl WarningMsg
 	echo a:msg
-	echohl Normal 
+	echohl Normal
 endfunction
 " -------------------------------------------------------------------- }}}3
 " DNU_Prompt([prompt])                                                 {{{3
 " does:   display prompt message
-" params: prompt - prompt [default='Press [Enter] to continue...', 
+" params: prompt - prompt [default='Press [Enter] to continue...',
 "                  optional, string]
 " insert: nil
 " prints: messages
@@ -725,12 +726,12 @@ function! DNU_Wrap(msg)
     let l:width = winwidth(0) - 1
     let l:msg = a:msg
     " deal with simple case of no input
-    if a:msg == ''
+    if a:msg ==? ''
         echon "\n"
         return
     endif
     " process for wrapping
-    while l:msg != ''
+    while l:msg !=? ''
         " exit on last output line
         if len(l:msg) <= l:width
             echo l:msg
@@ -753,7 +754,7 @@ function! DNU_Wrap(msg)
         echo strpart(l:msg, 0, l:break)
         let l:msg = strpart(l:msg, l:break)
         " - if broke line on punctuation mark may now have leading space
-        if strpart(l:msg, 0, 1) == ' '
+        if strpart(l:msg, 0, 1) ==? ' '
             let l:msg = strpart(l:msg, 1)
         endif
     endwhile
@@ -780,7 +781,7 @@ function! DNU_MenuSelect(items, ...)
     " set basic variables
     " - simple data types
     let l:simple_types = []    " [string, number, float]
-    call add(l:simple_types, type(""))
+    call add(l:simple_types, type(''))
     call add(l:simple_types, type(0))
     call add(l:simple_types, type(0.0))
     " - data types used for menus
@@ -794,18 +795,18 @@ function! DNU_MenuSelect(items, ...)
         return ''
     endif
     " - check supplied menu items
-    if len(a:items) == 0 | return "" | endif |    " must have menu items
+    if len(a:items) == 0 | return '' | endif |    " must have menu items
     " - prompt
-    let l:prompt = "Select an option:"    " default used if none provided
-    if a:0 > 0 && a:1 != "" | let l:prompt = DNU_Stringify(a:1) | endif
+    let l:prompt = 'Select an option:'    " default used if none provided
+    if a:0 > 0 && a:1 !=? '' | let l:prompt = DNU_Stringify(a:1) | endif
     " - dict key used for parent menu item
-    let l:parent_item_key = "__PARENT_ITEM__"
+    let l:parent_item_key = '__PARENT_ITEM__'
     " build list of options for display
     let l:display = [] | let l:dict_vals = [] | let l:index = 1
 	call add(l:display, l:prompt)
 	let l:len = len(len(a:items))    " gives width of largest item index
-    if l:menu_type == 'list' | let l:items = deepcopy(a:items)
-    else                     | let l:items = keys(a:items)
+    if l:menu_type ==# 'list' | let l:items = deepcopy(a:items)
+    else                      | let l:items = keys(a:items)
     endif
 	for l:Item in l:items
 		" left pad index with zeroes to ensure all right justified
@@ -814,7 +815,7 @@ function! DNU_MenuSelect(items, ...)
 			let l:display_index = '0' . l:display_index
 		endwhile
         " if submenu process differently
-        if l:menu_type == 'list'
+        if l:menu_type ==# 'list'
             " check if parent list has child list
             " - if so, use child list's first element as parent menu option
             if type(l:Item) == type([])
@@ -831,7 +832,7 @@ function! DNU_MenuSelect(items, ...)
                 endif
                 " first element cannot be empty
                 let l:candidate_option = DNU_Stringify(l:Item[0])
-                if l:candidate_option != ''  " add submenu signifier
+                if l:candidate_option !=? ''  " add submenu signifier
                     unlet l:Item
                     let l:Item = l:candidate_option . ' ->'
                 else  " first element is empty
@@ -845,10 +846,10 @@ function! DNU_MenuSelect(items, ...)
             if type(l:Item) == type({})
                 " must have parent menu item key
                 if has_key(l:Item, l:parent_item_key)
-                    let l:candidate_option = 
+                    let l:candidate_option =
                                 \ DNU_Stringify(l:Item[l:parent_item_key])
                     " parent menu item value cannot be empty
-                    if l:candidate_option != ''    " add submenu signifier
+                    if l:candidate_option !=? ''    " add submenu signifier
                         unlet l:Item
                         let l:Item = l:candidate_option . ' ->'
                     else  " parent item value is empty
@@ -862,10 +863,10 @@ function! DNU_MenuSelect(items, ...)
                     return ''
                 endif
             endif
-        else    " l:menu_type == 'dict'
+        else    " l:menu_type ==# 'dict'
             " add dict value to values list
             call add(l:dict_vals, a:items[l:Item])
-            " check if parent dict has child list or dict 
+            " check if parent dict has child list or dict
             " - if so, add submenu signifier to parent menu item
             if index(l:menu_types, type(a:items[l:Item])) >= 0
                 let l:Item .= ' ->'
@@ -883,22 +884,22 @@ function! DNU_MenuSelect(items, ...)
     echo ' ' |    " needed to force next output to new line
     " process choice
 	if l:choice > 0 && l:choice < l:index    " must be valid selection
-        if l:menu_type == 'list'
+        if l:menu_type ==# 'list'
             " return menu item if list
             let l:Selection = get(a:items, l:choice - 1)
-        else    " l:menu_type == 'dict'
+        else    " l:menu_type ==# 'dict'
             " return matching value if dict
             let l:Selection = l:dict_vals[l:choice - 1]
         endif
         " recurse if selected a submenu
         if     type(l:Selection) == type([])    " list child menu
-            if l:menu_type == 'list'    " list parent menu
+            if l:menu_type ==# 'list'    " list parent menu
                 " list parent uses first element of child list as menu item
                 call remove(l:Selection, 0)
             endif
             return DNU_MenuSelect(l:Selection, l:prompt)
         elseif type(l:Selection) == type({})    " dict child menu
-            if l:menu_type == 'list'    " list parent menu
+            if l:menu_type ==# 'list'    " list parent menu
                 " list parent uses special value in child dict as menu item
                 call remove(l:Selection, l:parent_item_key)
             endif
@@ -934,7 +935,7 @@ function! DNU_ConsoleSelect(single, plural, items, ...)
     for l:var in ['single', 'plural', 'items']
         if empty(a:{l:var})
             echoerr "No '" . l:var . "' parameter provided"
-            return ""
+            return ''
         endif
     endfor
     let l:method = 'filter'
@@ -942,11 +943,11 @@ function! DNU_ConsoleSelect(single, plural, items, ...)
         if a:0 > 1
             echoerr 'Ignoring extra arguments: ' . join(a:000[1:], ', ')
         endif
-        if a:1 =~ '^complete$\|^filter$'
+        if a:1 =~# '^complete$\|^filter$'
             let l:method = a:1
         else
             echoerr "Invalid method: '" . a:1 . "'"
-            return ""
+            return ''
         endif
     endif
     " check required files                                             {{{4
@@ -954,13 +955,13 @@ function! DNU_ConsoleSelect(single, plural, items, ...)
     let l:write_result = writefile([], s:temp_file)
     if l:write_result != 0  " -1 = error, 0 = success
         echoerr "Cannot write to temp file '" . s:temp_file . "'"
-        return ""
+        return ''
     endif
     " - script file must be located
     let l:script = DNU_GetRtpFile('vim-dn-utils-console-select')
-    if l:script == ""
+    if l:script ==? ''
         echoerr 'dn-utils: cannot find console-select script'
-        return ""
+        return ''
     endif
     " assemble shell command to run script                             {{{4
     let l:opts = []
@@ -972,20 +973,20 @@ function! DNU_ConsoleSelect(single, plural, items, ...)
     call map(l:opts, 'shellescape(v:val)')
     let l:cmd = '!perl' . ' ' . l:script . ' ' . join(l:opts, ' ')
     " run script to select docbook element                             {{{4
-    silent execute l:cmd 
+    silent execute l:cmd
     redraw!
     " retrieve and return result                                       {{{4
     if ! filereadable(s:temp_file)  " assume script aborted with error
-        return ""
+        return ''
     endif
     let l:output = readfile(s:temp_file)
     if     len(l:output) == 0
-        return ""
+        return ''
     elseif len(l:output) == 1  " success
         return l:output[0]
     else  " more than one line of output!
         echoerr 'dn-utils: unexpected output:' . l:output
-        return ""
+        return ''
     endif
 endfunction                                                          " }}}3
 " DNU_Help([insert])                                                 {{{3
@@ -1045,7 +1046,7 @@ function! DNU_Help(...)
     endif
     " brag about help
     echo 'Dn-Utils Help System'
-    if exists('b:dn_help_plugins') && !empty(b:dn_help_plugins) 
+    if exists('b:dn_help_plugins') && !empty(b:dn_help_plugins)
         let l:plugin = (len(b:dn_help_plugins) == 1) ? 'plugin' : 'plugins'
         echon "\n[contributed by " . l:plugin . ': '
         echon join(b:dn_help_plugins, ', ') . "]\n"
@@ -1053,7 +1054,7 @@ function! DNU_Help(...)
     " select help topic
     let l:prompt = 'Select a help topic:'
     let l:topic = DNU_MenuSelect(b:dn_help_topics, l:prompt)
-    if l:topic == ''
+    if l:topic ==? ''
         call DNU_Error('No help topic selected')
         if l:insert | call DNU_InsertMode(1) | endif
         return
@@ -1076,11 +1077,11 @@ function! DNU_Help(...)
     set more
     let l:msg = ''
     for l:output in l:data
-        if l:output == '' | call DNU_Wrap(l:msg) | let l:msg = ''
-        else              | let l:msg .= l:output
+        if l:output ==? '' | call DNU_Wrap(l:msg) | let l:msg = ''
+        else               | let l:msg .= l:output
         endif
     endfor
-    if l:msg != '' | call DNU_Wrap(l:msg) | endif
+    if l:msg !=? '' | call DNU_Wrap(l:msg) | endif
     if !l:more | set nomore | endif
     " return to calling mode
     if l:insert | call DNU_InsertMode(1) | endif
@@ -1115,8 +1116,8 @@ endfunction
 " return: first matching element (empty string if no match) [string]
 function! DNU_ListGetPartialMatch(list, pattern)
 	let l:matches = filter(
-                \   deepcopy(a:list), 
-				\   'v:val =~ "' . a:pattern . '"' 
+                \   deepcopy(a:list),
+				\   'v:val =~# "' . a:pattern . '"'
 				\ )
 	if empty(l:matches) | return ''
 	else                | return index(a:list, l:matches[0])
@@ -1131,8 +1132,8 @@ endfunction
 " return: whether successfully exchanged items [boolean]
 " note:   by not copying input list are acting on original
 function! DNU_ListExchangeItems(list, index1, index2)
-	if get(a:list, a:index1, ":INVALID:") ==# ":INVALID:" | return 0 | endif
-	if get(a:list, a:index2, ":INVALID:") ==# ":INVALID:" | return 0 | endif
+	if get(a:list, a:index1, ':INVALID:') ==# ':INVALID:' | return 0 | endif
+	if get(a:list, a:index2, ':INVALID:') ==# ':INVALID:' | return 0 | endif
 	let l:item1 = a:list[a:index1]
     let a:list[a:index1] = a:list[a:index2]
     let a:list[a:index2] = l:item1
@@ -1149,8 +1150,8 @@ function! DNU_ListSubtract(list_1, list_2)
 	let l:list_new = []
 	" cycle through major list elements
 	" for each, check if in minor list - if not, add to return list
-	for l:item in a:list1
-		if !count(a:list2, l:item)
+	for l:item in a:list_1
+		if !count(a:list_2, l:item)
 			call add(l:list_new, l:item)
 		endif
 	endfor
@@ -1169,7 +1170,7 @@ endfunction
 function! DNU_ListToScreen(list, ...)
 	" determine variables
 	let l:delim = ' ' | let l:scrn_width = 60 | let l:indent_len = 0
-	if a:0 >= 3 && a:3 != '' | let l:delim = a:3 | endif
+	if a:0 >= 3 && a:3 !=? '' | let l:delim = a:3 | endif
 	if a:0 >= 2 && DNU_ValidPosInt(a:2) | let l:indent_len = a:2 | endif
 	let l:indent = repeat(' ', l:indent_len)
 	if a:0 >= 1 && DNU_ValidPosInt(a:1) | let l:scrn_width = a:1 | endif
@@ -1225,13 +1226,13 @@ function! DNU_ListToScreenColumns(list, ...)
 	for l:item in a:list
 		let l:item_len = strlen(l:item)
 		let l:max_len = (l:item_len > l:max_len)
-                    \ ? l:item_len 
+                    \ ? l:item_len
                     \ : l:max_len
 	endfor
 	let l:col_width = l:max_len + l:col_padding
 	let l:max_column_width = l:indent_len + l:col_width
 	let l:scrn_width = (l:max_column_width > l:scrn_width)
-				\ ? l:max_column_width 
+				\ ? l:max_column_width
                 \ : l:scrn_width
 	" get number of columns
 	let l:col_nums = 0 | let l:modulo = l:col_width + 1
@@ -1241,7 +1242,7 @@ function! DNU_ListToScreenColumns(list, ...)
 	endwhile
 	" build display
 	let l:col_num = 1 | let l:msg = '' | let l:index = 0
-	while get(a:list, l:index, ":INVALID:") !=# ":INVALID:"
+	while get(a:list, l:index, ':INVALID:') !=# ':INVALID:'
 		let l:item = get(a:list, l:index)
 		if l:col_num > l:col_nums  " add CR to end of line
 			let l:msg = l:msg . "\n"
@@ -1275,16 +1276,16 @@ function! DNU_UnusedFunctions(...)
 		" variables
 		let l:errmsg = ''
         let l:cursors = []
-        call add(l:cursors, getpos("."))
-		let l:bound_lower = 1 | let l:bound_upper = line("$")
+        call add(l:cursors, getpos('.'))
+		let l:bound_lower = 1 | let l:bound_upper = line('$')
 		if a:0 >= 1 && DNU_ValidPosInt(a:1)
-			let l:bound_lower = (a:1 > 1) 
-                        \ ? (a:1 - 1) 
+			let l:bound_lower = (a:1 > 1)
+                        \ ? (a:1 - 1)
                         \ : 1
 		endif
 		if a:0 >= 2 && DNU_ValidPosInt(a:2)
-			let l:bound_upper = (a:2 <= l:bound_upper) 
-                        \ ? a:2 
+			let l:bound_upper = (a:2 <= l:bound_upper)
+                        \ ? a:2
                         \ : l:bound_upper
 		endif
 		if l:bound_upper <= l:bound_lower
@@ -1329,7 +1330,7 @@ function! DNU_UnusedFunctions(...)
 			call cursor(l:bound_lower, 1)
 			let l:called = b:dn_false
 			while search(l:func_srch . '(', 'W')
-						\ && line(".") <= l:bound_upper
+						\ && line('.') <= l:bound_upper
 				let l:line_num = line('.')
 				let l:line = getline('.')
 				" must ensure match is not part of function declaration ...
@@ -1364,14 +1365,14 @@ function! DNU_UnusedFunctions(...)
 		else
 			let l:msg = 'There are no unused functions'
 		endif
-		echo l:msg		
+		echo l:msg
 	catch
-		let l:errmsg = (l:errmsg != '') ? l:errmsg
+		let l:errmsg = (l:errmsg !=? '') ? l:errmsg
 					\ : 'Unhandled exception occurred'
-		call DNU_ShowMsg(l:errmsg, "Error")
+		call DNU_ShowMsg(l:errmsg, 'Error')
 		let l:retval = 0
 	finally
-        call setpos('.', remove(l:cursors, -1)) 
+        call setpos('.', remove(l:cursors, -1))
 		return l:retval
 	endtry
 endfunction
@@ -1386,16 +1387,16 @@ endfunction
 "         invoked with one right skip to compensate for the left skip
 "         that occured when initially escaping from insert mode
 function! DNU_InsertMode(...)
-	let l:right_skip = (a:0 > 0 && a:1 > 0) 
-                \ ? a:1 
+	let l:right_skip = (a:0 > 0 && a:1 > 0)
+                \ ? a:1
                 \ : 0
 	" override skip if cursor at eol to prevent error beep
 	if col('.') >= strlen(getline('.')) | let l:right_skip = 0 | endif
 	" skip right if so instructed
 	if l:right_skip > 0 | silent execute 'normal ' . l:right_skip . 'l' | endif
 	" handle case where cursor at end of line
-	if col('.') >= strlen(getline('.')) | startinsert! " =~ 'A'
-	else                                | startinsert  " =~ 'i'
+	if col('.') >= strlen(getline('.')) | startinsert! " =~# 'A'
+	else                                | startinsert  " =~# 'i'
 	endif
 endfunction
 " -------------------------------------------------------------------- }}}3
@@ -1449,11 +1450,11 @@ function! DNU_GitMake(...)
     let l:file = expand('%')
 	let l:path = DNU_GetFileDir()
 	let l:cwd = getcwd() . '/'
-	if l:cwd != l:path
+	if l:cwd !=# l:path
 		try
 			silent execute 'lcd %:p:h'
 		catch
-			let l:msg = 'Fatal error: Unable to change to the current' 
+			let l:msg = 'Fatal error: Unable to change to the current'
 						\ . "document's directory:\n"
 						\ . "'" . l:path . "'.\n"
 						\ . 'Aborting.'
@@ -1484,7 +1485,7 @@ function! DNU_GitMake(...)
     try
         silent execute 'VCSAdd'
     catch
-        let l:msg = 'Fatal error: Unable to add current file to' 
+        let l:msg = 'Fatal error: Unable to add current file to'
                     \ . "git repository.\n"
                     \ . 'Aborting.'
         call confirm(l:msg, 'OK')
@@ -1496,7 +1497,7 @@ function! DNU_GitMake(...)
     try
         silent execute 'VCSCommit initial commit'
     catch
-        let l:msg = 'Fatal error: Unable to commit current file to' 
+        let l:msg = 'Fatal error: Unable to commit current file to'
                     \ . "git repository.\n"
                     \ . 'Aborting.'
         call confirm(l:msg, 'OK')
@@ -1529,7 +1530,7 @@ function! DNU_LocalGitRepoFetch(dir, ...)
     " check directory
     let l:dir = resolve(expand(a:dir))
     if ! isdirectory(l:dir)
-        echoerr l:prefix . "invalid repository '.git' directory ('" 
+        echoerr l:prefix . "invalid repository '.git' directory ('"
                     \ . a:dir . "')"
         return
     endif
@@ -1544,7 +1545,7 @@ function! DNU_LocalGitRepoFetch(dir, ...)
     if exists('l:err') | unlet l:err | endif
     let l:err = systemlist(l:cmd)
     if v:shell_error
-        echoerr l:prefix . "unable to perform fetch operation on '" 
+        echoerr l:prefix . "unable to perform fetch operation on '"
                     \ . a:dir . "'"
         if len(l:err) > 0
             echoerr l:prefix . 'error message:'
@@ -1597,7 +1598,7 @@ function! DNU_LocalGitRepoUpdatedRecently(dir, time, ...)
         return
     endif
     " - check time
-    if a:time !~ '^0$\|^[1-9][0-9]*$'
+    if a:time !~# '^0$\|^[1-9][0-9]*$'
         echoerr l:prefix . "not a valid time ('" . a:time . "')"
     endif
     " need python
@@ -1674,7 +1675,7 @@ endfunction
 " return: nil
 " usage:  function! s:dnDoSomething(...)
 "         	let l:insert = (a:0 > 0 && a:1)
-"         	        \ ? 1 
+"         	        \ ? 1
 "         	        \ : 0
 "         	...
 "         	call DNU_InsertString(l:string)
@@ -1695,8 +1696,8 @@ endfunction
 " return: trimmed string [string]
 function! DNU_TrimChar(edit_string, ...)
 	" set trim character
-	let l:char = (a:0 > 0) 
-                \ ? a:1 
+	let l:char = (a:0 > 0)
+                \ ? a:1
                 \ : ' '
 	" build match terms
 	let l:left_match_str = '^' . l:char . '\+'
@@ -1749,8 +1750,8 @@ function! DNU_Stringify(var, ...)
     " and local funcref variables must start with a capital letter
     let l:Var = deepcopy(a:var)
     " are we quoting string output?
-    let l:quoting_strings = (a:0 > 0 && a:1) 
-                \ ? b:dn_true 
+    let l:quoting_strings = (a:0 > 0 && a:1)
+                \ ? b:dn_true
                 \ : b:dn_false
     " string
     if     type(a:var) == type('')
@@ -1775,7 +1776,7 @@ function! DNU_Stringify(var, ...)
             call add(l:out, DNU_Stringify(l:Item, b:dn_true))
             unlet l:Item
         endfor
-        return "[ " . join(l:out, ", ") . " ]"
+        return '[ ' . join(l:out, ', ') . ' ]'
     " Dictionary
     " use perl-style 'big arrow' notation
     elseif type(a:var) == type({})
@@ -1784,15 +1785,15 @@ function! DNU_Stringify(var, ...)
             let l:val = DNU_Stringify(l:Var[l:key], b:dn_true)
             call add(l:out, "'" . l:key . "' => " . l:val)
         endfor
-        return "{ " . join(l:out, ", ") . " }"
+        return '{ ' . join(l:out, ', ') . ' }'
     " Funcref
-    elseif type(a:var) == type(function("tr"))
+    elseif type(a:var) == type(function('tr'))
         return string(l:Var)
     " have now covered all five variable types
     else
         call DNU_Error('invalid variable type')
         return b:dn_false
-    endif    
+    endif
 endfunction
 " -------------------------------------------------------------------- }}}3
 " DNU_MatchCount(haystack, needle)                                     {{{3
@@ -1835,8 +1836,8 @@ function! DNU_StridxNum(haystack, needle, number)
     "   haystack and needle values
     " - wrongly typed a:number causes silent fail so detect manually
     if type(a:number) != type(0)
-        let l:msg = "Number argument '" . DNU_Stringify(a:number) 
-                    \ . "' is wrong type (" . type(a:number) . ")"
+        let l:msg = "Number argument '" . DNU_Stringify(a:number)
+                    \ . "' is wrong type (" . type(a:number) . ')'
         call DNU_Error(l:msg)
         return -1
     endif
@@ -1871,7 +1872,7 @@ endfunction
 "         echo l:string2  " Column Twenty Two & Column Twenty Three
 function! DNU_PadInternal(string, start, target, ...)
     " variables
-    if type(a:string) != type('')
+    if type(a:string) !=? type('')
         call DNU_Error('First argument is not a string')
         return a:string
     endif
@@ -1883,8 +1884,8 @@ function! DNU_PadInternal(string, start, target, ...)
         call DNU_Error('Third argument is not an integer')
         return a:string
     endif
-    let l:char = (a:0 > 0 && a:1 != '') 
-                \ ? strpart(a:1, 0, 1) 
+    let l:char = (a:0 > 0 && a:1 !=? '')
+                \ ? strpart(a:1, 0, 1)
                 \ : ' '
     let l:start = a:start
     if l:start >= a:target | return a:string | endif
@@ -1896,8 +1897,8 @@ function! DNU_PadInternal(string, start, target, ...)
     let l:pad = ''
     while l:start < a:target | let l:pad .= ' ' | let l:start += 1 | endwhile
     " insert internal pad and return result
-    return strpart(a:string, 0, a:start) 
-                \ . l:pad 
+    return strpart(a:string, 0, a:start)
+                \ . l:pad
                 \ . strpart(a:string, a:start)
 endfunction
 " -------------------------------------------------------------------- }}}3
@@ -1928,10 +1929,10 @@ endfunction
 " note:   user chooses capitalisation type: upper case, lower case,
 "         capitalise every word, sentence case, title case
 function! DNU_ChangeHeaderCaps(mode)
-    echo "" | " clear command line
+    echo '' | " clear command line
     " mode specific
     let l:mode = tolower(a:mode)
-    if l:mode == 'i' | execute "normal \<Esc>" | endif
+    if l:mode ==# 'i' | execute "normal \<Esc>" | endif
     " variables
     let l:line_replace_modes = ['n', 'i']
     let l:visual_replace_modes = ['v']
@@ -1945,7 +1946,7 @@ function! DNU_ChangeHeaderCaps(mode)
     " get header case type
     try
         let l:type = DNU_MenuSelect(l:options, 'Select header case:')
-        if l:type == '' | throw 'No header selected' | endif
+        if l:type ==? '' | throw 'No header selected' | endif
     catch /.*/
         echo ' ' | " ensure starts on new line
         call DNU_Error('Header case not selected')
@@ -1969,9 +1970,9 @@ function! DNU_ChangeHeaderCaps(mode)
             " write back result to register x
             let @x = l:header
             " re-select visual selection and delete
-            normal gvd
+            normal! gvd
             " paste replacement string
-            normal "xP
+            normal! "xP
         finally
             " make sure to leave register a as we found it
             let @x = l:x_save
@@ -1980,7 +1981,7 @@ function! DNU_ChangeHeaderCaps(mode)
         call DNU_Error("Mode param is '" . l:mode . "'; must be [n|i|v]")
     endif
     " return to insert mode if called from there
-    if l:mode == 'i' | call DNU_InsertMode(1) | endif
+    if l:mode ==# 'i' | call DNU_InsertMode(1) | endif
 endfunction
 " -------------------------------------------------------------------- }}}3
 " s:headerCapsEngine(header, type)                                     {{{3
@@ -2009,14 +2010,14 @@ try
     " - articles of speech are not capitalised in title case
     let l:articles = ['a', 'an', 'the']
     " - prepositions are not capitalised in title case
-    let l:prepositions = [ 
+    let l:prepositions = [
                 \ 'amid',   'as',   'at', 'atop',  'but',   'by',  'for', 'from',
                 \   'in', 'into',  'mid', 'near', 'next',   'of',  'off',   'on',
                 \ 'onto',  'out', 'over',  'per',  'quo', 'sans', 'than', 'till',
                 \   'to',   'up', 'upon',    'v',   'vs',  'via', 'with'
                 \ ]
     " - conjunctions are not capitalised in title case
-    let l:conjunctions = [ 
+    let l:conjunctions = [
                 \  'and',   'as', 'both',  'but',  'for',  'how',   'if', 'lest',
                 \  'nor', 'once',   'or',   'so', 'than', 'that', 'till', 'when',
                 \  'yet'
@@ -2036,7 +2037,7 @@ try
     let l:pseudowords = ['s']
     unlet l:temp l:articles l:prepositions l:conjunctions l:item
     " check parameters
-    if a:string == '' | return '' | endif
+    if a:string ==? '' | return '' | endif
     if count(l:types, l:type) != 1 | throw "Bad type '" . l:type . "'" | endif
     " break up string into word fragments
     let l:words = split(a:string, '\<\|\>')
@@ -2048,11 +2049,11 @@ try
     for l:word in l:words
         let l:word = tolower(l:word)    " first make all lowercase
         let l:last_word = (l:index == l:last_index)    " check for last word
-        if     l:type == 'upper'
+        if     l:type ==# 'upper'
             let l:word = toupper(l:word)
-        elseif l:type == 'lower'
+        elseif l:type ==# 'lower'
             " already made lowercase so nothing to do here
-        elseif l:type == 'start'
+        elseif l:type ==# 'start'
             " some pseudo-words must not be capitalised
             if !count(l:pseudowords, l:word)
                 let l:word = substitute(l:word, "\\w\\+", "\\u\\0", 'g')
@@ -2065,22 +2066,22 @@ try
         elseif l:last_word
             " if 'sentence' type then leave lowercase
             " if 'title' beware some psuedo-words must not be capitalised
-            if l:type == 'title' && !count(l:pseudowords, l:word)
+            if l:type ==# 'title' && !count(l:pseudowords, l:word)
                 let l:word = substitute(l:word, "\\w\\+", "\\u\\0", 'g')
             endif
         else  " type is 'sentence' or 'title' and word is neither first or last
             " if 'sentence' type then leave lowercase
-            if l:type == 'title'
+            if l:type ==# 'title'
                 " capitalise if not in list of words to be kept lowercase
                 " and is not a psuedo-word
-                if !count(l:title_lowercase, l:word) 
+                if !count(l:title_lowercase, l:word)
                             \ && !count(l:pseudowords, l:word)
                     let l:word = substitute(l:word, "\\w\\+", "\\u\\0", 'g')
                 endif
             endif
         endif
         " negate first word flag after first word is encountered
-        if l:first_word && l:word =~ '^\a'
+        if l:first_word && l:word =~# '^\a'
             let l:first_word = b:dn_false
         endif
         " write changed word
@@ -2104,11 +2105,11 @@ endfunction
 " return: whether valid positive integer [boolean]
 " note:   zero is not a positive integer
 function! DNU_ValidPosInt(value)
-	return a:value =~ '^[1-9]\{1}[0-9]\{}$'
+	return a:value =~# '^[1-9]\{1}[0-9]\{}$'
 endfunction
 " ==================================================================== }}}3
 " 3.10 Miscellaneous                                                   {{{2
-" Functions that cannot be placed in any other category 
+" Functions that cannot be placed in any other category
 " DNU_JumpPlace(start, end, direction)                                 {{{3
 " does:   jump to placeholder
 " params: start     - place holder start marker [string]
@@ -2118,21 +2119,21 @@ endfunction
 " return: nil
 function! DNU_JumpPlace(begin, end, direction)
 	" set variables and sanity checks
-	if (a:begin == '' || a:end == '')| return '' | endif
-	if a:direction !~? '^f$\|^b$' | return '' | endif
-	let l:direction = (a:direction == 'b')
-                \ ? 'b' 
+	if (a:begin ==? '' || a:end ==? '')| return '' | endif
+	if a:direction !~# '^f$\|^b$' | return '' | endif
+	let l:direction = (a:direction ==# 'b')
+                \ ? 'b'
                 \ : ''
 	let l:searchString = ''
-	let s:RemoveLastHistoryItem 
+	let s:RemoveLastHistoryItem
 				\ = ':call histdel("/", -1)|let @/=b:Tex_LastSearchPattern'
 	" if the current cursor position does not contain a placeholder character,
 	" then search for the placeholder characters
-	if strpart(getline('.'), col('.') - 1) !~ '\V\^' . a:begin
+	if strpart(getline('.'), col('.') - 1) !~# '\V\^' . a:begin
 		let l:searchString = '\V' . a:begin . '\_.\{-}' . a:end
 	endif
 	" if we didn't find any placeholders return quietly
-	if l:searchString != '' && !search(l:searchString, l:direction)
+	if l:searchString !=? '' && !search(l:searchString, l:direction)
 		let l:msg = "No placeholder '" . a:begin . '...' . a:end . "' found"
 		call DNU_Warn(l:msg)
 		return ''
@@ -2141,14 +2142,14 @@ function! DNU_JumpPlace(begin, end, direction)
 	silent! foldopen!
 	" calculate if we have an empty placeholder or if it contains some
 	" description
-	let l:template = 
+	let l:template =
 		\ matchstr(strpart(getline('.'), col('.') - 1),
 		\          '\V\^' . a:begin . '\zs\.\{-}\ze\(' . a:end . '\|\$\)')
 	let l:placeHolderEmpty = !strlen(l:template)
 	" if we are selecting in exclusive mode, then we need to move one step to
 	" the right
 	let l:extramove = ''
-	if &selection == 'exclusive' | let l:extramove = 'l' | endif
+	if &selection ==# 'exclusive' | let l:extramove = 'l' | endif
 	" select till the end placeholder character
 	let l:movement = "\<C-o>v/\\V" . a:end . "/e\<CR>" . l:extramove
 	" first remember what the search pattern was -- s:RemoveLastHistoryItem will
@@ -2161,7 +2162,7 @@ function! DNU_JumpPlace(begin, end, direction)
         " (see ':h quote_' for vim help on this register)
 		return l:movement . "\"_c\<C-o>:" . s:RemoveLastHistoryItem . "\<CR>"
 	else
-		return l:movement . "\<C-\>\<C-N>:" 
+		return l:movement . "\<C-\>\<C-N>:"
 					\ . s:RemoveLastHistoryItem . "\<CR>gv\<C-g>"
 	endif
 endfunction
@@ -2174,7 +2175,7 @@ endfunction
 function! DNU_SelectWord()
 	" select <cword> and analyse
 	let l:fragment = expand('<cword>')
-	if l:fragment !~ '^\w\+$' | return '' | endif    " must be [[alnum]_]
+	if l:fragment !~? '^\w\+$' | return '' | endif    " must be [[alnum]_]
 	" get index of fragment start
 	let l:orig_line = line('.') | let l:orig_col = col('.')
 	let l:target_col = l:orig_col - 1    " strings are zero-, not one-based
@@ -2204,7 +2205,7 @@ function! DNU_SelectWord()
 	let l:begin += 1 | let l:terminus += 1
 	" select fragment
 	call cursor(l:orig_line, l:begin)
-	execute "normal v"
+	execute 'normal v'
 	call cursor(l:orig_line, l:terminus)
 	" done
 	return l:fragment
@@ -2287,9 +2288,9 @@ endif
     " set mark v (mv),
     " make selected text lowercase (u),
     " reselect text (gv) before substitution,
-    " global substitute (:s/) in selected text (\%V) of 
-    "   character (.) at start of words (\<) with 
-    "   uppercased (\u) versions of each matched 
+    " global substitute (:s/) in selected text (\%V) of
+    "   character (.) at start of words (\<) with
+    "   uppercased (\u) versions of each matched
     "   character (&), and
     " return to mark (`v)
 vmap <buffer> <unique> <Plug>DnICV mvugv:s/\%V\<./\u&/<CR>`v

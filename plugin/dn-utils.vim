@@ -70,18 +70,18 @@ endif                                                                " }}}2
 "           au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
 function! DNU_LoadTemplate(key)
 	" load script templates variable with available template files
-    call s:indexTemplates()
+    call s:IndexTemplates()
     " get template file
-    let l:template = s:templateFilepath(a:key)
+    let l:template = s:TemplateFilepath(a:key)
     if l:template ==? '' | return | endif
     " insert template file
     call append(0, readfile(l:template))
     " perform substitutions
-    call s:templateSubstitutions()
+    call s:TemplateSubstitutions()
     " detect filetype
     execute ':filetype detect'
     " goto start token, delete it and enter insert mode
-    call s:templateGotoStart()
+    call s:TemplateGotoStart()
 endfunction
 " -------------------------------------------------------------------- }}}3
 " DNU_InsertTemplate(key)                                              {{{3
@@ -100,12 +100,12 @@ function! DNU_InsertTemplate(key)
     endif
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:indexTemplates()                                                   {{{3
+" s:IndexTemplates()                                                   {{{3
 " does:   index template files in variable s:templates
 " params: nil
 " prints: nil
 " return: boolean (indicating outcome)
-function! s:indexTemplates()
+function! s:IndexTemplates()
 	" variables
     let s:templates = {}
     let l:missing = deepcopy(s:expected_templates)
@@ -169,14 +169,14 @@ function! s:indexTemplates()
     call DNU_Error(l:err)
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:templateFilepath(key)                                              {{{3
+" s:TemplateFilepath(key)                                              {{{3
 " does:   get template filepath
 " params: key - template key (corresponds to s:templates keys)
 " prints: error feedback
 " return: template filepath ('' if none found)
 " note:   relies on populated variable s:template
-"         run function 's:indexTemplates' before this function
-function! s:templateFilepath(key)
+"         run function 's:IndexTemplates' before this function
+function! s:TemplateFilepath(key)
     if has_key(s:templates, a:key)
         let l:templates = s:templates[a:key]
         if len(l:templates) == 0
@@ -198,7 +198,7 @@ function! s:templateFilepath(key)
     return l:template
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:templateSubstitutions()                                            {{{3
+" s:TemplateSubstitutions()                                            {{{3
 " does:   perform substitutions on tokens in template
 " params: nil
 " prints: error feedback
@@ -213,7 +213,7 @@ endfunction
 "         <TITLE_NAME>     -> manpage title name,
 "                             use file basename in initial caps
 "         <START>          -> where to start editing
-function! s:templateSubstitutions()
+function! s:TemplateSubstitutions()
     " <FILENAME> -> file name
     let l:filename = expand('%')
     call DNU_GlobalSubstitution('<FILENAME>', l:filename)
@@ -247,12 +247,12 @@ function! s:templateSubstitutions()
     call DNU_GlobalSubstitution('<TITLE_NAME>', l:title)
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:templateGotoStart()                                                {{{3
+" s:TemplateGotoStart()                                                {{{3
 " does:   goto start token in file, delete it and enter insert mode
 " params: nil
 " prints: nil
 " return: nil
-function! s:templateGotoStart()
+function! s:TemplateGotoStart()
     call setpos('.', [0, 1, 1, 0])
     let l:pattern = '<START>'
     let [l:line_num, l:col] = searchpos(l:pattern, 'nW')
@@ -296,7 +296,7 @@ function! DNU_InsertCurrentDate(...)
 	" if call from command line then move cursor left
 	if !(a:0 > 0 && a:1) | execute 'normal h' | endif
 	" insert date
-	execute 'normal a' . s:currentIsoDate()
+	execute 'normal a' . s:CurrentIsoDate()
 	" if finishing in insert mode move cursor to right
 	if a:0 > 0 && a:1 | execute 'normal l' | startinsert | endif
 endfunction
@@ -336,23 +336,23 @@ endfunction
 " insert: nil
 " return: name of weekday [string]
 function! DNU_DayOfWeek(year, month, day)
-	if !s:validCalInput(a:year, a:month, a:day) | return '' | endif
-	let l:doomsday = s:yearDoomsday(a:year)
-	let l:month_value = s:monthValue(a:year, a:month)
+	if !s:ValidCalInput(a:year, a:month, a:day) | return '' | endif
+	let l:doomsday = s:YearDoomsday(a:year)
+	let l:month_value = s:MonthValue(a:year, a:month)
 	let l:day_number = (a:day - l:month_value + 14 + l:doomsday) % 7
 	let l:day_number = (l:day_number == 0)
                 \ ? 7
                 \ : l:day_number
-	return s:dayValue(l:day_number)
+	return s:DayValue(l:day_number)
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:centuryDoomsday(year)                                              {{{3
+" s:CenturyDoomsday(year)                                              {{{3
 " does:   return doomsday for century
 " params: year - year [integer]
 " insert: nil
 " return: day in week [integer]
 " note:   uses Doomsday algorithm created by John Horton Conway
-function! s:centuryDoomsday(year)
+function! s:CenturyDoomsday(year)
 	let l:century = (a:year - (a:year % 100)) / 100
 	let l:base_century = l:century % 4
 	return        l:base_century == 3 ? 4 :
@@ -361,22 +361,22 @@ function! s:centuryDoomsday(year)
 				\ l:base_century == 2 ? 6 : 0
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:currentIsoDate()                                                   {{{3
+" s:CurrentIsoDate()                                                   {{{3
 " does:   return current date in ISO format (yyyy-mm-dd)
 " params: nil
 " insert: nil
 " return: date in ISO format [string]
-function! s:currentIsoDate()
+function! s:CurrentIsoDate()
 	return strftime('%Y-%m-%d')
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:dayValue(day)                                                      {{{3
+" s:DayValue(day)                                                      {{{3
 " does:   get matching day name for day number
 " params: day - day number [integer]
 " insert: nil
 " return: day name [string]
 " note:   1=Sunday, 2=Monday, ..., 7=Saturday
-function! s:dayValue(day)
+function! s:DayValue(day)
 	return        a:day == 1 ? 'Sunday'    :
 				\ a:day == 2 ? 'Monday'    :
 				\ a:day == 3 ? 'Tuesday'   :
@@ -386,13 +386,13 @@ function! s:dayValue(day)
 				\ a:day == 7 ? 'Saturday'  : ''
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:leapYear(year)                                                     {{{3
+" s:LeapYear(year)                                                     {{{3
 " does:   determine whether leap year or not
 " params: year - year [integer]
 " insert: nil
 " return: whether leap year [boolean]
 " note:   return value used as numerical value in some functions
-function! s:leapYear(year)
+function! s:LeapYear(year)
     if a:year % 4 == 0 && a:year != 0
         return b:dn_true
     else
@@ -400,15 +400,15 @@ function! s:leapYear(year)
     endif
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:monthLength(year, month)                                           {{{3
+" s:MonthLength(year, month)                                           {{{3
 " does:   get length of month in days
 " params: year  - year [integer]
 "         month - month number [integer]
 " insert: nil
 " return: length of month [integer]
-function! s:monthLength(year, month)
+function! s:MonthLength(year, month)
 	return        a:month == 1  ? 31 :
-				\ a:month == 2  ? 28 + s:leapYear(a:year) :
+				\ a:month == 2  ? 28 + s:LeapYear(a:year) :
 				\ a:month == 3  ? 31 :
 				\ a:month == 4  ? 30 :
 				\ a:month == 5  ? 31 :
@@ -421,16 +421,16 @@ function! s:monthLength(year, month)
 				\ a:month == 12 ? 31 : 0
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:monthValue(year, month)                                            {{{3
+" s:MonthValue(year, month)                                            {{{3
 " does:   get day in month that is same day of week as year doomsday
 " params: year - year [integer]
 "         month - month number [integer]
 " insert: nil
 " return: day in month [integer]
-function! s:monthValue(year, month)
-	let l:leapyear = s:leapYear(a:year)
-	return        a:month == 1  ? (l:leapyear == 0 ? 3 : 4) :
-				\ a:month == 2  ? (l:leapyear == 0 ? 0 : 1) :
+function! s:MonthValue(year, month)
+	let l:Leapyear = s:LeapYear(a:year)
+	return        a:month == 1  ? (l:Leapyear == 0 ? 3 : 4) :
+				\ a:month == 2  ? (l:Leapyear == 0 ? 0 : 1) :
 			   	\ a:month == 3  ? 0  :
 				\ a:month == 4  ? 4  :
 				\ a:month == 5  ? 9  :
@@ -443,7 +443,7 @@ function! s:monthValue(year, month)
 				\ a:month == 12 ? 12 : 0
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:validCalInput(year, month, day)                                    {{{3
+" s:ValidCalInput(year, month, day)                                    {{{3
 " does:   check validity of calendrical input
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -451,72 +451,72 @@ endfunction
 " insert: nil
 " print:  error message if invalid input detected
 " return: whether valid input [boolean]
-function! s:validCalInput(year, month, day)
+function! s:ValidCalInput(year, month, day)
 	let l:retval :dn_true
-	if !s:validYear(a:year)
+	if !s:ValidYear(a:year)
 		let l:retval = b:dn_false
 		echo "Invalid year: '" . a:year . "'"
 	endif
-	if !s:validMonth(a:month)
+	if !s:ValidMonth(a:month)
 		let l:retval = b:dn_false
 		echo "Invalid month: '" . a:month . "'"
 	endif
-	if !s:validDay(a:year, a:month, a:day)
+	if !s:ValidDay(a:year, a:month, a:day)
 		let l:retval = b:dn_false
 		echo "Invalid day:   '" . a:day . "'"
 	endif
 	return l:retval
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:validDay(year, month, day)                                         {{{3
+" s:ValidDay(year, month, day)                                         {{{3
 " does:   check day validity
 " params: year  - year [integer]
 "         month - month number [integer]
 "         day   - day number [integer]
 " insert: nil
 " return: whether valid day [boolean]
-function! s:validDay(year, month, day)
+function! s:ValidDay(year, month, day)
 	if DNU_ValidPosInt(a:day)
-		if a:day <= s:monthLength(a:year, a:month)
+		if a:day <= s:MonthLength(a:year, a:month)
 			return b:dn_true
 		endif
 	endif
 	return b:dn_false
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:validMonth(month)                                                  {{{3
+" s:ValidMonth(month)                                                  {{{3
 " does:   check month validity
 " params: month - month integer [integer]
 " insert: nil
 " return: whether valid month [boolean]
-function! s:validMonth (month)
+function! s:ValidMonth (month)
 	if DNU_ValidPosInt(a:month) && a:month <= 12
         return b:dn_true
     endif
 	return b:dn_false
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:validYear(year)                                                    {{{3
+" s:ValidYear(year)                                                    {{{3
 " does:   check year validity
 " params: year - year [integer]
 " insert: nil
 " return: whether valid year [boolean]
-function! s:validYear(year)
+function! s:ValidYear(year)
 	return DNU_ValidPosInt(a:year)
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:yearDoomsday(year)                                                 {{{3
+" s:YearDoomsday(year)                                                 {{{3
 " does:   return doomsday for year
 " params: year - year [integer]
 " insert: nil
 " return: day in week [integer]
 " note:   uses Doomsday algorithm created by John Horton Conway
-function! s:yearDoomsday(year)
+function! s:YearDoomsday(year)
 	let l:years_in_century = a:year % 100
 	let l:P = l:years_in_century / 12
 	let l:Q = l:years_in_century % 12
 	let l:R = l:Q / 4
-	let l:century_doomsday = s:centuryDoomsday(a:year)
+	let l:century_doomsday = s:CenturyDoomsday(a:year)
 	return (l:P + l:Q + l:R + l:century_doomsday) % 7
 endfunction
 " ==================================================================== }}}3
@@ -1430,6 +1430,36 @@ function! DNU_ExecuteShellCommand(cmd, ...)
         return b:dn_true
     endif
 endfunction
+" s:Scriptnames()                                                      {{{3
+" does:   prepare quickfix output for the quickfix list
+" params: nil
+" return: content for quickfix window [List of Dicts]
+" credit: adapted from tpope's vim-scriptease plugin at
+"         https://github.com/tpope/vim-scriptease
+function! s:Scriptnames()
+    " capture scriptnames command output
+    try
+        redir => out
+        exe 'silent! scriptnames'
+        redir END
+    catch
+        redir END
+        echo "Vim command ':scriptnames' failed"
+        return
+    endtry
+    let l:output = out
+    " convert output into quickfix list items
+    let l:quickfix_list_items = []
+    for l:line in split(l:output, "\n")
+        if l:line =~# ':'
+            call add(l:quickfix_list_items, {
+                        \ 'text': matchstr(l:line, '\d\+'),
+                        \ 'filename': expand(matchstr(l:line,
+                        \                             ': \zs.*'))})
+        endif
+    endfor
+    return l:quickfix_list_items
+endfunction
 " ==================================================================== }}}3
 " 3.7  Version control                                                 {{{2
 " Functions related to version control
@@ -1594,7 +1624,7 @@ endfunction
 " params: str   - string for insertion [string]
 "         paste - use 'paste' setting  [optional, default=true, boolean]
 " return: nil
-" usage:  function! s:dnDoSomething(...)
+" usage:  function! s:DnDoSomething(...)
 "         	let l:insert = (a:0 > 0 && a:1)
 "         	        \ ? 1
 "         	        \ : 0
@@ -1876,7 +1906,7 @@ function! DNU_ChangeHeaderCaps(mode)
     " operate on current line (normal or insert mode)
     if     count(l:line_replace_modes, l:mode)
         let l:header = getline('.')
-        let l:header = s:headerCapsEngine(l:header, l:type)
+        let l:header = s:HeaderCapsEngine(l:header, l:type)
         call setline('.', l:header)
     elseif count(l:visual_replace_modes, l:mode)
         try
@@ -1887,7 +1917,7 @@ function! DNU_ChangeHeaderCaps(mode)
             " extract contents of register x to variable
             let l:header = @x
             " change case
-            let l:header = s:headerCapsEngine(l:header, l:type)
+            let l:header = s:HeaderCapsEngine(l:header, l:type)
             " write back result to register x
             let @x = l:header
             " re-select visual selection and delete
@@ -1905,7 +1935,7 @@ function! DNU_ChangeHeaderCaps(mode)
     if l:mode ==# 'i' | call DNU_InsertMode(1) | endif
 endfunction
 " -------------------------------------------------------------------- }}}3
-" s:headerCapsEngine(header, type)                                     {{{3
+" s:HeaderCapsEngine(header, type)                                     {{{3
 " does:   change capitalisation of header
 " params: header - header to convert [string]
 "         type   - caps type
@@ -1922,7 +1952,7 @@ endfunction
 "                                         and all words except articles,
 "                                         prepositions and conjunctions of
 "                                         fewer than five letters)
-function! s:headerCapsEngine(string, type)
+function! s:HeaderCapsEngine(string, type)
 try
     " variables
     " - capitalisation types
@@ -2243,5 +2273,9 @@ if !hasmapto('<Plug>DnTV')
 	vmap <buffer> <unique> <LocalLeader>tt <Plug>DnTV
 endif
 vmap <buffer> <unique> <Plug>DnTV :call DNU_TestFn()<CR>
+                                                                     " }}}1
+" _6.  COMMANDS                                                        {{{1
+" :Scriptnames   : display script names in quickfix window             {{{2
+command! -bar Scriptnames call setqflist(s:Scriptnames())|copen
                                                                      " }}}1
 " vim: set foldmethod=marker :

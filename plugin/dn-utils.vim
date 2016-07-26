@@ -1433,84 +1433,6 @@ endfunction
 " ==================================================================== }}}3
 " 3.7  Version control                                                 {{{2
 " Functions related to version control
-" DNU_GitMake([insert])                                                {{{3
-" does:   creates git repo, adds current file and does first commit
-" params: insert - called from insert mode
-"                  [optional, default=false, boolean]
-" return: nil
-" note:   creates git repo in current file's directory
-function! DNU_GitMake(...)
-    echo '' | " clear command line
-    " mode specific
-    if a:0 > 0 && a:1 | execute "normal \<Esc>" | endif
-	" write file as VCS commands do not automatically do this
-	silent execute 'update'
-	" change to filedir if it isn't cwd
-    let l:file = expand('%')
-	let l:path = DNU_GetFileDir()
-	let l:cwd = getcwd() . '/'
-	if l:cwd !=# l:path
-		try
-			silent execute 'lcd %:p:h'
-		catch
-			let l:msg = 'Fatal error: Unable to change to the current'
-						\ . "document's directory:\n"
-						\ . "'" . l:path . "'.\n"
-						\ . 'Aborting.'
-			call confirm(l:msg, 'OK')
-            if a:0 > 0 && a:1 | call DNU_InsertMode(1) | endif
-			return
-		endtry
-	endif
-    " create git repo in file directory
-    if has('unix')
-        call system('git init')
-        if v:shell_error
-            let l:msg = 'Fatal Error: Unable to initialise git repository'
-            call DNU_Error(l:msg)
-            if a:0 > 0 && a:1 | call DNU_InsertMode(1) | endif
-            return
-        endif
-    elseif has('win32') || has('win64')
-        call DNU_Warn('Not yet implemented for windows')
-        if a:0 > 0 && a:1 | call DNU_InsertMode(1) | endif
-        return
-    else
-        call DNU_Warn('Not yet implemented on this OS')
-        if a:0 > 0 && a:1 | call DNU_InsertMode(1) | endif
-        return
-    endif
-    " add current file to repository
-    try
-        silent execute 'VCSAdd'
-    catch
-        let l:msg = 'Fatal error: Unable to add current file to'
-                    \ . "git repository.\n"
-                    \ . 'Aborting.'
-        call confirm(l:msg, 'OK')
-        if a:0 > 0 && a:1 | call DNU_InsertMode(1) | endif
-        return
-    endtry
-    execute 'bdelete' | " VCSAdd creates hsplit buffer 'git add <file>'
-    " commit file
-    try
-        silent execute 'VCSCommit initial commit'
-    catch
-        let l:msg = 'Fatal error: Unable to commit current file to'
-                    \ . "git repository.\n"
-                    \ . 'Aborting.'
-        call confirm(l:msg, 'OK')
-        if a:0 > 0 && a:1 | call DNU_InsertMode(1) | endif
-        return
-    endtry
-    execute 'bdelete' | " VCSCommit creates hsplit buffer 'git commit <file>'
-    " succeeded
-    let l:msg = 'Successfully (re-)initialised git repository' . "\n"
-                \ . "and committed file '" . l:file . "' to it."
-    call DNU_ShowMsg(l:msg)
-    if a:0 > 0 && a:1 | call DNU_InsertMode(1) | endif
-endfunction
-
 " DNU_LocalGitRepoFetch(dir, [prefix])                                 {{{3
 " does:   perform a fetch on a local git repository
 " params: dir    - path to '.git' subdirectory in repository [required]
@@ -2243,16 +2165,6 @@ endfunction                                                          " }}}3
 let &cpo = s:save_cpo                                                " }}}2
 
 " _5.  MAPPINGS                                                        {{{1
-" \git  : put file under git version control                           {{{3
-if !hasmapto('<Plug>DnGMI')
-	imap <buffer> <unique> <LocalLeader>git <Plug>DnGMI
-endif
-imap <buffer> <unique> <Plug>DnGMI <Esc>:call DNU_GitMake(b:dn_true)<CR>
-if !hasmapto('<Plug>DnRMN')
-	nmap <buffer> <unique> <LocalLeader>git <Plug>DnGMN
-endif
-nmap <buffer> <unique> <Plug>DnGMN :call DNU_GitMake()<CR>
-                                                                     " }}}3
 " \ic   : initial caps in selection or line                            {{{3
 if !hasmapto('<Plug>DnICI')
 	imap <buffer> <unique> <LocalLeader>ic <Plug>DnICI

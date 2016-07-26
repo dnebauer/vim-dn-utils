@@ -1433,7 +1433,6 @@ endfunction
 " ==================================================================== }}}3
 " 3.7  Version control                                                 {{{2
 " Functions related to version control
-" RCS functions are deprecated in favour of git functions
 " DNU_GitMake([insert])                                                {{{3
 " does:   creates git repo, adds current file and does first commit
 " params: insert - called from insert mode

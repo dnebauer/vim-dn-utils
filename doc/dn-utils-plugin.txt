@@ -1,29 +1,23 @@
-*dn-utils-plugin.txt*	For Vim version 7.3	Last changed: 2016 April 18
+*dn-utils-plugin.txt*	For Vim version 7.3	Last changed: 2016 July 30
 
-Plugin supplies Dn library of vim utilities               *dn-utils-plugin*
-                                                               *DNU_plugin*
-Dn Utilities Plugin                                          *vim-dn-utils*
--------------------------------------------------------------------------
-                                                        *dn-utils-contents*
-1. Contents~
+Dn library of vim utilities              *dn-utils* *DNU_plugin* *vim-dn-utils*
 
-     1. Contents .......................... |dn-utils-contents|
-     2. Overview .......................... |dn-utils-overview|
-     3. Variables ......................... |dn-utils-variables|
-     4. Templates ......................... |dn-utils-templates|
-     5. Date functions .................... |dn-utils-dates|
-     6. File/directory functions .......... |dn-utils-files|
-     7. User interactive functions ........ |dn-utils-user-interaction|
-     8. List functions .................... |dn-utils-lists|
-     9. Programming functions ............. |dn-utils-programming|
-    10. Version control functions ......... |dn-utils-vcs|
-    11. String functions .................. |dn-utils-strings|
-    12. Number functions .................. |dn-utils-numbers|
-    13. Miscellaneous functions ........... |dn-utils-misc|
-    14. Miscellaneous mappings ............ |dn-utils-mappings|
--------------------------------------------------------------------------
-                                                        *dn-utils-overview*
-2. Overview~
+ 1. Overview                        |dn-utils-overview|
+ 2. Variables                       |dn-utils-variables|
+ 3. Templates                       |dn-utils-templates|
+ 4. Date functions                  |dn-utils-dates|
+ 5. File/directory functions        |dn-utils-files|
+ 6. User interactive functions      |dn-utils-user-interaction|
+ 7. List functions                  |dn-utils-lists|
+ 8. Programming functions           |dn-utils-programming|
+ 9. Version control functions       |dn-utils-vcs|
+10. String functions                |dn-utils-strings|
+11. Number functions                |dn-utils-numbers|
+12. Miscellaneous functions         |dn-utils-misc|
+13. Miscellaneous mappings          |dn-utils-mappings|
+
+==============================================================================
+1. Overview                                             *dn-utils-overview*
 
 A plugin to provide useful generic functions. It is intended to be available
 to all files being edited.
@@ -35,9 +29,9 @@ All functions in this library are global. They all have the prefix "DNU_"
 to try and avoid namespace collisions.
 
 Some mappings and autocommands are also provided.
--------------------------------------------------------------------------
-                                                       *dn-utils-variables*
-3. Variables~
+
+==============================================================================
+2. Variables                                           *dn-utils-variables*
 
 The plugin provides some useful convenience variables that can be used by
 other plugins.
@@ -50,9 +44,9 @@ having to remember the boolean values used by vim.
                        *b:dn-help-plugins* *b:dn-help-topics* *b:dn-help-data*
 The extensible help system relies on buffer Dictionary variables
 b:dn_help_plugins, b:dn_help_topics and b:dn_help_data.
--------------------------------------------------------------------------
-                                                       *dn-utils-templates*
-4. Template functions~
+
+==============================================================================
+3. Template functions                                  *dn-utils-templates*
 
 This utility provides templates that can be loaded into new files, or
 inserted into empty existing files.
@@ -60,7 +54,7 @@ inserted into empty existing files.
                                                    *dn-utils-template-keys*
 The file to load/insert is selected by providing the file's "key". Here
 are the available templates and their keys:
-    
+
     Configuration file  configfile
     Makefile.am file    makefile.am
     Man page            manpage
@@ -104,7 +98,7 @@ DNU_LoadTemplate(key)
     usage:   here is how this function might be used in a vim
              configuration file:>
                  au BufNewFile *.[0-9] call DNU_LoadTemplate("manpage")
-<                
+<
                                                        *DNU-InsertTemplate*
 DNU_InsertTemplate(key)
     purpose: insert template file into current buffer
@@ -120,9 +114,9 @@ DNU_InsertTemplate(key)
              configuration file:>
                  au BufRead *.[0-9] call DNU_InsertTemplate("manpage")
 <
--------------------------------------------------------------------------
-                                                           *dn-utils-dates*
-5. Date functions~
+
+==============================================================================
+4. Date functions                                          *dn-utils-dates*
 
 A series of functions that manipulate dates.
 
@@ -162,9 +156,9 @@ DNU_DayOfWeek(year, month, day)
              day   - <required> <format=dd> [integer]
     insert:  nil
     return:  name of weekday [string]
--------------------------------------------------------------------------
-                                      *dn-utils-files* *dn-utils-directories*
-6. File/directory functions~
+
+==============================================================================
+5. File/directory functions          *dn-utils-files*  *dn-utils-directories*
 
 These are functions that manipulate files and directories.
 
@@ -214,9 +208,9 @@ DNU_GetRtpFile(name, [multiple])
     note:    default behaviour is to return a single filepath
              - if multiple matches found get user to select one
              if allow multiples, return list (even if only one match)
--------------------------------------------------------------------------
-                                                *dn-utils-user-interaction*
-7. User interactive functions~
+
+==============================================================================
+6. User interactive functions                   *dn-utils-user-interaction*
 
 These are functions that interact with users.
 
@@ -369,9 +363,9 @@ DNU_Help([insert])
                                                             *dn-mapping-hh*
 This function is mapped by default to "<LocalLeader>hh", usually "\hh", in
 both Insert and Normal modes.
--------------------------------------------------------------------------
-                                                           *dn-utils-lists*
-8. List functions~
+
+==============================================================================
+7. List functions                                          *dn-utils-lists*
 
 While vim provides a good suite of list functions there are some
 operations that are not supported.
@@ -389,7 +383,7 @@ DNU_ListExchangeItems(list, index1, index2)
     params:  list   - list to process <required> [List]
              index1 - index of first element to exchange
                       <required> [integer]
-             index2 - index of second element to exchange 
+             index2 - index of second element to exchange
                       <required> [integer]
     return:  whether items successfully exchanged [boolean]
     note:    by not copying input list are acting on original
@@ -424,9 +418,9 @@ DNU_ListToScreenColumns(list, [text_width], [col_width], [indent])
              indent     - indent at start of line
                           <default=0> <optional> [integer]
     return:  formatted display [string]
--------------------------------------------------------------------------
-                                                     *dn-utils-programming*
-9. Programming functions~
+
+==============================================================================
+8. Programming functions                             *dn-utils-programming*
 
 These are utility functions that aid programming.
 
@@ -458,9 +452,9 @@ DNU_ExecuteShellCommand(cmd, [msg])
                    <default="Error occured:"> <optional> [List]
     insert:  nil
     return:  return status of command as vim boolean [boolean]
--------------------------------------------------------------------------
-                                                             *dn-utils-vcs*
-10. Version control functions~
+
+==============================================================================
+9. Version control functions                                 *dn-utils-vcs*
 
 These functions assist with scripting version control.
 
@@ -497,9 +491,9 @@ DNU_LocalGitRepoUpdatedRecently(dir, time, [prefix])
              - time value is invalid
              - python is absent
              - python command fails or returns unexpected output
--------------------------------------------------------------------------
-                                                         *dn-utils-strings*
-11. String functions~
+
+==============================================================================
+10. String functions                                     *dn-utils-strings*
 
 These functions manipulate strings.
 
@@ -557,7 +551,7 @@ DNU_Stringify(var, [quote])
     note:    string variables:
              - if quote_strings=false return bare string
              - if quote_strings=true enclose string in single quotes
-               and double internal single quotes 
+               and double internal single quotes
     note:    List variables:
              - subsidiary strings, numbers (integers) and floats are
                treated as described above
@@ -633,9 +627,9 @@ DNU_ChangeHeaderCaps(mode)
                                              and all words except articles,
                                              prepositions and conjunctions of
                                              fewer than five letters)
--------------------------------------------------------------------------
-                                                         *dn-utils-numbers*
-12. Number functions~
+
+==============================================================================
+11. Number functions                                     *dn-utils-numbers*
 
 These functions manipulate numbers.
 
@@ -646,9 +640,9 @@ DNU_ValidPosInt(int)
     insert:  nil
     return:  whether valid positive integer [boolean]
     note:    zero is not a positive integer
--------------------------------------------------------------------------
-                                                            *dn-utils-misc*
-13. Miscellaneous functions~
+
+==============================================================================
+12. Miscellaneous functions                                 *dn-utils-misc*
 
 Functions that cannot be placed in any other category.
 
@@ -695,9 +689,9 @@ DNU_TestFn()
     params:  varies
     insert:  varies
     return:  varies
--------------------------------------------------------------------------
-                                                        *dn-utils-mappings*
-14. Miscellaneous mappings~
+
+==============================================================================
+13. Miscellaneous mappings                              *dn-utils-mappings*
 
 Mappings not associated with functions.
 
@@ -712,5 +706,5 @@ Initial capitals
                                                            *dn-mapping-ic*
 This functionality is mapped by default to "<LocalLeader>ic", usually
 "\ic", in Insert, Normal and Visual modes.
--------------------------------------------------------------------------
+
  vim:tw=78:ts=8:ft=help:norl:

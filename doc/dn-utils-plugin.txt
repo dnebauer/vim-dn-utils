@@ -15,6 +15,7 @@ Dn library of vim utilities              *dn-utils* *DNU_plugin* *vim-dn-utils*
 11. Number functions                |dn-utils-numbers|
 12. Miscellaneous functions         |dn-utils-misc|
 13. Miscellaneous mappings          |dn-utils-mappings|
+14. Miscellaneous commands          |dn-utils-commands|
 
 ==============================================================================
 1. Overview                                             *dn-utils-overview*
@@ -706,5 +707,14 @@ Initial capitals
                                                            *dn-mapping-ic*
 This functionality is mapped by default to "<LocalLeader>ic", usually
 "\ic", in Insert, Normal and Visual modes.
+
+==============================================================================
+14. Miscellaneous commands                             *dn-utils-commands*
+
+                        *:Scriptnames*
+:Scriptnames            Like |:scriptnames|, lists all sourced script names in
+                        the order they were first sourced, except sends the
+                        output to the location list and opens a location
+                        window.
 
  vim:tw=78:ts=8:ft=help:norl:

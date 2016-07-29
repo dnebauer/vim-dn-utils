@@ -31,7 +31,7 @@ to all files being edited.
 These functions were developed over time by the author and later combined into
 a library.
 
-All functions in this library are global. They all have the prefix 'DNU_'
+All functions in this library are global. They all have the prefix "DNU_"
 to try and avoid namespace collisions.
 
 Some mappings and autocommands are also provided.
@@ -39,15 +39,15 @@ Some mappings and autocommands are also provided.
                                                        *dn-utils-variables*
 3. Variables~
 
-The plugin provides some useful convenience variables that can be used by other
-plugins.
+The plugin provides some useful convenience variables that can be used by
+other plugins.
 
                                                      *b:dn-true* *b:dn-false*
 Boolean buffer variables b:dn_true and b:dn_false save script writers from
 having to remember the boolean values used by vim.
 (Note: false = 0 and true = non-zero integer.)
 
-                        *b:dn-help-plugins* *b:dn-help-topics* *b:dn-help-data*
+                       *b:dn-help-plugins* *b:dn-help-topics* *b:dn-help-data*
 The extensible help system relies on buffer Dictionary variables
 b:dn_help_plugins, b:dn_help_topics and b:dn_help_data.
 -------------------------------------------------------------------------
@@ -58,18 +58,18 @@ This utility provides templates that can be loaded into new files, or
 inserted into empty existing files.
 
                                                    *dn-utils-template-keys*
-The file to load/insert is selected by providing the file's 'key'. Here
+The file to load/insert is selected by providing the file's "key". Here
 are the available templates and their keys:
     
-    Configuration file  'configfile'
-    Makefile.am file    'makefile.am'
-    Man page            'manpage'
-    Markdown file       'markdown'
-    Perl module file    'perlmod'
-    Perl script file    'perlscript'
-    Shellscript.sh      'shellscript'
-    Html                'html'
-    Xhtml               'xhtml'
+    Configuration file  configfile
+    Makefile.am file    makefile.am
+    Man page            manpage
+    Markdown file       markdown
+    Perl module file    perlmod
+    Perl script file    perlscript
+    Shellscript.sh      shellscript
+    Html                html
+    Xhtml               xhtml
 
                                                  *dn-utils-template-tokens*
 After a template is loaded the file is examined for a number of tokens.
@@ -82,7 +82,7 @@ their significance:
     <DATE>              replaced with current date in iso format
     <HEADER_NAME>       manpage header name, replaced with file basename
     <HEADER_SECTION>    manpage section, replaced with numeric file
-                        extension, e.g., '1' from file name 'command.1'
+                        extension, e.g., "1" from file name "command.1"
     <TITLE_NAME>        manpage title name element, replaced with file
                         basename in initial caps
     <START>             this is the last token processed and it marks the
@@ -103,7 +103,7 @@ DNU_LoadTemplate(key)
              BufNewFile event
     usage:   here is how this function might be used in a vim
              configuration file:>
-                 au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
+                 au BufNewFile *.[0-9] call DNU_LoadTemplate("manpage")
 <                
                                                        *DNU-InsertTemplate*
 DNU_InsertTemplate(key)
@@ -118,7 +118,7 @@ DNU_InsertTemplate(key)
              BufRead event
     usage:   here is how this function might be used in a vim
              configuration file:>
-                 au BufRead *.[0-9] call DNU_InsertTemplate('manpage')
+                 au BufRead *.[0-9] call DNU_InsertTemplate("manpage")
 <
 -------------------------------------------------------------------------
                                                            *dn-utils-dates*
@@ -198,7 +198,7 @@ DNU_GetRtpDir(name, [multiple])
     params:  name     - directory name <required> [string]
              multiple - allow multiples <default=false>
                         <optional> [boolean]
-    return:  multiple=false (default): dirpath [string], '0' if failure
+    return:  multiple=false (default): dirpath [string], "0" if failure
              multiple=true: filepaths [List], [] if failure
     note:    default behaviour is to return a single dirpath
              - if multiple matches found get user to select one
@@ -209,7 +209,7 @@ DNU_GetRtpFile(name, [multiple])
     purpose: finds file(s) in directories under runtimepath
     params:  name     - file name <required> [string]
              multiple - allow multiples <default=false> <optional> [boolean]
-    return:  multiple=false (default): filepath [string], '0' if failure
+    return:  multiple=false (default): filepath [string], "0" if failure
              multiple=true: filepaths [List], [] if failure
     note:    default behaviour is to return a single filepath
              - if multiple matches found get user to select one
@@ -225,7 +225,7 @@ DNU_ShowMsg(msg, [type])
     purpose: display message to user
     params:  msg  - message <required> [string]
              type - message type <default=info> <optional> <values=
-                    'generic','warning','info','question','error'>
+                    "generic","warning","info","question","error">
     return:  nil
 
                                                                 *DNU-Error*
@@ -248,7 +248,7 @@ DNU_Warn(msg)
 DNU_Prompt([msg])
     purpose: display prompt message
     params:  msg - prompt message
-                   <default='Press [Enter] to continue...'> <optional>
+                   <default="Press [Enter] to continue..."> <optional>
                    [string]
     insert:  prompt message
     return:  nil
@@ -265,7 +265,7 @@ DNU_Wrap(msg)
 DNU_MenuSelect(items, [prompt])
     purpose: select item from menu
     params:  items  - menu items <required> [List, Dict]
-             prompt - prompt <default='Select an option:'>
+             prompt - prompt <default="Select an option:">
                       <optional> [string]
     insert:  nil
     return:  selected menu item ("" means no item selected) [string]
@@ -274,7 +274,7 @@ DNU_MenuSelect(items, [prompt])
     note:    lists and dicts can have lists and dicts as elements/values
     note:    if list has list for element the first element in the child list
              is used as menu item in parent menu
-    note:    if list has dict for element the value for key '__PARENT_ITEM__'
+    note:    if list has dict for element the value for key "__PARENT_ITEM__"
              is used as menu item in parent menu
     note:    to indicate a submenu this function appends an arrow (->) to the
              end of the parent menu option
@@ -286,35 +286,36 @@ DNU_ConsoleSelect(single, plural, items, [method])
              plural - collective noun for items <required> [string]
              items  - tab-separated list of items to select from
                       <required> [List]
-             method - selection method <default='filter'> <optional>
-                      <values='complete'|'filter'>
+             method - selection method <default="filter"> <optional>
+                      <values="complete"|"filter">
     insert:  nil
     return:  selected item ("" means no item selected) [string]
     note:    both methods requires perl to be installed on the system
-    note:    method 'complete' uses Term::Complete::complete function
+    note:    method "complete" uses Term::Complete::complete function
              which uses word completion
-    note:    method 'filter' enables the user to type a fragment of
+    note:    method "filter" enables the user to type a fragment of
              the item and uses Term::Clui::choose to enable the user
              select from a list of matching items
     note:    both methods handle items containing spaces
     usage:>
-             let l:element = DNU_ConsoleSelect('element name',
-                    \ 'element names', l:items, 'complete')
+             let l:element = DNU_ConsoleSelect("element name",
+                    \ "element names", l:items, "complete")
 <
                                                  *dn-util-changeHeaderCaps*
 DNU_ChangeHeaderCaps(mode)
     purpose: changes capitalisation of line or visual selection
-    params:  mode - calling mode <required> <values='n','v','i'>
+    params:  mode - calling mode <required> <values="n","v","i">
     insert:  altered line or selection [string]
     return:  nil
     note:    if visual selection is present it will be processed, otherwise
              the current line will be processed
     note:    user chooses capitalisation type: upper case, lower case,
              capitalise every word, sentence case, or title case
-    note:    relies upon function |dn-util-headerCaps| to do string conversion
+    note:    relies on internal function "dn-util-headerCaps" to do string
+             conversion
 
                                                             *dn-mapping-hc*
-This function is mapped by default to '<LocalLeader>hc', usually '\hc', in
+This function is mapped by default to "<LocalLeader>hc", usually "\hc", in
 Insert, Normal and Visual modes.
 
                                                                  *DNU-Help*
@@ -334,7 +335,7 @@ DNU_Help([insert])
              b:dn_help_topics and as values Lists with the help text to
              be returned
     note:    the List help data is output as concatenated text; to insert
-             a newline use an empty lists element ('')
+             a newline use an empty lists element ("")
     note:    other plugins can add to the help variables and so take
              advantage of the help system; the most friendly way to do this
              is for the b:dn_help_topics variable to have a single top-level
@@ -343,31 +344,31 @@ DNU_Help([insert])
              to its plugin
     example: " this is example script for the foo plugin
              " add plugin name to list of plugins contributing help
-             if !exists('b:dn_help_plugins')
+             if !exists("b:dn_help_plugins")
                let b:dn_help_plugins = {}
              endif
-             if index(b:dn_help_plugins, 'foo', b:dn_true) == -1
-               call add(b:dn_help_plugins, 'foo')
+             if index(b:dn_help_plugins, "foo", b:dn_true) == -1
+               call add(b:dn_help_plugins, "foo")
              endif
              " add help topics for foo plugin to help menu
-             " note that 'foo' is a top level menu item
+             " note that "foo" is a top level menu item
              " all help topics are in its submenu
-             " all 'leaf' entries have to be unique across *all* topics
+             " all "leaf" entries have to be unique across ALL topics
              " all topics for this plugin get a unique prefix/namespace
-             if !exists('b:dn_help_topics')
+             if !exists("b:dn_help_topics")
                let b:dn_help_topics = {}
              endif
-             let b:dn_help_topics['foo'] = { 'how to wibble': 'foo_wibble' }
+             let b:dn_help_topics["foo"] = { "how to wibble": "foo_wibble" }
              " add help data for each help topic
-             if !exists('b:dn_help_data')
+             if !exists("b:dn_help_data")
                let b:dn_help_data = {}
              endif
-             let b:dn_help_data['foo_wibble'] =
-                         \ [ 'How to wibble:', '', 'Details...' ]
+             let b:dn_help_data["foo_wibble"] =
+                         \ [ "How to wibble:", "", "Details..." ]
 
                                                             *dn-mapping-hh*
-This function is mapped by default to '<LocalLeader>hh', usually '\hh', in both
-Insert and Normal modes.
+This function is mapped by default to "<LocalLeader>hh", usually "\hh", in
+both Insert and Normal modes.
 -------------------------------------------------------------------------
                                                            *dn-utils-lists*
 8. List functions~
@@ -399,7 +400,7 @@ DNU_ListSubtract(list1, list2)
     params:  list1 - list to subtract from <required> [List]
              list2 - list to be subtracted <required> [List]
     return:  new list [List]
-    note:    performs 'list_1 - list_2'
+    note:    performs "list_1 - list_2"
 
                                                          *DNU-ListToScreen*
 DNU_ListToScreen(list, [text_width], [col_width], [indent])
@@ -409,7 +410,7 @@ DNU_ListToScreen(list, [text_width], [col_width], [indent])
                           <default=60> <optional> [integer]
              col_width  - indext at start of line
                           <default=0> <optional> [integer]
-             indent     - delimiter <default=' '> <optional> [char]
+             indent     - delimiter <default=" "> <optional> [char]
     return:  formatted display [string]
 
                                                   *DNU-ListToScreenColumns*
@@ -454,39 +455,23 @@ DNU_ExecuteShellCommand(cmd, [msg])
     purpose: execute shell command
     params:  cmd - shell command <required> [string]
              msg - error message
-                   <default='Error occured:'> <optional> [List]
+                   <default="Error occured:"> <optional> [List]
     insert:  nil
     return:  return status of command as vim boolean [boolean]
 -------------------------------------------------------------------------
                                                              *dn-utils-vcs*
 10. Version control functions~
 
-These functions enable version control from within vim.
-
-The plugin VCSCommand (see |vcscommand|) is recommended for version control.
-The function |dn-util-gitMake| is required because VCSCommand does not handle
-git repository creation.
-
-                                                              *DNU-GitMake*
-DNU_GitMake([insert])
-    purpose: creates git repo in current directory and commits file
-    params:  insert - called from insert mode
-                      <default=false> <optional> [boolean]
-    insert:  nil
-    return:  nil
-
-                                                           *dn-mapping-git*
-This function is mapped by default to '<LocalLeader>git', usually '\git', in
-both Insert and Normal modes.
+These functions assist with scripting version control.
 
                                                     *DNU-LocalGitRepoFetch*
 DNU_LocalGitRepoFetch(dir, [prefix])
     purpose: perform a fetch on a local git repository
-    params:  dir    - path to '.git' subdirectory in repository
+    params:  dir    - path to ".git" subdirectory in repository
                       <required> [string]
              prefix - string prepended to (error) messages
-                      must include any additional punctuation, e.g., ': '
-                      <default='dn-utils: '> <optional> [string]
+                      must include any additional punctuation, e.g., ": "
+                      <default="dn-utils: "> <optional> [string]
     prints:  error messages if fails
     return:  whether fetch successful [boolean]
 
@@ -499,16 +484,16 @@ DNU_LocalGitRepoUpdatedRecently(dir, time, [prefix])
              time   - time in seconds <required> [integer]
                       e.g., a week is 604800 seconds
              prefix - string prepended to (error) messages
-                      must include any additional punctuation, e.g., ': '
-                      <default='dn-utils: '> <optional> [string]
+                      must include any additional punctuation, e.g., ": "
+                      <default="dn-utils: "> <optional> [string]
     prints:  error messages if fails
     return:  whether updated within specified time [boolean]
-    needs:   python and python modules 'os' and 'time'
+    needs:   python and python modules "os" and "time"
     usage:   designed to determine whether repo needs to be
              updated, so if it fails it returns false,
              presumably triggering an update
     note:    displays error message if:
-             - cannot find '.git/FETCH_HEAD' file in directory
+             - cannot find ".git/FETCH_HEAD" file in directory
              - time value is invalid
              - python is absent
              - python command fails or returns unexpected output
@@ -543,7 +528,7 @@ DNU_InsertString(text, [restrict])
 DNU_TrimChar(text, [char])
     purpose: removes leading and trailing chars from string
     params:  text - text to trim <required> [string]
-             char - char to trim <default=' '> <optional> [char]
+             char - char to trim <default=" "> <optional> [char]
     return:  trimmed text [string]
 
                                                              *DNU-Entitise*
@@ -602,8 +587,8 @@ DNU_StridxNum(haystack, needle, number)
     insert:  nil
     return:  position of start of final match
              (-1 if match not found) [number]
-    example: let l:string = 'inside Winston''s inner sanctum'
-             echo DNU_StridxNum(l:string, 'in', 2)  " 8
+    example: let l:string = "inside Winston's inner sanctum"
+             echo DNU_StridxNum(l:string, "in", 2)  " 8
 
                                                           *DNU-PadInternal*
 DNU_PadInternal(string, start, target, [char])
@@ -612,12 +597,12 @@ DNU_PadInternal(string, start, target, [char])
     params:  string - initial string <required> [string]
              start  - position to insert at <required> [number]
              target - target position <required> [number]
-             char   - char to pad with <default=' '> <optional> [char]
+             char   - char to pad with <default=" "> <optional> [char]
     insert:  nil
     return:  altered string [string]
-    note:    if 'char' is a string then only the first char is used
-    example: let l:string1 = 'Column Twenty & Column Twenty One'
-    example: let l:string2 = 'Column Twenty Two & Column Twenty Three'
+    note:    if "char" is a string then only the first char is used
+    example: let l:string1 = "Column Twenty & Column Twenty One"
+    example: let l:string2 = "Column Twenty Two & Column Twenty Three"
              let l:string1 = DNU_PadInternal(l:string1, 14, 18)
              echo l:string1  " Column Twenty     & Column Twenty One
              echo l:string2  " Column Twenty Two & Column Twenty Three
@@ -633,12 +618,12 @@ DNU_GlobalSubstitution(pattern, substitution)
                                                      *DNU-ChangeHeaderCaps*
 DNU_ChangeHeaderCaps(mode)
     purpose: changes capitalisation of line or visual selection
-    params:  mode - calling mode <required> <values='n','v','i'> [char]
+    params:  mode - calling mode <required> <values="n","v","i"> [char]
     insert:  nil
     return:  nil
     note:    newlines are not expected but happen to be preserved
     note:    user selects capitalisation type from:
-             'upper', 'lower', 'sentence', 'start', 'title'
+             "upper", "lower", "sentence", "start", "title"
     note:    types of capitalisation:
                upper:    TO BE OR NOT TO BE
                lower:    to be or not to be
@@ -648,9 +633,6 @@ DNU_ChangeHeaderCaps(mode)
                                              and all words except articles,
                                              prepositions and conjunctions of
                                              fewer than five letters)
-
-This subsidiary function is used by the header-related function just described:
-    s:headerCapsEngine(string, type)
 -------------------------------------------------------------------------
                                                          *dn-utils-numbers*
 12. Number functions~
@@ -675,7 +657,7 @@ DNU_JumpPlace(start, end, direction)
     purpose: jump to placeholder
     params:  start     - place holder start marker <required> [string]
              end       - place holder end marker <required> [string]
-             direction - direction of jump ('f', 'b') <required> [string]
+             direction - direction of jump ("f", "b") <required> [string]
     insert:  nil
     return:  nil
 
@@ -684,17 +666,17 @@ DNU_SelectWord()
     purpose: selects <cword> under cursor (must be only [0-9a-zA-Z_])
     params:  nil
     insert:  nil
-    return:  selected text ('' if no text selected) [string]
+    return:  selected text ("" if no text selected) [string]
 
                                                          *DNU-GetSelection*
 DNU_GetSelection()
     purpose: returns selected text
     params:  nil
     insert:  nil
-    return:  selected text ('' if no text selected) [string]
+    return:  selected text ("" if no text selected) [string]
     note:    works for all selection types; newlines are preserved
     note:    can return multi-line string -- subsidiary functions that
-             use the return value from 'getSelection' and are called via
+             use the return value from "getSelection" and are called via
              a mapping can have a range assigned, which may result in the
              subsidiary function being called once per line if it does not
              handle the range (see |:call| and |function-range-example|)
@@ -704,8 +686,8 @@ DNU_VarType(var)
     purpose: get variable type
     params:  var - variable to be analysed <required> [various]
     insert:  nil
-    return:  variable type ('number'\|'string'\|'funcref'\|'list'\|
-                            'dictionary'\|'float'\|'unknown')
+    return:  variable type ("number"\|"string"\|"funcref"\|"list"\|
+                            "dictionary"\|"float"\|"unknown")
 
                                                                *DNU-TestFn*
 DNU_TestFn()
@@ -728,7 +710,7 @@ Initial capitals
              capitals
 
                                                            *dn-mapping-ic*
-This functionality is mapped by default to '<LocalLeader>ic', usually
-'\ic', in Insert, Normal and Visual modes.
+This functionality is mapped by default to "<LocalLeader>ic", usually
+"\ic", in Insert, Normal and Visual modes.
 -------------------------------------------------------------------------
  vim:tw=78:ts=8:ft=help:norl:

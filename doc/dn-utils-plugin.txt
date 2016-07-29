@@ -97,7 +97,7 @@ DNU_LoadTemplate(key)
     note:    designed for use with autocommands triggered by the
              BufNewFile event
     usage:   here is how this function might be used in a vim
-             configuration file:>
+             configuration file: >
                  au BufNewFile *.[0-9] call DNU_LoadTemplate("manpage")
 <
                                                        *DNU-InsertTemplate*
@@ -112,7 +112,7 @@ DNU_InsertTemplate(key)
     note:    designed for use with autocommands triggered by the
              BufRead event
     usage:   here is how this function might be used in a vim
-             configuration file:>
+             configuration file: >
                  au BufRead *.[0-9] call DNU_InsertTemplate("manpage")
 <
 
@@ -292,7 +292,7 @@ DNU_ConsoleSelect(single, plural, items, [method])
              the item and uses Term::Clui::choose to enable the user
              select from a list of matching items
     note:    both methods handle items containing spaces
-    usage:>
+    usage: >
              let l:element = DNU_ConsoleSelect("element name",
                     \ "element names", l:items, "complete")
 <
@@ -511,7 +511,7 @@ DNU_InsertString(text, [restrict])
              restrict - use 'paste' setting
                         <default=true> <optional> [boolean]
     return:  nil
-    usage:>
+    usage: >
              function! doSomething(...)
                  let l:insert = (a:0 > 0 && a:1) ? 1 : 0
                  ...

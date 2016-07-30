@@ -1,5 +1,5 @@
 " Function:    Vim utility functions
-" Last Change: 2016-04-18
+" Last Change: 2016-07-31
 " Maintainer:  David Nebauer <david@nebauer.org>
 " License:     Public domain
 
@@ -36,238 +36,13 @@ let b:dn_help_data['vim_version_control'] = [
             \ '',
             \ 'For more information try ''h vcscommand''.',
             \ ]                                                      " }}}2
-" templates                                                            {{{2
-" - templates found on system
-let s:templates = {}
-" - templates expected to be found
-let s:expected_templates = {
-            \ 'configfile.rc'    : 'configfile'  ,
-            \ 'Makefile.am'      : 'makefile.am' ,
-            \ 'manpage.1'        : 'manpage'     ,
-            \ 'markdown.md'      : 'markdown'    ,
-            \ 'perlmod.pm'       : 'perlmod'     ,
-            \ 'perlscript.pl'    : 'perlscript'  ,
-            \ 'shellscript.sh'   : 'shellscript' ,
-            \ 'template.desktop' : 'desktop'     ,
-            \ 'template.html'    : 'html'        ,
-            \ 'template.xhtml'   : 'xhtml'       ,
-            \ }                                                      " }}}2
 " temporary file                                                       {{{2
 if ! exists('s:temp_file')
     let s:temp_file = tempname()
 endif                                                                " }}}2
 
 " 3.  FUNCTIONS                                                        {{{1
-" 3.1  Templates                                                       {{{2
-" Functions related to template files
-" DNU_LoadTemplate(key)                                                {{{3
-" does:   load template file
-" params: key - template key (extension or filename)
-" insert: nil
-" print:  error feedback
-" return: boolean (indicating outcome)
-" usage:  intended for vimrc command like:
-"           au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
-function! DNU_LoadTemplate(key)
-	" load script templates variable with available template files
-    call s:IndexTemplates()
-    " get template file
-    let l:template = s:TemplateFilepath(a:key)
-    if l:template ==? '' | return | endif
-    " insert template file
-    call append(0, readfile(l:template))
-    " perform substitutions
-    call s:TemplateSubstitutions()
-    " detect filetype
-    execute ':filetype detect'
-    " goto start token, delete it and enter insert mode
-    call s:TemplateGotoStart()
-endfunction
-" -------------------------------------------------------------------- }}}3
-" DNU_InsertTemplate(key)                                              {{{3
-" does:   insert template file
-" params: key - template key (extension or filename)
-" prints: error feedback
-" return: boolean (indicating outcome)
-" usage:  intended for vimrc command like:
-"           au BufNewFile *.[0-9] call DNU_LoadTemplate('manpage')
-function! DNU_InsertTemplate(key)
-    " only insert template if buffer is empty
-    " - i.e., last line is first line and empty
-    if getpos('$')[1] == 1 && strlen(getline('$')) == 0
-        " load template
-        call DNU_LoadTemplate(a:key)
-    endif
-endfunction
-" -------------------------------------------------------------------- }}}3
-" s:IndexTemplates()                                                   {{{3
-" does:   index template files in variable s:templates
-" params: nil
-" prints: nil
-" return: boolean (indicating outcome)
-function! s:IndexTemplates()
-	" variables
-    let s:templates = {}
-    let l:missing = deepcopy(s:expected_templates)
-    let l:unexpected = []
-    " find template directories
-    let l:template_dir = 'vim-dn-utils-templates'
-    let l:dirs = globpath(&rtp, l:template_dir, b:dn_true, b:dn_true)
-    " cycle through template directories
-    for l:dir in l:dirs
-        " get directory files
-        let l:dir_fps = glob(l:dir . '/*', b:dn_false, b:dn_true)
-        " process directory files
-        for l:dir_fp in l:dir_fps
-            let l:dir_filename = fnamemodify(l:dir_fp, ':t')    " get filename
-            if has_key(s:expected_templates, l:dir_filename)    " expected
-                " not missing
-                if has_key(l:missing, l:dir_filename)
-                    call remove(l:missing, l:dir_filename)
-                endif
-                " index template file
-                let l:key = s:expected_templates[l:dir_filename]
-                if !has_key(s:templates, l:key)
-                    let s:templates[l:key] = []
-                endif
-                call add(s:templates[l:key], l:dir_fp)
-            else    " unexpected file
-                call add(l:unexpected, l:dir_fp)
-            endif    " has_key(expected, dir_filename)
-        endfor    " dir_fp in dir_fps
-    endfor    " for dir in dirs
-    " give feedback if necessary
-    let l:err = ''
-    let l:pad = '    '
-    " - list any unexpected template files
-    if len(l:unexpected) > 0
-        if len(l:unexpected) == 1
-            let l:err .= l:pad . "found unexpected template file:\n"
-        else
-            let l:err = l:pad . "found unexpected template files:\n"
-        endif
-    endif
-    for l:fp in l:unexpected
-        let l:err .= l:pad . l:pad . l:fp . "\n"
-    endfor
-    " - list any missing template files
-    if len(l:missing) > 0
-        if len(l:missing) == 1
-            let l:err .= l:pad . "did not find expected template file:\n"
-        else
-            let l:err = l:pad . "did not find expected template files:\n"
-        endif
-    endif
-    for l:file in keys(l:missing)
-        let l:err .= l:pad . l:pad . l:file . "\n"
-    endfor
-    if l:err !=? ''
-        let l:err = "vim-dn-utils plugin encountered trouble\n"
-                    \ . "while searching for templates:\n"
-                    \ . l:err
-    endif
-    call DNU_Error(l:err)
-endfunction
-" -------------------------------------------------------------------- }}}3
-" s:TemplateFilepath(key)                                              {{{3
-" does:   get template filepath
-" params: key - template key (corresponds to s:templates keys)
-" prints: error feedback
-" return: template filepath ('' if none found)
-" note:   relies on populated variable s:template
-"         run function 's:IndexTemplates' before this function
-function! s:TemplateFilepath(key)
-    if has_key(s:templates, a:key)
-        let l:templates = s:templates[a:key]
-        if len(l:templates) == 0
-            call DNU_Error("No template for key '" . a:key . "'")
-            let l:template = ''    " failed
-        elseif len(l:templates) == 1
-            let l:template = l:templates[0]    " success
-        else
-            let l:template = DNU_MenuSelect(l:templates, 'Select template to use:')
-            if l:template ==? ''
-                call DNU_Error('No template selected')
-                let l:template = ''    " failed
-            endif
-        endif
-    else    " no template for key
-        call DNU_Error("No template for key '" . a:key . "'")
-        let l:template = ''    " failed
-    endif
-    return l:template
-endfunction
-" -------------------------------------------------------------------- }}}3
-" s:TemplateSubstitutions()                                            {{{3
-" does:   perform substitutions on tokens in template
-" params: nil
-" prints: error feedback
-" return: nil
-" note:   supported tokens:
-"         <BASENAME>       -> file basename
-"         <FILENAME>       -> file name
-"         <NAME>           -> file basename
-"         <DATE>           -> yyyy-mm-dd
-"         <HEADER_NAME>    -> manpage header name, use file basename
-"         <HEADER_SECTION> -> manpage section, use numeric file extension
-"         <TITLE_NAME>     -> manpage title name,
-"                             use file basename in initial caps
-"         <START>          -> where to start editing
-function! s:TemplateSubstitutions()
-    " <FILENAME> -> file name
-    let l:filename = expand('%')
-    call DNU_GlobalSubstitution('<FILENAME>', l:filename)
-    " <BASENAME> -> file basename
-    let l:basename = strpart(l:filename, 0, stridx(l:filename, '.'))
-    call DNU_GlobalSubstitution('<BASENAME>', l:basename)
-    " <NAME> -> use file basename
-    call DNU_GlobalSubstitution('<NAME>', l:basename)
-    " <DATE> -> yyyy-mm-dd
-    let l:date = strftime('%Y-%m-%d')
-    call DNU_GlobalSubstitution('<DATE>', l:date)
-    " <HEADER_NAME> -> manpage header, use file basename
-    call DNU_GlobalSubstitution('<HEADER_NAME>', l:basename)
-    " <HEADER_SECTION> -> manpage section, use file extension
-    let l:got_section = b:dn_false
-    let l:ext = ''    " intentional non-numeric value
-    let l:remnant = l:filename
-    while l:remnant != l:basename
-        if DNU_ValidPosInt(l:ext)
-            let l:got_section = b:dn_true
-            break
-        endif
-        let l:ext = fnamemodify(l:remnant, ':e')
-        let l:remnant = fnamemodify(l:remnant, ':r')
-    endwhile
-    if l:got_section
-        call DNU_GlobalSubstitution('<HEADER_SECTION>', l:ext)
-    endif
-    " <TITLE_NAME> -> use file basename in initial caps
-    let l:title = substitute(l:basename, '\v<(.)(\w*)>', '\u\1\L\2', 'g')
-    call DNU_GlobalSubstitution('<TITLE_NAME>', l:title)
-endfunction
-" -------------------------------------------------------------------- }}}3
-" s:TemplateGotoStart()                                                {{{3
-" does:   goto start token in file, delete it and enter insert mode
-" params: nil
-" prints: nil
-" return: nil
-function! s:TemplateGotoStart()
-    call setpos('.', [0, 1, 1, 0])
-    let l:pattern = '<START>'
-    let [l:line_num, l:col] = searchpos(l:pattern, 'nW')
-    if l:line_num > 0
-        let l:line = getline(l:line_num)
-        let l:new_line = substitute(l:line, l:pattern, '', 'g')
-        if l:new_line != l:line
-            call setline(l:line_num, l:new_line)
-        endif
-    endif
-    call setpos('.', [0, l:line_num, l:col, 0])
-    call DNU_InsertMode()
-endfunction
-" ==================================================================== }}}3
-" 3.2  Dates                                                           {{{2
+" 3.1  Dates                                                           {{{2
 " Functions related to dates
 " API:                                                                 {{{3
 " DNU_InsertCurrentDate([bool])
@@ -520,7 +295,7 @@ function! s:YearDoomsday(year)
 	return (l:P + l:Q + l:R + l:century_doomsday) % 7
 endfunction
 " ==================================================================== }}}3
-" 3.3  File/directory                                                  {{{2
+" 3.2  File/directory                                                  {{{2
 " Functions related to files and directories
 " DNU_GetFilePath()                                                    {{{3
 " does:   get filepath of file being edited
@@ -630,7 +405,7 @@ function! DNU_GetRtpFile(name, ...)
     endif
 endfunction
 " ==================================================================== }}}3
-" 3.4  User interaction                                                {{{2
+" 3.3  User interaction                                                {{{2
 " Functions related to user interaction
 " DNU_ShowMsg(msg, [type])                                             {{{3
 " does:   display message to user
@@ -1107,7 +882,7 @@ function! DNU_GetSelection()
     endtry
 endfunction
 " ==================================================================== }}}3
-" 3.5  Lists                                                           {{{2
+" 3.4  Lists                                                           {{{2
 " Functions related to lists
 " DNU_ListGetPartialMatch(list, pattern)                               {{{3
 " does:   get the first element containing given pattern
@@ -1263,7 +1038,7 @@ function! DNU_ListToScreenColumns(list, ...)
 	return DNU_TrimChar(l:msg)  " remove trailing spaces
 endfunction
 " ================================================================== }}}3
-" 3.6  Programming                                                   {{{2
+" 3.5  Programming                                                   {{{2
 " DNU_UnusedFunctions(lower, upper)                                  {{{3
 " does:   checks for uncalled functions
 " params: lower - lower line boundary within which to search
@@ -1461,7 +1236,7 @@ function! s:Scriptnames()
     return l:quickfix_list_items
 endfunction
 " ==================================================================== }}}3
-" 3.7  Version control                                                 {{{2
+" 3.6  Version control                                                 {{{2
 " Functions related to version control
 " DNU_LocalGitRepoFetch(dir, [prefix])                                 {{{3
 " does:   perform a fetch on a local git repository
@@ -1605,7 +1380,7 @@ function! DNU_LocalGitRepoUpdatedRecently(dir, time, ...)
     if l:diff < a:time | return b:dn_true | else | return | endif
 endfunction
 " ==================================================================== }}}3
-" 3.8  Strings                                                         {{{2
+" 3.7  Strings                                                         {{{2
 " Functions related to strings
 " DNU_StripLastChar(str)                                               {{{3
 " does:   removes last character from string
@@ -2047,7 +1822,7 @@ catch
 endtry
 endfunction
 " ==================================================================== }}}3
-" 3.9  Numbers                                                         {{{2
+" 3.8  Numbers                                                         {{{2
 " Functions related to numbers
 " DNU_ValidPosInt(val                                                  {{{3
 " does:   check whether input is valid positive integer
@@ -2059,7 +1834,7 @@ function! DNU_ValidPosInt(value)
 	return a:value =~# '^[1-9]\{1}[0-9]\{}$'
 endfunction
 " ==================================================================== }}}3
-" 3.10 Miscellaneous                                                   {{{2
+" 3.9  Miscellaneous                                                   {{{2
 " Functions that cannot be placed in any other category
 " DNU_JumpPlace(start, end, direction)                                 {{{3
 " does:   jump to placeholder
@@ -2195,7 +1970,7 @@ endfunction                                                          " }}}3
 let &cpo = s:save_cpo                                                " }}}2
 
 " _5.  MAPPINGS                                                        {{{1
-" \ic   : initial caps in selection or line                            {{{3
+" \ic   : initial caps in selection or line                            {{{2
 if !hasmapto('<Plug>DnICI')
 	imap <buffer> <unique> <LocalLeader>ic <Plug>DnICI
 endif
@@ -2235,18 +2010,8 @@ endif
     "   character (&), and
     " return to mark (`v)
 vmap <buffer> <unique> <Plug>DnICV mvugv:s/\%V\<./\u&/<CR>`v
-                                                                     " }}}3
-" \hh   : provide user help                                            {{{3
-if !hasmapto('<Plug>DnHI')
-	imap <buffer> <unique> <LocalLeader>hh <Plug>DnHI
-endif
-imap <buffer> <unique> <Plug>DnHI <Esc>:call DNU_Help(b:dn_true)<CR>
-if !hasmapto('<Plug>DnHN')
-	nmap <buffer> <unique> <LocalLeader>hh <Plug>DnHN
-endif
-nmap <buffer> <unique> <Plug>DnHN :call DNU_Help()<CR>
-                                                                     " }}}3
-" \hc   : change header case                                           {{{3
+                                                                     " }}}2
+" \hc   : change header case                                           {{{2
 if !hasmapto('<Plug>DnHCI')
     imap <buffer> <unique> <LocalLeader>hc <Plug>DNHCI
 endif
@@ -2259,8 +2024,18 @@ if !hasmapto('<Plug>DnHCV')
     vmap <buffer> <unique> <LocalLeader>hc <Plug>DNHCV
 endif
 vmap <buffer> <unique> <Plug>DNHCV :call DNU_ChangeHeaderCaps('v')<CR>
-                                                                     " }}}3
-" \tt   : execute test function                                        {{{3
+                                                                     " }}}2
+" \hh   : provide user help                                            {{{2
+if !hasmapto('<Plug>DnHI')
+	imap <buffer> <unique> <LocalLeader>hh <Plug>DnHI
+endif
+imap <buffer> <unique> <Plug>DnHI <Esc>:call DNU_Help(b:dn_true)<CR>
+if !hasmapto('<Plug>DnHN')
+	nmap <buffer> <unique> <LocalLeader>hh <Plug>DnHN
+endif
+nmap <buffer> <unique> <Plug>DnHN :call DNU_Help()<CR>
+                                                                     " }}}2
+" \tt   : execute test function                                        {{{2
 if !hasmapto('<Plug>DnTI')
 	imap <buffer> <unique> <LocalLeader>tt <Plug>DnTI
 endif

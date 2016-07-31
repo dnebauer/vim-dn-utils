@@ -4,8 +4,8 @@
 " URL:     https://github.com/dnebauer/vim-dn-utils
 
 " Load only once                                                       {{{1
-if exists('b:loaded_dn_utils') | finish | endif
-let b:loaded_dn_utils = 1
+if exists('g:loaded_dn_utils') | finish | endif
+let g:loaded_dn_utils = 1
 
 " Save cpoptions                                                       {{{1
 " - avoids unpleasantness from customised 'compatible' settings

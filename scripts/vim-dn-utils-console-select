@@ -233,7 +233,7 @@ Display help and exit.
 
 =head2 Overview
 
-Enable user to select an item from a list on the console. This script is designed to be used by vim scripts. It is included in the L<vim-dn-utils plugin|https://github.com/dnebauer/vim-dn-utils> and used by the plugin function C<DNU_ConsoleSelect>.
+Enable user to select an item from a list on the console. This script is designed to be used by vim scripts. It is included in the L<vim-dn-utils plugin|https://github.com/dnebauer/vim-dn-utils> and used by the plugin function C<dn#util#consoleSelect>.
 
 =head2 Selection methods
 

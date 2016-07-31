@@ -790,8 +790,8 @@ function! dn#util#listToScreenColumns(list, ...) abort
 	return dn#util#trimChar(l:msg)  " remove trailing spaces
 endfunction
 
-" Programming                                                        {{{2
-" dn#util#unusedFunctions([silent], [lower], [upper])                {{{3
+" Programming                                                          {{{2
+" dn#util#unusedFunctions([silent], [lower], [upper])                  {{{3
 " does:   checks for uncalled vim functions
 " params: silent - suppress user feedback
 "                  [optional, default=0, boolean]
@@ -1024,7 +1024,7 @@ function! dn#util#showFiletypes() abort
     echo l:display
 endfunction
 
-" dn#util#updateUserHelpTags()                                       {{{3
+" dn#util#updateUserHelpTags()                                         {{{3
 " does:   individually updates user vim helpdocs
 " params: nil
 " return: nil

@@ -987,6 +987,42 @@ function! dn#util#scriptnames() abort
     return l:quickfix_list_items
 endfunction
 
+" dn#util#filetypes()                                                  {{{2
+" does:   get list of available filetypes
+" params: nil
+" insert: nil
+" return: filetypes [List]
+function! dn#util#filetypes() abort
+    " loop through each directory path in the runtimepath
+    let l:filetypes = []
+    for l:dir in split(&runtimepath, ',')
+        let l:syntax_dir = l:dir . '/syntax'
+        " check for syntax directory in this runtime directory
+        if (isdirectory(l:syntax_dir))
+            " loop through each vimscript file in the syntax directory
+            for l:syntax_file in glob(l:syntax_dir . '/*.vim', 1, 1)
+                " add basename of syntax file
+                call add(l:filetypes, fnamemodify(l:syntax_file, ':t:r'))
+            endfor
+        endif
+    endfor
+    " remove duplicates
+    return uniq(sort(l:filetypes))
+endfunction
+
+" dn#util#showFiletypes()                                              {{{3
+" does:   display available filetypes in echo area
+" params: nil
+" return: nil
+function! dn#util#showFiletypes() abort
+    " get filetype list
+    let l:filetypes = dn#util#filetypes()
+    " prepare for display
+    let l:display = dn#util#listToScreen(l:filetypes, winwidth(0))
+    " display
+    echo l:display
+endfunction
+
 " Version control                                                      {{{2
 " dn#util#localGitRepoFetch(dir, [prefix])                             {{{3
 " does:   perform a fetch on a local git repository

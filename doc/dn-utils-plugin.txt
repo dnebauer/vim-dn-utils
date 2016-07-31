@@ -86,6 +86,7 @@ Programming:                                 *dn-utils-programming-functions*
     dn#util#insertMode()        switch to insert mode
     dn#util#executeShellCommand()
                                 execute shell command
+    dn#util#showFiletypes()     display list of available filetypes
 
 Version control:                                     *dn-utils-git-functions*
                                                      *dn-utils-vcs-functions*
@@ -405,7 +406,7 @@ dn#util#menuSelect({items}[, {prompt}])                *dn#util#menuSelect()*
             Dictionaries can contain Lists and Dictionaries as values as well
             as Strings and Numbers. All Dictionary keys must be Strings, as
             required by vim (see |E713|).
-            
+
             When a List is provided as a List element or Dictionary value, its
             first item is used as an item in the parent menu that, if
             selected, displays a submenu constructed from the remaining List
@@ -427,7 +428,7 @@ dn#util#menuSelect({items}[, {prompt}])                *dn#util#menuSelect()*
             possible for an empty menu item to be provided to this function,
             and then selected and returned. There is no way to distinguish
             between that event and failure to select any item.
-            
+
             The menu {prompt} defaults to "Select an option:".
 
 dn#util#nowDay()                                           *dn#util#nowDay()*
@@ -443,7 +444,7 @@ dn#util#nowYear()                                         *dn#util#nowYear()*
 dn#util#padInternal({string}, {start}, {target}[, {char}])
             Inserts character {char} (defaults to space) into {string} at
             position {start} and continues inserting {char} until position
-            {target}. Both {start} and {target} are integers. 
+            {target}. Both {start} and {target} are integers.
             Returns the altered String.
 
             Example: >
@@ -461,6 +462,12 @@ dn#util#selectWord()                                   *dn#util#selectWord()*
             Select the |:<cword>| under the cursor (must be only [0-9a-zA-Z_]
             and returns it. Returns "" if no <cword> can be selected.
 
+dn#util#filetypes()                                     *dn#util#filetypes()*
+            Return list of available filetypes.
+
+dn#util#showFiletypes()                             *dn#util#showFiletypes()*
+            Displays list of available filetypes in echo area.
+
 dn#util#showMsg({msg}[, {type}])                          *dn#util#showMsg()*
             Displays message {msg} to user. Message {type} can be "generic",
             "warning", "info", "question" or "error" (defaults to "info").
@@ -468,7 +475,7 @@ dn#util#showMsg({msg}[, {type}])                          *dn#util#showMsg()*
 dn#util#stringify({var}[, {quote}])                     *dn#util#stringify()*
             Convert variable {var} to a string value. If {quote} is present
             and true string values are quoted, i.e, defaults to false. Simple
-            variable types are converted depending on type: 
+            variable types are converted depending on type:
 
                 Number     never quoted
                 and Float
@@ -546,5 +553,9 @@ selection, if present, or line if there is no selection.
                         the order they were first sourced, except sends the
                         output to the location list and opens a location
                         window.
+
+                        *:Filetypes*
+:Filetypes              Displays a list of available filetypes in the echo
+                        area.
 
  vim:tw=78:ts=8:ft=help:norl:

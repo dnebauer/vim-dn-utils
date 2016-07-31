@@ -114,6 +114,8 @@ vmap <buffer> <unique> <Plug>DnTV
 " Scriptnames : display script names in quickfix window                {{{2
 command! -bar Scriptnames
             \ call setqflist(dn#util#scriptnames())|copen
+" Filetypes : display fileypes in echo area                            {{{2
+command Filetypes call dn#util#showFiletypes()
 
 " Restore cpoptions                                                    {{{1
 let &cpoptions = s:save_cpo

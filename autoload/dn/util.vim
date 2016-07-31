@@ -987,7 +987,7 @@ function! dn#util#scriptnames() abort
     return l:quickfix_list_items
 endfunction
 
-" dn#util#filetypes()                                                  {{{2
+" dn#util#filetypes()                                                  {{{3
 " does:   get list of available filetypes
 " params: nil
 " insert: nil
@@ -1018,7 +1018,8 @@ function! dn#util#showFiletypes() abort
     " get filetype list
     let l:filetypes = dn#util#filetypes()
     " prepare for display
-    let l:display = dn#util#listToScreen(l:filetypes, winwidth(0))
+    let l:display = dn#util#listToScreenColumns(
+                \ l:filetypes, winwidth(0)-3)
     " display
     echo l:display
 endfunction

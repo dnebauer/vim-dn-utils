@@ -112,10 +112,8 @@ vmap <buffer> <unique> <Plug>DnTV
 
 " Commands                                                             {{{1
 " Scriptnames : display script names in quickfix window                {{{2
-let s:names = dn#util#scriptnames()
-command! -bar Scriptnames call setqflist(s:names)|copen
-"command! -bar Scriptnames
-"            \ call setqflist(dn#util#scriptnames())|copen
+command! -bar Scriptnames
+            \ call setqflist(dn#util#scriptnames())|copen
 
 " Restore cpoptions                                                    {{{1
 let &cpoptions = s:save_cpo

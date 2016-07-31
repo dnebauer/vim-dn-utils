@@ -1024,6 +1024,33 @@ function! dn#util#showFiletypes() abort
     echo l:display
 endfunction
 
+" dn#util#updateUserHelpTags()                                       {{{3
+" does:   individually updates user vim helpdocs
+" params: nil
+" return: nil
+function! dn#util#updateUserHelpTags() abort
+    " get user directories from rtp
+    let l:user_rtp = []
+    for l:path in split(&runtimepath, ',')
+        if match(l:path, $HOME) == 0  " $HOME starts path
+            call add(l:user_rtp, l:path)
+        endif
+    endfor
+    " find user directories with 'doc' subdirectories
+    let l:doc_dirs = []
+    for l:path in l:user_rtp
+        let l:doc_dir = l:path . '/doc'
+        if isdirectory(l:doc_dir)
+            call add(l:doc_dirs, l:doc_dir)
+        endif
+    endfor
+    echo l:doc_dirs
+    " update doc directories
+    for l:path in l:doc_dirs
+        execute 'helptags' l:path
+    endfor
+endfunction
+
 " Version control                                                      {{{2
 " dn#util#localGitRepoFetch(dir, [prefix])                             {{{3
 " does:   perform a fetch on a local git repository
@@ -1832,7 +1859,7 @@ function! s:_yearDoomsday(year) abort
 	let l:R = l:Q / 4
 	let l:century_doomsday = s:_centuryDoomsday(a:year)
 	return (l:P + l:Q + l:R + l:century_doomsday) % 7
-endfunction 
+endfunction
 
 " Restore cpoptions                                                    {{{1
 let &cpoptions = s:save_cpo

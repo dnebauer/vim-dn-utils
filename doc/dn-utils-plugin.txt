@@ -517,6 +517,13 @@ dn#util#unusedFunctions([{silent}[, {lower}[, {upper}]]])
             false).
             Returns a |List| of unused functions (empty if none found).
 
+dn#util#updateUserHelpTags()                   *dn#util#updateUserHelpTags()*
+            Finds "doc" subdirectories of directories in the 'runtimepath'
+            that begin with |$HOME|, and rebuilds help tags in those "doc"
+            subdirectories one subdirectory at a time. In this way errors in
+            one subdirectory do stop building helptags in other "doc"
+            subdirectories.
+
 dn#util#validPosInt({val})                            *dn#util#validPosInt()*
             Check whether value {val} is a valid positive integer. Zero is not
             considered a positive integer by this function. Returns a boolean

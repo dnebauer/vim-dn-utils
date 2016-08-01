@@ -17,7 +17,7 @@ to all files being edited.
 These functions were developed over time by the author and later combined into
 a library.
 
-All functions in this library are global. They all have the prefix "DNU_"
+All functions in this library are global. They all have the prefix "dn#util#"
 to try and avoid namespace collisions.
 
 Some mappings and autocommands are also provided.

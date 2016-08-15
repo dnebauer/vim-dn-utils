@@ -1,6 +1,5 @@
 " Title:   autoload script for vim-dn-utils plugin
 " Author:  David Nebauer
-" License: Public domain
 " URL:     https://github.com/dnebauer/vim-dn-utils
 
 " Load once                                                            {{{1

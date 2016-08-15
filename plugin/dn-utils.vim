@@ -1,6 +1,5 @@
 " Title:   Vim utility functions
 " Author:  David Nebauer
-" License: Public domain
 " URL:     https://github.com/dnebauer/vim-dn-utils
 
 " Load only once                                                       {{{1

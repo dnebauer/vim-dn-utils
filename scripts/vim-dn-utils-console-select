@@ -307,12 +307,9 @@ Please report any bugs to the author.
 
 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
-=head1 LICENSE AND COPYRIGHT
+=head1 COPYRIGHT
 
 Copyright (c) 2016 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
-
-This script is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
 
 =cut
 # vim:fdm=marker:

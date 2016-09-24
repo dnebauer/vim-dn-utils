@@ -1050,9 +1050,9 @@ function! dn#util#updateUserHelpTags() abort
     " give user feedback
     echo 'Generated help tags in directories:'
     if exists('*dn#util#wrap')
-        echo dn#util#wrap(join(sort(l:doc_dirs), ', '))
+        echo dn#util#wrap(join(sort(l:doc_dirs), "\n"))
     else
-        echo join(sort(l:doc_dirs), ', ')
+        echo join(sort(l:doc_dirs), "\n")
     endif
 endfunction
 

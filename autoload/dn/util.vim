@@ -1043,11 +1043,17 @@ function! dn#util#updateUserHelpTags() abort
             call add(l:doc_dirs, l:doc_dir)
         endif
     endfor
-    echo l:doc_dirs
     " update doc directories
     for l:path in l:doc_dirs
         execute 'helptags' l:path
     endfor
+    " give user feedback
+    echo 'Generated help tags in directories:'
+    if exists('*dn#util#wrap')
+        echo dn#util#wrap(join(l:doc_dirs, ', '))
+    else
+        echo join(l:doc_dirs, ', ')
+    endif
 endfunction
 
 " Version control                                                      {{{2

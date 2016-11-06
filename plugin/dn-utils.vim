@@ -12,15 +12,15 @@ let s:save_cpo = &cpoptions
 set cpoptions&vim
 
 " Boolean variables                                                    {{{1
-let b:dn_true  = 1
-let b:dn_false = 0
+let g:dn_true  = 1
+let g:dn_false = 0
 
 " Help variables                                                       {{{1
-if !exists('b:dn_help_plugins') | let b:dn_help_plugins = [] | endif
-call add(b:dn_help_plugins, 'dn-utils')
-if !exists('b:dn_help_topics') | let b:dn_help_topics = {} | endif
-let b:dn_help_topics['vim'] = {'version control': 'vim_version_control'}
-if !exists('b:dn_help_data') | let b:dn_help_data = {} | endif
+if !exists('g:dn_help_plugins') | let g:dn_help_plugins = [] | endif
+call add(g:dn_help_plugins, 'dn-utils')
+if !exists('g:dn_help_topics') | let g:dn_help_topics = {} | endif
+let g:dn_help_topics['vim'] = {'version control': 'vim_version_control'}
+if !exists('g:dn_help_data') | let g:dn_help_data = {} | endif
 
 " Mappings                                                             {{{1
 " \ic : initial caps in selection or line                              {{{2
@@ -86,7 +86,7 @@ if !hasmapto('<Plug>DnHI')
 	imap <buffer> <unique> <LocalLeader>hh <Plug>DnHI
 endif
 imap <buffer> <unique> <Plug>DnHI
-            \ <Esc>:call dn#util#help(b:dn_true)<CR>
+            \ <Esc>:call dn#util#help(g:dn_true)<CR>
 if !hasmapto('<Plug>DnHN')
 	nmap <buffer> <unique> <LocalLeader>hh <Plug>DnHN
 endif

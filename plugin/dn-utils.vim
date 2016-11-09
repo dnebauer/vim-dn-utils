@@ -78,7 +78,7 @@ nmap <buffer> <unique> <Plug>DNHCN
 if !hasmapto('<Plug>DnHCV')
     vmap <buffer> <unique> <LocalLeader>hc <Plug>DNHCV
 endif
-vmap <buffer> <unique> <Plug>DNHCVi
+vmap <buffer> <unique> <Plug>DNHCV
             \ :call dn#util#changeHeaderCaps('v')<CR>
 
 " \hh : provide user help                                              {{{2

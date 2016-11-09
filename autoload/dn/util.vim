@@ -116,8 +116,8 @@ endfunction
 "         if allow multiples, return list (even if only one match)
 function! dn#util#getRtpDir(name, ...) abort
     " set vars
-    if a:0 > 1 && a:1 | let l:allow_multiples = b:dn_true
-    else              | let l:allow_multiples = b:dn_false
+    if a:0 > 1 && a:1 | let l:allow_multiples = g:dn_true
+    else              | let l:allow_multiples = g:dn_false
     endif
     if a:name ==? ''
         if l:allow_multiples | return []
@@ -125,7 +125,7 @@ function! dn#util#getRtpDir(name, ...) abort
         endif
     endif
     " search for directory
-    let l:matches = globpath(&runtimepath, a:name, b:dn_true, b:dn_true)
+    let l:matches = globpath(&runtimepath, a:name, g:dn_true, g:dn_true)
     " if allowing multiple matches
     if l:allow_multiples
         return l:matches
@@ -148,7 +148,7 @@ endfunction
 "         if allow multiples, return list (even if only one match)
 function! dn#util#getRtpFile(name, ...) abort
     " set vars
-    let l:allow_multiples = (a:0 > 1 && a:1) ? b:dn_true : b:dn_false
+    let l:allow_multiples = (a:0 > 1 && a:1) ? g:dn_true : g:dn_false
     if a:name ==? ''
         if   l:allow_multiples | return []
         else                   | return
@@ -276,10 +276,10 @@ function! dn#util#wrap(msg) abort
             break
         endif
         " find wrap point
-        let l:break = -1 | let l:count = 1 | let l:done = b:dn_false
+        let l:break = -1 | let l:count = 1 | let l:done = g:dn_false
         while !l:done
             let l:index = match(l:msg, '[!@*-+;:,./? \t]', '', l:count)
-            if     l:index == -1     | let l:done = b:dn_true
+            if     l:index == -1     | let l:done = g:dn_true
             elseif l:index < l:width | let l:break = l:index
             endif
             let l:count += 1
@@ -534,76 +534,76 @@ endfunction
 " insert: nil
 " return: nil
 " note:   extensible help system relying on buffer Dictionary
-"         variables b:dn_help_plugins, b:dn_help_topics and b:dn_help_data
-" note:   b:dn_help_plugins is a list of all plugins contributing help
-" note:   b:dn_help_topics will be submitted to dn#util#menuSelect to
+"         variables g:dn_help_plugins, g:dn_help_topics and g:dn_help_data
+" note:   g:dn_help_plugins is a list of all plugins contributing help
+" note:   g:dn_help_topics will be submitted to dn#util#menuSelect to
 "         obtain a *unique* value
-" note:   b:dn_help_data has as keys the unique values returned by
-"         b:dn_help_topics and as values Lists with the help text to
+" note:   g:dn_help_data has as keys the unique values returned by
+"         g:dn_help_topics and as values Lists with the help text to
 "         be returned
 " note:   the List help data is output as concatenated text; to insert
 "         a newline use an empty lists element ('')
 " note:   other plugins can add to the help variables and so take
 "         advantage of the help system; the most friendly way to do this
-"         is for the b:dn_help_topics variable to have a single top-level
+"         is for the g:dn_help_topics variable to have a single top-level
 "         menu item reflecting the plugin name/type, and for the topic
 "         values to be made unique by appending to each a prefix unique to
 "         its plugin
-" example:if !exists('b:dn_help_plugins') | let b:dn_help_plugins = {} | endif
-"         if index(b:dn_help_plugins, 'foo', b:dn_true) == -1
-"           call add(b:dn_help_plugins, 'foo')
+" example:if !exists('g:dn_help_plugins') | let g:dn_help_plugins = {} | endif
+"         if index(g:dn_help_plugins, 'foo', g:dn_true) == -1
+"           call add(g:dn_help_plugins, 'foo')
 "         endif
-"         if !exists('b:dn_help_topics') | let b:dn_help_topics = {} | endif
-"         let b:dn_help_topics['foo'] = { 'how to wibble': 'foo_wibble' }
-"         if !exists('b:dn_help_data') | let b:dn_help_data = {} | endif
-"         let b:dn_help_data['foo_wibble'] = [ 'How to wibble:', '', 'Details...' ]
+"         if !exists('g:dn_help_topics') | let g:dn_help_topics = {} | endif
+"         let g:dn_help_topics['foo'] = { 'how to wibble': 'foo_wibble' }
+"         if !exists('g:dn_help_data') | let g:dn_help_data = {} | endif
+"         let g:dn_help_data['foo_wibble'] = [ 'How to wibble:', '', 'Details...' ]
 function! dn#util#help(...) abort
 	echo '' | " clear command line
     " variables
-    let l:insert = (a:0 > 0 && a:1) ? b:dn_true : b:dn_false
+    let l:insert = (a:0 > 0 && a:1) ? g:dn_true : g:dn_false
     let l:topic = ''  " help topic selected by user
     " - require basic help variables
-    if !exists('b:dn_help_topics')
+    if !exists('g:dn_help_topics')
         call dn#util#error('No help menu variable available')
         if l:insert | call dn#util#insertMode(1) | endif
         return
     endif
-    if empty(b:dn_help_topics)
+    if empty(g:dn_help_topics)
         call dn#util#error('No help topics defined')
         if l:insert | call dn#util#insertMode(1) | endif
         return
     endif
-    if !exists('b:dn_help_data')
+    if !exists('g:dn_help_data')
         call dn#util#error('No help data variable available')
         if l:insert | call dn#util#insertMode(1) | endif
         return
     endif
-    if empty(b:dn_help_data)
+    if empty(g:dn_help_data)
         call dn#util#error('No help data defined')
         if l:insert | call dn#util#insertMode(1) | endif
         return
     endif
     " brag about help
     echo 'Dn-Utils Help System'
-    if exists('b:dn_help_plugins') && !empty(b:dn_help_plugins)
-        let l:plugin = (len(b:dn_help_plugins) == 1) ? 'plugin' : 'plugins'
+    if exists('g:dn_help_plugins') && !empty(g:dn_help_plugins)
+        let l:plugin = (len(g:dn_help_plugins) == 1) ? 'plugin' : 'plugins'
         echon "\n[contributed by " . l:plugin . ': '
-        echon join(b:dn_help_plugins, ', ') . "]\n"
+        echon join(g:dn_help_plugins, ', ') . "]\n"
     endif
     " select help topic
     let l:prompt = 'Select a help topic:'
-    let l:topic = dn#util#menuSelect(b:dn_help_topics, l:prompt)
+    let l:topic = dn#util#menuSelect(g:dn_help_topics, l:prompt)
     if l:topic ==? ''
         call dn#util#error('No help topic selected')
         if l:insert | call dn#util#insertMode(1) | endif
         return
     endif
-    if !has_key(b:dn_help_data, l:topic)
+    if !has_key(g:dn_help_data, l:topic)
         call dn#util#error("No help data for topic '" . l:topic . "'")
         if l:insert | call dn#util#insertMode(1) | endif
         return
     endif
-    let l:data = b:dn_help_data[l:topic]
+    let l:data = g:dn_help_data[l:topic]
     if type(l:data) != type([])
         let l:msg = "Help data for topic '" . l:topic . "' is not a List"
         call dn#util#error(l:msg)
@@ -660,7 +660,7 @@ function! dn#util#listExchangeItems(list, index1, index2) abort
 	let l:item1 = a:list[a:index1]
     let a:list[a:index1] = a:list[a:index2]
     let a:list[a:index2] = l:item1
-	return b:dn_true
+	return g:dn_true
 endfunction
 
 " dn#util#listSubtract(list_1, list_2)                                 {{{3
@@ -860,7 +860,7 @@ function! dn#util#unusedFunctions(...) abort
 			endif
 			" now find whether function ever called
 			call cursor(l:lower, 1)
-			let l:called = b:dn_false
+			let l:called = g:dn_false
 			while search(l:func_srch . '(', 'W')
 						\ && line('.') <= l:upper
 				let l:line_num = line('.')
@@ -873,7 +873,7 @@ function! dn#util#unusedFunctions(...) abort
 								\ . l:func_srch
 								\ . '[^"]\{}$'
 					if match(l:line, l:comment) == -1
-						let l:called = b:dn_true
+						let l:called = g:dn_true
 						break
 					endif
 				endif
@@ -952,7 +952,7 @@ function! dn#util#executeShellCommand(cmd, ...) abort
         echo '--------------------------------------'
         return
     else
-        return b:dn_true
+        return g:dn_true
     endif
 endfunction
 
@@ -1196,7 +1196,7 @@ function! dn#util#localGitRepoUpdatedRecently(dir, time, ...) abort
     " have both time values
     " - if less than the supplied time then return true
     let l:diff = l:now - l:last_fetch
-    if l:diff < a:time | return b:dn_true | else | return | endif
+    if l:diff < a:time | return g:dn_true | else | return | endif
 endfunction
 
 " Strings                                                              {{{2
@@ -1226,8 +1226,8 @@ endfunction
 "         	if l:insert | call dn#util#insertMode() | endif
 "         endfunction
 function! dn#util#insertString(inserted_text, ...) abort
-    let l:restrictive = b:dn_true
-    if a:0 > 1 && ! a:1 | let l:restrictive = b:dn_false | endif
+    let l:restrictive = g:dn_true
+    if a:0 > 1 && ! a:1 | let l:restrictive = g:dn_false | endif
 	if l:restrictive | let l:paste_setting = &paste | set paste | endif
 	silent execute 'normal a' . a:inserted_text
 	if l:restrictive && ! l:paste_setting | set nopaste | endif
@@ -1295,8 +1295,8 @@ function! dn#util#stringify(var, ...) abort
     let l:Var = deepcopy(a:var)
     " are we quoting string output?
     let l:quoting_strings = (a:0 > 0 && a:1)
-                \ ? b:dn_true
-                \ : b:dn_false
+                \ ? g:dn_true
+                \ : g:dn_false
     " string
     if     type(a:var) == type('')
         let l:Var = strtrans(l:Var)  " ensure all chars printable
@@ -1317,7 +1317,7 @@ function! dn#util#stringify(var, ...) abort
     elseif type(a:var) == type([])
         let l:out = []
         for l:Item in l:Var
-            call add(l:out, dn#util#stringify(l:Item, b:dn_true))
+            call add(l:out, dn#util#stringify(l:Item, g:dn_true))
             unlet l:Item
         endfor
         return '[ ' . join(l:out, ', ') . ' ]'
@@ -1326,7 +1326,7 @@ function! dn#util#stringify(var, ...) abort
     elseif type(a:var) == type({})
         let l:out = []
         for l:key in sort(keys(l:Var))
-            let l:val = dn#util#stringify(l:Var[l:key], b:dn_true)
+            let l:val = dn#util#stringify(l:Var[l:key], g:dn_true)
             call add(l:out, "'" . l:key . "' => " . l:val)
         endfor
         return '{ ' . join(l:out, ', ') . ' }'
@@ -1336,7 +1336,7 @@ function! dn#util#stringify(var, ...) abort
     " have now covered all five variable types
     else
         call dn#util#error('invalid variable type')
-        return b:dn_false
+        return g:dn_false
     endif
 endfunction
 
@@ -1353,7 +1353,7 @@ function! dn#util#matchCount(haystack, needle) abort
     let l:matches = 0  " number of searches performed
     let l:pos = -1   " position to search from
     " do progressive search
-    while b:dn_true
+    while g:dn_true
         let l:pos = stridx(a:haystack, a:needle, l:pos + 1)
         " stop searching when run out of matches
         if l:pos == -1 | break | endif
@@ -1680,8 +1680,8 @@ try
     " process words individually
     let l:index = 0
     let l:last_index = len(l:words) - 1
-    let l:first_word = b:dn_true
-    let l:last_word = b:dn_false
+    let l:first_word = g:dn_true
+    let l:last_word = g:dn_false
     for l:word in l:words
         let l:word = tolower(l:word)    " first make all lowercase
         let l:last_word = (l:index == l:last_index)    " check for last word
@@ -1718,7 +1718,7 @@ try
         endif
         " negate first word flag after first word is encountered
         if l:first_word && l:word =~# '^\a'
-            let l:first_word = b:dn_false
+            let l:first_word = g:dn_false
         endif
         " write changed word
         let l:words[l:index] = l:word
@@ -1740,9 +1740,9 @@ endfunction
 " note:   return value used as numerical value in some functions
 function! s:_leapYear(year) abort
     if a:year % 4 == 0 && a:year != 0
-        return b:dn_true
+        return g:dn_true
     else
-        return b:dn_false
+        return g:dn_false
     endif
 endfunction
 
@@ -1800,15 +1800,15 @@ endfunction
 function! s:_validCalInput(year, month, day) abort
 	let l:retval :dn_true
 	if !s:_validYear(a:year)
-		let l:retval = b:dn_false
+		let l:retval = g:dn_false
 		echo "Invalid year: '" . a:year . "'"
 	endif
 	if !s:_validMonth(a:month)
-		let l:retval = b:dn_false
+		let l:retval = g:dn_false
 		echo "Invalid month: '" . a:month . "'"
 	endif
 	if !s:_validDay(a:year, a:month, a:day)
-		let l:retval = b:dn_false
+		let l:retval = g:dn_false
 		echo "Invalid day:   '" . a:day . "'"
 	endif
 	return l:retval
@@ -1824,10 +1824,10 @@ endfunction
 function! s:_validDay(year, month, day) abort
 	if dn#util#validPosInt(a:day)
 		if a:day <= s:_monthLength(a:year, a:month)
-			return b:dn_true
+			return g:dn_true
 		endif
 	endif
-	return b:dn_false
+	return g:dn_false
 endfunction
 
 " s:_validMonth(month)                                                 {{{2
@@ -1837,9 +1837,9 @@ endfunction
 " return: whether valid month [boolean]
 function! s:_validMonth (month) abort
 	if dn#util#validPosInt(a:month) && a:month <= 12
-        return b:dn_true
+        return g:dn_true
     endif
-	return b:dn_false
+	return g:dn_false
 endfunction
 
 " s:_validYear(year)                                                   {{{2

@@ -28,13 +28,13 @@ Some mappings and autocommands are also provided.
 The plugin provides some useful convenience variables that can be used by
 other plugins.
 
-                                                     *b:dn-true* *b:dn-false*
-Boolean buffer variables b:dn_true and b:dn_false save script writers from
+                                                     *g:dn-true* *g:dn-false*
+Boolean global variables g:dn_true and g:dn_false save script writers from
 having to remember the boolean values used by vim.
 (Note: false = 0 and true = non-zero integer.)
 
-The extensible help system relies on buffer Dictionary variables
-b:dn_help_plugins, b:dn_help_topics and b:dn_help_data. See |dn#util#help()|
+The extensible help system relies on global Dictionary variables
+g:dn_help_pluginsg g:dn_help_topics and g:dn_help_data. See |dn#util#help()|
 for more details.
 
 ==============================================================================
@@ -253,28 +253,28 @@ dn#util#globalSubstitution({pattern}, {substitution})
                 finished returns the cursor to its position before the
                 operation.
 
-                                        *b:dn-help-plugins* *b:dn-help-topics*
-dn#util#help([{insert}])                     *b:dn-help-data* *dn#util#help()*
+                                        *g:dn-help-plugins* *g:dn-help-topics*
+dn#util#help([{insert}])                     *g:dn-help-data* *dn#util#help()*
                 Enable user to select from previously defined help topics to
                 display custom help. The {insert} argument indicates whether
                 the function was called from insert mode (default is false).
-                This is an extensible help system relying on buffer-specific
-                Dictionary variables b:dn_help_plugins, b:dn_help_topics and
-                b:dn_help_data:
+                This is an extensible help system relying on global Dictionary
+                variables g:dn_help_plugins, g:dn_help_topics and
+                g:dn_help_data:
 
-                  b:dn_help_plugins  a |List| of all plugins contributing help
-                  b:dn_help_topics   will be submitted to
+                  g:dn_help_plugins  a |List| of all plugins contributing help
+                  g:dn_help_topics   will be submitted to
                                      |dn#util#menuSelect()| to obtain a
                                      unique value
-                  b:dn_help_data     has as keys the unique values returned by
-                                     b:dn_help_topics, and as values Lists
+                  g:dn_help_data     has as keys the unique values returned by
+                                     g:dn_help_topics, and as values Lists
                                      with the help text to be returned
 
                 The |List| help data is output as concatenated text. To insert
                 a newline use an empty list element (""). Other plugins can
                 add to the help variables and so take advantage of the help
                 system. The most friendly way to do this is for the
-                b:dn_help_topics variable to have a single top-level menu item
+                g:dn_help_topics variable to have a single top-level menu item
                 reflecting the plugin name/type, and for the topic values to
                 be made unique by appending to each a prefix unique to its
                 plugin.
@@ -282,27 +282,27 @@ dn#util#help([{insert}])                     *b:dn-help-data* *dn#util#help()*
                 Example: >
                 " this is example script for the foo plugin
                 " add plugin name to list of plugins contributing help
-                if !exists("b:dn_help_plugins")
-                  let b:dn_help_plugins = {}
+                if !exists("g:dn_help_plugins")
+                  let g:dn_help_plugins = {}
                 endif
-                if index(b:dn_help_plugins, "foo", b:dn_true) == -1
-                  call add(b:dn_help_plugins, "foo")
+                if index(g:dn_help_plugins, "foo", g:dn_true) == -1
+                  call add(g:dn_help_plugins, "foo")
                 endif
                 " add help topics for foo plugin to help menu
                 " note that "foo" is a top level menu item
                 " all help topics are in its submenu
                 " all "leaf" entries have to be unique across ALL topics
                 " all topics for this plugin get a unique prefix/namespace
-                if !exists("b:dn_help_topics")
-                  let b:dn_help_topics = {}
+                if !exists("g:dn_help_topics")
+                  let g:dn_help_topics = {}
                 endif
-                let b:dn_help_topics["foo"]
+                let g:dn_help_topics["foo"]
                             \ = { "how to wibble": "foo_wibble" }
                 " add help data for each help topic
-                if !exists("b:dn_help_data")
-                  let b:dn_help_data = {}
+                if !exists("g:dn_help_data")
+                  let g:dn_help_data = {}
                 endif
-                let b:dn_help_data["foo_wibble"] =
+                let g:dn_help_data["foo_wibble"] =
                             \ [ "How to wibble:", "", "Details..." ]
 <
                                                             *<LocalLeader>hh*

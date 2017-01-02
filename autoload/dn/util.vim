@@ -3,9 +3,7 @@
 " URL:     https://github.com/dnebauer/vim-dn-utils
 
 " Load once                                                            {{{1
-if exists('g:loaded_dn_utils_autoload') || !exists('g:loaded_dn_utils')
-    finish
-endif
+if exists('g:loaded_dn_utils_autoload') | finish | endif
 let g:loaded_dn_utils_autoload = 1
 
 " Save coptions                                                        {{{1

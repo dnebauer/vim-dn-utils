@@ -253,20 +253,31 @@ endfunction
 
 " dn#util#wrap(msg)                                                    {{{3
 " does:   echoes text but wraps it sensibly
-" params: msg - message [string]
+" params: msg  - message [string]
+"         hang - hanging indent size [integer, optional, default=0]
 " insert: nil
 " prints: messages
 " return: nil
-function! dn#util#wrap(msg) abort
+function! dn#util#wrap(msg, ...) abort
     " variables
     let l:width = winwidth(0) - 1
     let l:msg = a:msg
+    let l:hang_size = 0
+    if a:0 > 0 && dn#util#validPosInt(a:1) && (l:width - a:1) > 10
+        let l:hang_size = a:1
+    endif
+    let l:hang_indent = ''
+    while l:hang_size > 0
+        let l:hang_indent .= ' '
+        let l:hang_size -= 1
+    endwhile
     " deal with simple case of no input
     if a:msg ==? ''
         echon "\n"
         return
     endif
     " process for wrapping
+    let l:first_line = g:dn_true
     while l:msg !=? ''
         " exit on last output line
         if len(l:msg) <= l:width
@@ -276,7 +287,7 @@ function! dn#util#wrap(msg) abort
         " find wrap point
         let l:break = -1 | let l:count = 1 | let l:done = g:dn_false
         while !l:done
-            let l:index = match(l:msg, '[!@*-+;:,./? \t]', '', l:count)
+            let l:index = match(l:msg, '[!@*\-+;:,./?\\ \t]', '', l:count)
             if     l:index == -1     | let l:done = g:dn_true
             elseif l:index < l:width | let l:break = l:index
             endif
@@ -287,12 +298,17 @@ function! dn#util#wrap(msg) abort
         if l:break == -1 | echo l:msg | break | endif
         " let's wrap!
         let l:break += 1
-        echo strpart(l:msg, 0, l:break)
+        let l:output = strpart(l:msg, 0, l:break)
+        if !l:first_line
+            let l:output = l:hang_indent . l:output
+        endif
+        echo l:output
         let l:msg = strpart(l:msg, l:break)
         " - if broke line on punctuation mark may now have leading space
         if strpart(l:msg, 0, 1) ==? ' '
             let l:msg = strpart(l:msg, 1)
         endif
+        let l:first_line = g:dn_false
     endwhile
 endfunction
 

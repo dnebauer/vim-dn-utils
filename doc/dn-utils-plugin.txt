@@ -537,10 +537,12 @@ dn#util#warn({msg})                                          *dn#util#warn()*
             Display warning message {msg} in warning highlighting accompanied
             by system bell.
 
-dn#util#wrap({msg})                                          *dn#util#wrap()*
+dn#util#wrap({msg}[, {hang}])                                *dn#util#wrap()*
             Echoes text {msg} but wraps it sensibly, breaking on characters
-            '!', '@', '*', '-', '+', ';', ':', ',', '.', '/', '?', ' ' and
-            <Tab>.
+            '!', '@', '*', '-', '+', ';', ':', ',', '.', '/', '\', ?', ' ' and
+            <Tab>. If a valid positive integer is provided for {hang}, a
+            hanging indent of this size is prefixed to the second and
+            subsequent lines of output.
 
 ==============================================================================
 4. Mappings                                               *dn-utils-mappings*

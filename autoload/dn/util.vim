@@ -281,6 +281,9 @@ function! dn#util#wrap(msg, ...) abort
     while l:msg !=? ''
         " exit on last output line
         if len(l:msg) <= l:width
+            if !l:first_line
+                let l:msg = l:hang_indent . l:msg
+            endif
             echo l:msg
             break
         endif

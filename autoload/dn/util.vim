@@ -1040,6 +1040,28 @@ function! dn#util#showFiletypes() abort
     echo l:display
 endfunction
 
+" dn#util#runtimepaths()                                               {{{3
+" does:   get list of runtime paths
+" params: nil
+" insert: nil
+" return: runtime paths [List]
+function! dn#util#runtimepaths() abort
+    return split(&runtimepath, ',')
+endfunction
+
+" dn#util#showRuntimepaths()                                           {{{3
+" does:   display available filetypes in echo area
+" params: nil
+" return: nil
+function! dn#util#showRuntimepaths() abort
+    " get filetype list
+    let l:runtimepaths = dn#util#runtimepaths()
+    " prepare for display
+    for l:path in l:runtimepaths
+        call dn#util#wrap(l:path)
+    endfor
+endfunction
+
 " dn#util#updateUserHelpTags()                                         {{{3
 " does:   individually updates user vim helpdocs
 " params: nil

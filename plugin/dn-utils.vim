@@ -115,6 +115,8 @@ command! -bar Scriptnames
             \ call setqflist(dn#util#scriptnames())|copen
 " Filetypes : display fileypes in echo area                            {{{2
 command Filetypes call dn#util#showFiletypes()
+" Runtimepaths : display runtime paths in echo area                    {{{2
+command Runtimepaths call dn#util#showRuntimepaths()
 
 " Restore cpoptions                                                    {{{1
 let &cpoptions = s:save_cpo

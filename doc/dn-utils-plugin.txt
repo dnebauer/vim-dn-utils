@@ -87,6 +87,7 @@ Programming:                                 *dn-utils-programming-functions*
     dn#util#executeShellCommand()
                                 execute shell command
     dn#util#showFiletypes()     display list of available filetypes
+    dn#util#showRuntimepaths()  display list of runtime paths
 
 Version control:                                     *dn-utils-git-functions*
                                                      *dn-utils-vcs-functions*
@@ -472,6 +473,9 @@ dn#util#showMsg({msg}[, {type}])                          *dn#util#showMsg()*
             Displays message {msg} to user. Message {type} can be "generic",
             "warning", "info", "question" or "error" (defaults to "info").
 
+dn#util#showRuntimepaths()                       *dn#util#showRuntimepaths()*
+            Displays list of runtime paths in echo area.
+
 dn#util#stringify({var}[, {quote}])                     *dn#util#stringify()*
             Convert variable {var} to a string value. If {quote} is present
             and true string values are quoted, i.e, defaults to false. Simple
@@ -557,14 +561,17 @@ selection, if present, or line if there is no selection.
 ==============================================================================
 5. Commands                                               *dn-utils-commands*
 
+                        *:Filetypes*
+:Filetypes              Displays a list of available filetypes in the echo
+                        area.
+
                         *:Scriptnames*
 :Scriptnames            Like |:scriptnames|, lists all sourced script names in
                         the order they were first sourced, except sends the
                         output to the location list and opens a location
                         window.
 
-                        *:Filetypes*
-:Filetypes              Displays a list of available filetypes in the echo
-                        area.
+                        *:Runtimepaths*
+:Runtimepaths           Displays a list of runtime paths in the echo area.
 
  vim:tw=78:ts=8:ft=help:norl:

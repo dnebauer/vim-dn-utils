@@ -1095,6 +1095,36 @@ function! dn#util#updateUserHelpTags() abort
     endif
 endfunction
 
+" dn#util#os()                                                         {{{3
+" does:   determine operating system in use
+" params: nil
+" return: string ('windows'|'unix'|'other')
+function! dn#util#os() abort
+    if has('win32') || has ('win64') || has('win95') || has('win32unix')
+        return 'windows'
+    elseif has('unix')
+        return 'unix'
+    else
+        return 'other'
+    endif
+endfunction
+
+" dn#util#isWindows()                                                  {{{3
+" does:   determine whether operating system is windows
+" params: nil
+" return: boolean
+function! dn#util#isWindows() abort
+    return dn#util#os() ==# 'windows'
+endfunction
+
+" dn#util#isUnix()                                                      {{{3
+" does:   determine whether operating system is unix-like
+" params: nil
+" return: boolean
+function! dn#util#isUnix() abort
+    return dn#util#os() ==# 'unix'
+endfunction
+
 " Version control                                                      {{{2
 " dn#util#localGitRepoFetch(dir, [prefix])                             {{{3
 " does:   perform a fetch on a local git repository

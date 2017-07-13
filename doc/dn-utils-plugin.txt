@@ -88,6 +88,9 @@ Programming:                                 *dn-utils-programming-functions*
                                 execute shell command
     dn#util#showFiletypes()     display list of available filetypes
     dn#util#showRuntimepaths()  display list of runtime paths
+    dn#util#os()                determine operating system family
+    dn#utilis#Windows()         determine whether using windows OS
+    dn#utilis#Unix()            determine whether using unix-like OS
 
 Version control:                                     *dn-utils-git-functions*
                                                      *dn-utils-vcs-functions*
@@ -336,6 +339,14 @@ dn#util#insertString({text}[, {restrict}])           *dn#util#insertString()*
                 if l:insert | call dn#util#insertMode() | endif
             endfunction
 <
+                                                           *dn#util#isUnix()*
+dn#util#isUnix()
+            Determine whether operating system is unix.
+
+                                                        *dn#util#isWindows()*
+dn#util#isWindows()
+            Determine whether operating system is windows.
+
                                                 *dn#util#listExchangeItems()*
 dn#util#listExchangeItems({list}, {index1}, {index2})
             Exchange two elements, at {index1} and {index2} in the same
@@ -440,6 +451,10 @@ dn#util#nowMonth()                                       *dn#util#nowMonth()*
 
 dn#util#nowYear()                                         *dn#util#nowYear()*
             Returns the current year as a 4-digit integer.
+
+                                                               *dn#util#os()*
+dn#util#os()
+            Determine operating system family: "windows", "unix" or "other".
 
                                                       *dn#util#padInternal()*
 dn#util#padInternal({string}, {start}, {target}[, {char}])

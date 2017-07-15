@@ -419,15 +419,21 @@ dn#util#menuSelect({items}[, {prompt}])                *dn#util#menuSelect()*
             as Strings and Numbers. All Dictionary keys must be Strings, as
             required by vim (see |E713|).
 
-            When a List is provided as a List element or Dictionary value, its
-            first item is used as an item in the parent menu that, if
-            selected, displays a submenu constructed from the remaining List
-            items. When a Dictionary is provided as a List element or
-            Dictionary value, the value for key "__PARENT_ITEM__" is used as
-            an item in the parent menu that, if selected, displays a submenu
-            constructed from the remaining Dictionary keys. Menu items that
-            open submenus are indicated by appending " ->" to the item text.
+            When a List has List or Dictionary child elements, the child
+            element must provide the parent menu item in a special way:
 
+                List        the first element in the child List is used as the
+                            corresponding menu item in the parent menu
+
+                Dictionary  the value for key "__PARENT_ITEM__" in the child
+                            Dictionary is used as the corresponding menu item
+                            in the parent menu
+
+            When a Dictionary has a List or Dictionary child element as a
+            value, the corresponding key provides the parent menu item; there
+            is no need for the child element to do so, i.e., the child element
+            contains only the contents of the child menu.
+            
             It is hopefully apparent by now that simple menu items, i.e.,
             items that do not open submenus, can be provided by List elements
             or Dictionary keys. The value returned when a simple menu item is
@@ -496,25 +502,25 @@ dn#util#stringify({var}[, {quote}])                     *dn#util#stringify()*
             and true string values are quoted, i.e, defaults to false. Simple
             variable types are converted depending on type:
 
-                Number     never quoted
+                Number      never quoted
                 and Float
 
-                String     return bare string if {quote} is false, otherwise
-                           returns a string enclosed in single quotes with any
-                           internal single quotes escaped by doubling them as
-                           '' (see |literal-string|).
+                String      return bare string if {quote} is false, otherwise
+                            returns a string enclosed in single quotes with any
+                            internal single quotes escaped by doubling them as
+                            '' (see |literal-string|).
 
             More complex data types are converted as:
 
-                List       subsidiary strings, numbers (integers) and floats
-                           are treated as described above
+                List        subsidiary strings, numbers (integers) and floats
+                            are treated as described above
 
-                Dictionary subsidiary strings, numbers (integers) and floats
-                           are treated as described above, meaning all keys
-                           are single-quoted, and perl-style "big arrow"
-                           key-value notation used
+                Dictionary  subsidiary strings, numbers (integers) and floats
+                            are treated as described above, meaning all keys
+                            are single-quoted, and perl-style "big arrow"
+                            key-value notation used
 
-                Funcrefs   uses in-built |string()| function to stringify
+                Funcrefs    uses in-built |string()| function to stringify
 
 dn#util#stripLastChar({string})                     *dn#util#stripLastChar()*
             Removes the last character from {string} and returns the altered

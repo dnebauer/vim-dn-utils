@@ -329,10 +329,10 @@ endfunction
 " note:   when a list has list or dict child elements the child element must
 "         provide the parent menu item in a special way:
 "         - if list has child list for an element, first element in the child
-"           list is used as the parent menu item in the parent menu
+"           list is used as the corresponding menu item in the parent menu
 "         - if list has child dict for an element, the value for key
-"           '__PARENT_ITEM__' in the child dict is used as the parent menu
-"           item in the parent menu
+"           '__PARENT_ITEM__' in the child dict is used as the corresponding
+"           menu item in the parent menu
 " note:   when a dict has list or dict child elements there is no need for
 "         the child elements to provide the parent menu item, i.e., they
 "         contain only the contents of the child menu

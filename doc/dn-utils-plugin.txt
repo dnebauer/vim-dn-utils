@@ -449,6 +449,12 @@ dn#util#menuSelect({items}[, {prompt}])                *dn#util#menuSelect()*
                   Dictionaries (where none need to provide their parent menu
                   item).
 
+            Lists are an ordered data type, and menu items provided by Lists
+            are displayed in the same order as they occur in the List. 
+            Dictionaries are an unordered data type, and menu items provided
+            by Dictionaries are displayed in an arbitrary order unrelated to
+            how the Dictionary was constructed.
+
             It is hopefully apparent by now that simple menu items, i.e.,
             items that do not open submenus, can be provided by List elements
             or Dictionary keys. The value returned when a simple menu item is

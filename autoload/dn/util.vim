@@ -427,13 +427,14 @@ function! dn#util#menuSelect(items, ...) abort
                 let l:Item .= ' ->'
             endif
         endif
-        " prepend index to option text and add option to display list
+        " prepend index to option text
 		" - left pad index with zeroes to ensure all right justified
 		let l:display_index = l:index
 		while len(l:display_index) < l:len
 			let l:display_index = '0' . l:display_index
 		endwhile
 		let l:option = l:display_index . ') ' . dn#util#stringify(l:Item)
+        " add option to display list
 		call add(l:display, l:option)
         " prepare for next loop iteration
 		let l:index += 1

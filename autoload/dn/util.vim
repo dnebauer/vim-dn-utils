@@ -386,7 +386,7 @@ function! dn#util#menuSelect(items, ...) abort
                     return ''
                 endif
                 " first element must be simple data type
-                if index(l:simple_types, type(l:Item[0])) == -1
+                if count(l:simple_types, type(l:Item[0])) == 0
                     let l:msg = "Invalid parent menu item in child list:\n\n"
                     call dn#util#error(l:msg . dn#util#stringify(l:Item[0]))
                     return ''
@@ -428,7 +428,7 @@ function! dn#util#menuSelect(items, ...) abort
             call add(l:dict_vals, a:items[l:Item])
             " check if parent dict has child list or dict
             " - if so, add submenu signifier to parent menu item
-            if index(l:menu_types, type(a:items[l:Item])) >= 0
+            if count(l:menu_types, type(a:items[l:Item])) > 0
                 let l:Item .= ' ->'
             endif
         endif
@@ -456,18 +456,33 @@ function! dn#util#menuSelect(items, ...) abort
         let l:Selection = l:dict_vals[l:choice - 1]
     endif
     " - recurse if selected a submenu
-    if     type(l:Selection) == type([])    " list child menu
-        if l:menu_type ==# 'list'    " list parent menu
-            " list parent uses first element of child list as menu item
-            call remove(l:Selection, 0)
+    "if     type(l:Selection) == type([])    " list child menu
+    "    if l:menu_type ==# 'list'    " list parent menu
+    "        " list parent uses first element of child list as menu item
+    "        call remove(l:Selection, 0)
+    "    endif
+    "    return dn#util#menuSelect(l:Selection, l:prompt)
+    "elseif type(l:Selection) == type({})    " dict child menu
+    "    if l:menu_type ==# 'list'    " list parent menu
+    "        " list parent uses special value in child dict as menu item
+    "        call remove(l:Selection, l:parent_item_key)
+    "    endif
+    "    return dn#util#menuSelect(l:Selection, l:prompt)
+    "else    " return simple value
+    "    return l:Selection
+    "endif
+
+    " - recurse if selected a submenu
+    if count(l:menu_types, type(l:Selection)) > 0
+        " - if parent menu is a list, first remove parent menu item from child
+        if l:menu_type ==# 'list'
+            if type(l:Selection) == type([])  " child menu is list
+                call remove(l:Selection, 0)  " first element is menu item
+            else  " child menu is dict, so remove special menu item value
+                call remove(l:Selection, l:parent_item_key)
+            endif
         endif
-        return dn#util#menuSelect(l:Selection, l:prompt)
-    elseif type(l:Selection) == type({})    " dict child menu
-        if l:menu_type ==# 'list'    " list parent menu
-            " list parent uses special value in child dict as menu item
-            call remove(l:Selection, l:parent_item_key)
-        endif
-        return dn#util#menuSelect(l:Selection, l:prompt)
+        return dn#util#menuSelect(l:Selection, l:prompt)  " recurse
     else    " return simple value
         return l:Selection
     endif

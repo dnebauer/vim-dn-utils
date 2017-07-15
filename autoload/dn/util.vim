@@ -387,36 +387,35 @@ function! dn#util#menuSelect(items, ...) abort
                 endif
                 " first element cannot be empty
                 let l:candidate_option = dn#util#stringify(l:Item[0])
-                if l:candidate_option !=? ''  " add submenu signifier
-                    unlet l:Item
-                    let l:Item = l:candidate_option . ' ->'
-                else  " first element is empty
+                if l:candidate_option ==? ''
                     let l:msg = "Empty parent menu item in child dict\n\n"
                     call dn#util#error(l:msg . dn#util#stringify(l:Item))
                     return ''
                 endif
+                " first element is valid so add submenu signifier
+                unlet l:Item
+                let l:Item = l:candidate_option . ' ->'
             endif
             " check if parent list has child dict
             " - if so, use child dict's parent item value as parent menu option
             if type(l:Item) == type({})
                 " must have parent menu item key
-                if has_key(l:Item, l:parent_item_key)
-                    let l:candidate_option =
-                                \ dn#util#stringify(l:Item[l:parent_item_key])
-                    " parent menu item value cannot be empty
-                    if l:candidate_option !=? ''    " add submenu signifier
-                        unlet l:Item
-                        let l:Item = l:candidate_option . ' ->'
-                    else  " parent item value is empty
-                        let l:msg = "Empty parent menu item in child dict\n\n"
-                        call dn#util#error(l:msg . dn#util#stringify(l:Item))
-                        return ''
-                    endif
-                else    " no parent menu item key in dict
+                if !has_key(l:Item, l:parent_item_key)
                     let l:msg = "No parent menu item in child dict:\n\n"
                     call dn#util#error(l:msg . dn#util#stringify(l:Item))
                     return ''
                 endif
+                let l:candidate_option =
+                            \ dn#util#stringify(l:Item[l:parent_item_key])
+                " parent menu item value cannot be empty
+                if l:candidate_option ==? ''
+                    let l:msg = "Empty parent menu item in child dict\n\n"
+                    call dn#util#error(l:msg . dn#util#stringify(l:Item))
+                    return ''
+                endif
+                " valid parent menu item key/value so add submenu signifier
+                unlet l:Item
+                let l:Item = l:candidate_option . ' ->'
             endif
         else    " l:menu_type ==# 'dict'
             " add dict value to values list
@@ -438,33 +437,34 @@ function! dn#util#menuSelect(items, ...) abort
 	let l:choice = inputlist(l:display)
     echo ' ' |    " needed to force next output to new line
     " process choice
-	if l:choice > 0 && l:choice < l:index    " must be valid selection
-        if l:menu_type ==# 'list'
-            " return menu item if list
-            let l:Selection = get(a:items, l:choice - 1)
-        else    " l:menu_type ==# 'dict'
-            " return matching value if dict
-            let l:Selection = l:dict_vals[l:choice - 1]
-        endif
-        " recurse if selected a submenu
-        if     type(l:Selection) == type([])    " list child menu
-            if l:menu_type ==# 'list'    " list parent menu
-                " list parent uses first element of child list as menu item
-                call remove(l:Selection, 0)
-            endif
-            return dn#util#menuSelect(l:Selection, l:prompt)
-        elseif type(l:Selection) == type({})    " dict child menu
-            if l:menu_type ==# 'list'    " list parent menu
-                " list parent uses special value in child dict as menu item
-                call remove(l:Selection, l:parent_item_key)
-            endif
-            return dn#util#menuSelect(l:Selection, l:prompt)
-        else    " return simple value
-            return l:Selection
-        endif
-	else    " invalid selection
+	" - must be valid selection
+	if l:choice <= 0 || l:choice >= l:index
         return ''
 	endif
+    " - get selected value
+    if l:menu_type ==# 'list'
+        " return menu item if list
+        let l:Selection = get(a:items, l:choice - 1)
+    else    " l:menu_type ==# 'dict'
+        " return matching value if dict
+        let l:Selection = l:dict_vals[l:choice - 1]
+    endif
+    " - recurse if selected a submenu
+    if     type(l:Selection) == type([])    " list child menu
+        if l:menu_type ==# 'list'    " list parent menu
+            " list parent uses first element of child list as menu item
+            call remove(l:Selection, 0)
+        endif
+        return dn#util#menuSelect(l:Selection, l:prompt)
+    elseif type(l:Selection) == type({})    " dict child menu
+        if l:menu_type ==# 'list'    " list parent menu
+            " list parent uses special value in child dict as menu item
+            call remove(l:Selection, l:parent_item_key)
+        endif
+        return dn#util#menuSelect(l:Selection, l:prompt)
+    else    " return simple value
+        return l:Selection
+    endif
 endfunction
 
 " dn#util#consoleSelect(single, plural, items, [method])               {{{3

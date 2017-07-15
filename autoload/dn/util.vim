@@ -370,11 +370,6 @@ function! dn#util#menuSelect(items, ...) abort
     else                      | let l:items = keys(a:items)
     endif
 	for l:Item in l:items
-		" left pad index with zeroes to ensure all right justified
-		let l:display_index = l:index
-		while len(l:display_index) < l:len
-			let l:display_index = '0' . l:display_index
-		endwhile
         " if submenu process differently
         if l:menu_type ==# 'list'
             " check if parent list has child list
@@ -433,6 +428,11 @@ function! dn#util#menuSelect(items, ...) abort
             endif
         endif
         " prepend index to option text and add option to display list
+		" - left pad index with zeroes to ensure all right justified
+		let l:display_index = l:index
+		while len(l:display_index) < l:len
+			let l:display_index = '0' . l:display_index
+		endwhile
 		let l:option = l:display_index . ') ' . dn#util#stringify(l:Item)
 		call add(l:display, l:option)
         " prepare for next loop iteration

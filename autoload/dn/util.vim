@@ -326,10 +326,16 @@ endfunction
 " note:   with dicts the keys become menu options and the corresponding
 "         value is the return value
 " note:   lists and dicts can have lists and dicts as elements/values
-" note:   if list has list for element the first element in the child list
-"         is used as menu item in parent menu
-" note:   if list has dict for element the value for key '__PARENT_ITEM__'
-"         is used as menu item in parent menu
+" note:   when a list has list or dict child elements the child element must
+"         provide the parent menu item in a special way:
+"         - if list has child list for an element, first element in the child
+"           list is used as the parent menu item in the parent menu
+"         - if list has child dict for an element, the value for key
+"           '__PARENT_ITEM__' in the child dict is used as the parent menu
+"           item in the parent menu
+" note:   when a dict has list or dict child elements there is no need for
+"         the child elements to provide the parent menu item, i.e., they
+"         contain only the contents of the child menu
 " note:   to indicate a submenu this function appends an arrow (->) to the
 "         end of the parent menu option
 function! dn#util#menuSelect(items, ...) abort

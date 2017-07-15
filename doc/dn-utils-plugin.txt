@@ -420,7 +420,7 @@ dn#util#menuSelect({items}[, {prompt}])                *dn#util#menuSelect()*
             required by vim (see |E713|).
 
             When a List has List or Dictionary child elements, the child
-            element must provide the parent menu item in a special way:
+            elements must provide their parent menu items in a special way:
 
                 List        the first element in the child List is used as the
                             corresponding menu item in the parent menu
@@ -434,6 +434,21 @@ dn#util#menuSelect({items}[, {prompt}])                *dn#util#menuSelect()*
             is no need for the child element to do so, i.e., the child element
             contains only the contents of the child menu.
             
+            Note: The requirement that child Lists provide their own parent
+                  menu item if their parent is a List, but not a Dictionary,
+                  means that child menu items must be "aware" of the data type
+                  of their parent menu. This may limit the use of this
+                  function in a situation where a menu is constructed
+                  dynamically and unpredictably from Lists and Dictionaries.
+
+                  This function is better suited to situations where a static
+                  menu is written directly into vimscript. If a menu variable
+                  is dynamically constructed by script, it may be better to
+                  limit menu item data types to all Lists (where all but the
+                  first List provides its parent menu item) or all
+                  Dictionaries (where none need to provide their parent menu
+                  item).
+
             It is hopefully apparent by now that simple menu items, i.e.,
             items that do not open submenus, can be provided by List elements
             or Dictionary keys. The value returned when a simple menu item is

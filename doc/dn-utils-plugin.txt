@@ -67,6 +67,8 @@ User interaction:                       *dn-utils-user-interaction-functions*
     dn#util#prompt()            display prompt message
     dn#util#wrap()              echoes text but wraps it sensibly
     dn#util#menuSelect()        select item from menu
+    dn#util#menuAddOption()     add option to menu
+    dn#util#menuAddSubmenu()    add submenu to menu
     dn#util#consoleSelect()     select item from list using the console
     dn#util#changeHeaderCaps()  changes capitalisation of line
                                 or visual selection
@@ -411,57 +413,98 @@ dn#util#matchCount({haystack}, {needle})               *dn#util#matchCount()*
             Finds the number of occurrences of substring {needle}  in string
             {haystack}. Returns an integer value.
 
+                                                    *dn#util#menuAddOption()*
+dn#util#menuAddOption({menu}, {option}, [{retval}])
+            Helper function for use in constructing a menu variable for use
+            with the |dn#util#menuSelect()| function. The {menu} can be a List
+            or Dictionary and is edited in place, i.e., it is not necessary to
+            set the menu variable to the return value of this function. In
+            fact, this function does not return a value.
+
+            When constructing a menu it is possible for a menu option to
+            return its own value or an associated value ({retval}). If the
+            menu option is returning its own value there is no need to provide
+            {retval}. 
+
+            Example usage:>
+                call dn#util#menuAddOption(l:menu, l:option)
+
+                                                   *dn#util#menuAddSubmenu()*
+dn#util#menuAddSubmenu({menu}, {header}, {submenu})
+            Helper function for use in constructing a menu variable for use
+            with the |dn#util#menuSelect()| function. The {menu} can be a List
+            or Dictionary and is edited in place, i.e., it is not necessary to
+            set the menu variable to the return value of this function. In
+            fact, this function does not return a value.
+
+            Both {menu} and {submenu} can be Lists or Dictionaries in any
+            combination. The {header} is a simple string (or number).
+
+            Example usage:>
+                call dn#util#menuAddSubmenu(l:menu, l:header, l:submenu)
+
 dn#util#menuSelect({items}[, {prompt}])                *dn#util#menuSelect()*
-            Select an item from a menu, or menus, of items. The {items} can be
-            provided as a |List| or |Dictionary|. A List can contain Lists and
-            Dictionaries as elements as well as Strings and Numbers.
-            Dictionaries can contain Lists and Dictionaries as values as well
-            as Strings and Numbers. All Dictionary keys must be Strings, as
-            required by vim (see |E713|).
-
-            When a List has List or Dictionary child elements, the child
-            elements must provide their parent menu items in a special way:
-
-                List        the first element in the child List is used as the
-                            corresponding menu item in the parent menu
-
-                Dictionary  the value for key "__PARENT_ITEM__" in the child
-                            Dictionary is used as the corresponding menu item
-                            in the parent menu
-
-            When a Dictionary has a List or Dictionary child element as a
-            value, the corresponding key provides the parent menu item; there
-            is no need for the child element to do so, i.e., the child element
-            contains only the contents of the child menu.
+            Select an item from a menu, or menus, of items. Depending on the
+            structure of {items} any menu item, when selected, may return that
+            value, another defined value, or open a submenu.
             
-            Note: The requirement that child Lists provide their own parent
-                  menu item if their parent is a List, but not a Dictionary,
-                  means that child menu items must be "aware" of the data type
-                  of their parent menu. This may limit the use of this
-                  function in a situation where a menu is constructed
-                  dynamically and unpredictably from Lists and Dictionaries.
+            The menu {items} can be provided as a |List| or |Dictionary|. A List
+            can contain Lists and Dictionaries as elements as well as Strings
+            and Numbers. Dictionaries can contain Lists and Dictionaries as
+            values as well as Strings and Numbers. Dictionaries and Lists can
+            be nested arbitrarily deep (subject to some limitations described
+            below). All Dictionary keys must be Strings, as required by vim
+            (see |E713|).
 
-                  This function is better suited to situations where a static
-                  menu is written directly into vimscript. If a menu variable
-                  is dynamically constructed by script, it may be better to
-                  limit menu item data types to all Lists (where all but the
-                  first List provides its parent menu item) or all
-                  Dictionaries (where none need to provide their parent menu
-                  item).
+            Any List in {items} can contain the following elements:
+
+                Simple string (or number)
+                    These are simple menu options which, when selected, return
+                    their own value.
+
+                Single-item Dictionary with a simple value
+                    In this Dictionary the value is a simple string (or
+                    number). The key is displayed in the menu and, if
+                    selected, the associated value is returned.
+
+                List or Dictionary intended to be a submenu
+                    This element must be preceded by two associated elements.
+                    The first is a specific token to tell the function a
+                    submenu is about to be defined. This token is
+                    "__!_SUBMENU_!_TOKEN_!__". (The enclosing quotes are not
+                    part of the token.) This token element is followed by a
+                    simple string (or number) element containing the submenu
+                    header. Thus, a submenu is defined in a List by the
+                    following three consecutive elements:
+                    submenu_token, submenu_header, submenu_list_or_dict
+
+            Dictionaries in {items} are easier to understand. The special case
+            of a single-item Dictionary with a simple value being used as a
+            List menu item is explained above. When a Dictionary provides a
+            menu, however, it can contain multiple items in which the keys are
+            menu items. What happens when a menu item is selected depends on
+            the associated value. If the value is a simple string (or number),
+            that associated value is returned. If the value is a List or
+            Dictionary it opens a submenu defined by the List or Dictionary.
+
+            Menu items that open submenus have " ->" suffixed to them. For
+            example, in the following menu option two opens a submenu:
+
+                Select an option:
+                1) Simple option
+                2) This opens a submenu ->
+                3) Another simple option
+                Type number and <Enter> or click with mouse (empty cancels):
+
+            To make the process of constructing menu {items} easier, two
+            helper functions are available: |dn#util#menuAddOption()| and
+            |dn#util#menuAddSubmenu()|.
 
             Lists are an ordered data type, and menu items provided by Lists
             are displayed in the same order as they occur in the List. 
             Dictionaries are an unordered data type, and menu items provided
             by Dictionaries are displayed in an arbitrary order unrelated to
             how the Dictionary was constructed.
-
-            It is hopefully apparent by now that simple menu items, i.e.,
-            items that do not open submenus, can be provided by List elements
-            or Dictionary keys. The value returned when a simple menu item is
-            selected depends on whether it was provided by a List or
-            Dictionary. If the menu item was provided by a List, the menu item
-            text is returned. If the menu item was provided by a Dictionary
-            key, the corresponding Dictionary value is returned.
 
             If no menu item is selected the function returns "". It is
             possible for an empty menu item to be provided to this function,

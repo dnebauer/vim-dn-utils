@@ -331,13 +331,16 @@ endfunction
 " note:   with dicts the keys become menu options and the corresponding
 "         value is the return value
 " note:   lists and dicts can have lists and dicts as elements/values
+" note:   in addition, a list can contain as elements single-item dicts with
+"         simple values; the dict key becomes the menu item and the dict value
+"         is the value returned if the corresponding menu item is selected
 " note:   when a list has list or dict child elements the child element must
-"         provide the parent menu item in a special way:
-"         - if list has child list for an element, first element in the child
-"           list is used as the corresponding menu item in the parent menu
-"         - if list has child dict for an element, the value for key
-"           '__PARENT_ITEM__' in the child dict is used as the corresponding
-"           menu item in the parent menu
+"         be preceded by an element consisting of the submenu token (see
+"         script variable s:submenu_token) and an element containing the
+"         submenu header (which becomes the parent menu item that, when
+"         selected, opens the submenu) -- so, a submenu is defined by three
+"         consecutive elements:
+"           submenu_token, submenu_header, submenu_dict_or_list_variable
 " note:   when a dict has list or dict child elements there is no need for
 "         the child elements to provide the parent menu item, i.e., they
 "         contain only the contents of the child menu

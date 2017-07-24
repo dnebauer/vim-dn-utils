@@ -471,18 +471,16 @@ function! dn#util#menuSelect(items, ...) abort
     endfor
     " prepend index to menu options
 	let l:len = len(len(l:options))  " gives width of largest item index
-    let l:index = -1
-    for l:option in l:options
-		let l:index += 1
-        " - no index prepended to prompt
-        if l:index == 0 | continue | endif
+    let l:index = 1  " no item number for prompt (in index 0)
+    while l:index < len(l:options)
 		" - left pad index with zeroes to ensure all right justified
 		let l:display_index = l:index
 		while len(l:display_index) < l:len
 			let l:display_index = '0' . l:display_index
 		endwhile
-		let l:option = l:display_index . ') ' . l:option
-    endfor
+		let l:option[l:index] = l:display_index . ') ' . l:option[l:index]
+        let l:index += 1
+    endwhile
 	" make choice
 	let l:choice = inputlist(l:options)
     echo ' ' |    " needed to force next output to new line

@@ -478,7 +478,7 @@ function! dn#util#menuSelect(items, ...) abort
 		while len(l:display_index) < l:len
 			let l:display_index = '0' . l:display_index
 		endwhile
-		let l:option[l:index] = l:display_index . ') ' . l:option[l:index]
+		let l:options[l:index] = l:display_index . ') ' . l:options[l:index]
         let l:index += 1
     endwhile
 	" make choice

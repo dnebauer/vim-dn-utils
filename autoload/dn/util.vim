@@ -473,10 +473,10 @@ function! dn#util#menuSelect(items, ...) abort
 	let l:len = len(len(l:options))  " gives width of largest item index
     let l:index = 1  " no item number for prompt (in index 0)
     while l:index < len(l:options)
-		" - left pad index with zeroes to ensure all right justified
+		" - left pad index with spaces to ensure all right justified
 		let l:display_index = l:index
 		while len(l:display_index) < l:len
-			let l:display_index = '0' . l:display_index
+			let l:display_index = ' ' . l:display_index
 		endwhile
 		let l:options[l:index] = l:display_index . ') ' . l:options[l:index]
         let l:index += 1

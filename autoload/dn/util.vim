@@ -412,7 +412,7 @@ function! dn#util#menuSelect(items, ...) abort
                     let l:state = 'list_expecting-submenu-header'
                 else  " simple menu option
                     call add(l:options, dn#util#stringify(l:Item))
-                    call add(l:return_values, dn#util#stringify(l:Item))
+                    call add(l:return_values, l:Item)
                 endif
                 unlet l:Item  " a:items elements may be of different types
                 continue
@@ -437,7 +437,7 @@ function! dn#util#menuSelect(items, ...) abort
                 endif
                 " okay, looks good
                 call add(l:options, dn#util#stringify(l:option))
-                call add(l:return_values, dn#util#stringify(l:retval))
+                call add(l:return_values, l:retval)
                 unlet l:Item  " a:items elements may be of different types
                 continue
             endif

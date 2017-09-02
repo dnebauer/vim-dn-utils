@@ -373,7 +373,7 @@ function! dn#util#menuSelect(items, ...) abort
         if     s:_menuSimpleType(l:Item)  | let l:item_type = 'simple'
         elseif s:_menuSubmenuType(l:Item) | let l:item_type = 'submenu'
         else
-            let l:msg = "Invalid data type " . type(l:Item)
+            let l:msg = 'Invalid data type ' . type(l:Item)
                         \ . " for menu item:\n\n"
             call dn#util#error(l:msg . dn#util#stringify(l:Item))
             return ''
@@ -528,13 +528,13 @@ function! dn#util#menuAddOption(...) abort
     endif
     let l:option = a:2
     if !s:_menuSimpleType(l:option)
-        let l:msg = "Invalid option (data type " . type(l:option) . "):\n\n"
+        let l:msg = 'Invalid option (data type ' . type(l:option) . "):\n\n"
         call dn#util#error(l:msg . dn#util#stringify(l:option))
         return
     endif
     let l:retval = (a:0 == 3) ? a:3 : l:option
     if !s:_menuSimpleType(l:retval)
-        let l:msg = "Invalid return value (data type " . type(l:retval)
+        let l:msg = 'Invalid return value (data type ' . type(l:retval)
                     \ . "):\n\n"
         call dn#util#error(l:msg . dn#util#stringify(l:retval))
         return

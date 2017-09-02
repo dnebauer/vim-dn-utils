@@ -1604,6 +1604,35 @@ function! dn#util#padInternal(string, start, target, ...) abort
                 \ . strpart(a:string, a:start)
 endfunction
 
+" dn#util#padLeft(str, length, [char])                                 {{{3
+" does:   add char to start of string until it is the target length
+" params: str    - initial string [string]
+"         length - target string length[number]
+"         char   - char to pad with [optional, default=' ', char]
+" insert: nil
+" return: altered string [string]
+" note:   if arg 3 is string then only first char is used
+function! dn#util#padLeft(string, length, ...) abort
+    " variables
+    if type(a:string) !=? type('')
+        call dn#util#error('First argument is not a string')
+        return a:string
+    endif
+    if type(a:length) != type(0)
+        call dn#util#error('Second argument is not an integer')
+        return a:string
+    endif
+    let l:char = (a:0 > 0 && a:1 !=? '')
+                \ ? strpart(a:1, 0, 1)
+                \ : ' '
+    " right pad
+    let l:string = copy(a:string)
+    while len(l:string) < a:length
+        let l:string = l:char . l:string
+    endwhile
+    return l:string
+endfunction
+
 " dn#util#padRight(str, length, [char])                                {{{3
 " does:   add char to end of string until it is the target length
 " params: str    - initial string [string]

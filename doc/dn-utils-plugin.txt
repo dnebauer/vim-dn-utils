@@ -541,11 +541,18 @@ dn#util#padInternal({string}, {start}, {target}[, {char}])
                 echo l:string1  " Column Twenty     & Column Twenty One
                 echo l:string2  " Column Twenty Two & Column Twenty Three
 <
+                                                          *dn#util#padLeft()*
+dn#util#padLeft({string}, {length}[, {char}])
+            Adds character {char} (defaults to space) to start of {string}
+            until the string is {length} characters long. Returns the
+            altered String. If the original string is already as long or
+            longer than {length} it is returned unaltered.
+
                                                          *dn#util#padRight()*
 dn#util#padRight({string}, {length}[, {char}])
             Adds character {char} (defaults to space) to end of {string}
             until the string is {length} characters long. Returns the
-            altered String. If the original string is already as log or
+            altered String. If the original string is already as long or
             longer than {length} it is returned unaltered.
 
 dn#util#prompt([{msg}])                                    *dn#util#prompt()*

@@ -110,6 +110,7 @@ String manipulation:                              *dn-utils-string-functions*
     dn#util#matchCount()        finds number of occurrences of string
     dn#util#stridxNum()         finds the X'th match in a string
     dn#util#padInternal()       pad string at internal location
+    dn#util#padRight()          right pad string               
     dn#util#globalSubstitution()
                                 perform global substitution in file
 
@@ -540,6 +541,13 @@ dn#util#padInternal({string}, {start}, {target}[, {char}])
                 echo l:string1  " Column Twenty     & Column Twenty One
                 echo l:string2  " Column Twenty Two & Column Twenty Three
 <
+                                                         *dn#util#padRight()*
+dn#util#padRight({string}, {length}[, {char}])
+            Adds character {char} (defaults to space) to end of {string}
+            until the string is {length} characters long. Returns the
+            altered String. If the original string is already as log or
+            longer than {length} it is returned unaltered.
+
 dn#util#prompt([{msg}])                                    *dn#util#prompt()*
             Display prompt message {msg} (defaults to "Press [Enter] to
             continue...").

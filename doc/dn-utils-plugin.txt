@@ -567,7 +567,7 @@ dn#util#prompt([{msg}])                                    *dn#util#prompt()*
 dn#util#runtimepaths()                               *dn#util#runtimepaths()*
             Return list of available filetypes.
 
-dn#util#scriptNumber({script})                        *dn#util#scriptNumer()*
+dn#util#scriptNumber({script})                       *dn#util#scriptNumber()*
             Get the SID/SNR number of a script. The complete script file
             name (not path) must be provided, including file extension.
             Wild cards can be used (assume \V, i.e., very nomagic).

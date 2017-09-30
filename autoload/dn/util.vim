@@ -31,11 +31,11 @@ let s:submenu_token = '__!_SUBMENU_!_TOKEN_!__'
 " return: nil
 function! dn#util#insertCurrentDate(...) abort
 	" if call from command line then move cursor left
-	if !(a:0 > 0 && a:1) | execute 'normal h' | endif
+	if !(a:0 > 0 && a:1) | execute 'normal! h' | endif
 	" insert date
-	execute 'normal a' . s:_currentIsoDate()
+	execute 'normal! a' . s:_currentIsoDate()
 	" if finishing in insert mode move cursor to right
-	if a:0 > 0 && a:1 | execute 'normal l' | startinsert | endif
+	if a:0 > 0 && a:1 | execute 'normal! l' | startinsert | endif
 endfunction
 
 " dn#util#nowYear()                                                    {{{3
@@ -218,7 +218,7 @@ endfunction
 function! dn#util#error(msg) abort
     " require double quoting of execution string so backslash
     " is interpreted as an escape token
-	if mode() ==# 'i' | execute "normal \<Esc>" | endif
+	if mode() ==# 'i' | execute "normal! \<Esc>" | endif
 	echohl ErrorMsg
 	echo a:msg
 	echohl Normal
@@ -231,7 +231,7 @@ endfunction
 " prints: warning msg in warning highlighting accompanied by system bell
 " return: nil
 function! dn#util#warn(msg) abort
-	if mode() ==# 'i' | execute "normal \<Esc>" | endif
+	if mode() ==# 'i' | execute "normal! \<Esc>" | endif
 	echohl WarningMsg
 	echo a:msg
 	echohl Normal
@@ -968,7 +968,7 @@ function! dn#util#unusedFunctions(...) abort
 		let l:index = l:lower
 		let l:unused = []
 		" remove folds
-		execute 'normal zR'
+		execute 'normal! zR'
 		" time to start iterating through range
 		call cursor(l:lower, 1)
 		" find next function
@@ -1063,7 +1063,9 @@ function! dn#util#insertMode(...) abort
 	" override skip if cursor at eol to prevent error beep
 	if col('.') >= strlen(getline('.')) | let l:right_skip = 0 | endif
 	" skip right if so instructed
-	if l:right_skip > 0 | silent execute 'normal ' . l:right_skip . 'l' | endif
+	if l:right_skip > 0
+        silent execute 'normal! ' . l:right_skip . 'l'
+    endif
 	" handle case where cursor at end of line
 	if col('.') >= strlen(getline('.')) | startinsert! " =~# 'A'
 	else                                | startinsert  " =~# 'i'
@@ -1452,7 +1454,7 @@ function! dn#util#insertString(inserted_text, ...) abort
     let l:restrictive = g:dn_true
     if a:0 > 1 && ! a:1 | let l:restrictive = g:dn_false | endif
 	if l:restrictive | let l:paste_setting = &paste | set paste | endif
-	silent execute 'normal a' . a:inserted_text
+	silent execute 'normal! a' . a:inserted_text
 	if l:restrictive && ! l:paste_setting | set nopaste | endif
 endfunction
 
@@ -1722,7 +1724,7 @@ function! dn#util#changeHeaderCaps(mode) abort
     echo '' | " clear command line
     " mode specific
     let l:mode = tolower(a:mode)
-    if l:mode ==# 'i' | execute "normal \<Esc>" | endif
+    if l:mode ==# 'i' | execute "normal! \<Esc>" | endif
     " variables
     let l:line_replace_modes = ['n', 'i']
     let l:visual_replace_modes = ['v']
@@ -1824,7 +1826,7 @@ function! dn#util#selectWord() abort
 	let l:begin += 1 | let l:terminus += 1
 	" select fragment
 	call cursor(l:orig_line, l:begin)
-	execute 'normal v'
+	execute 'normal! v'
 	call cursor(l:orig_line, l:terminus)
 	" done
 	return l:fragment

@@ -56,7 +56,6 @@ Files and directories:                              *dn-utils-file-functions*
     dn#util#getFilePath()       get filepath of file being edited
     dn#util#getFileDir()        get directory of file being edited
     dn#util#getFileName()       get name of file being edited
-    dn#util#stripPath()         removes path from filepath
     dn#util#getRtpDir()         finds directory from runtimepath
     dn#util#getRtpFile()        finds file(s) in directories under 'rtp'
 
@@ -70,13 +69,10 @@ User interaction:                       *dn-utils-user-interaction-functions*
     dn#util#menuAddOption()     add option to menu
     dn#util#menuAddSubmenu()    add submenu to menu
     dn#util#consoleSelect()     select item from list using the console
-    dn#util#changeHeaderCaps()  changes capitalisation of line
-                                or visual selection
     dn#util#help()              user can select from help topics
+    dn#util#getSelection()      returns currently selected text
 
 Lists                                               *dn-utils-list-functions*
-    dn#util#listGetPartialMatch()
-                                get first element containing pattern
     dn#util#listExchangeItems() exchange two elements in the same list
     dn#util#listSubtract()      subtract one list from another
     dn#util#listToScreen()      formats list for screen display
@@ -88,11 +84,16 @@ Programming:                                 *dn-utils-programming-functions*
     dn#util#insertMode()        switch to insert mode
     dn#util#executeShellCommand()
                                 execute shell command
+    dn#util#scriptNumber()      get SID of given script
+    dn#util#filetypes()         get list of available filetypes
     dn#util#showFiletypes()     display list of available filetypes
+    dn#util#runtimepaths()      get list of runtime paths
     dn#util#showRuntimepaths()  display list of runtime paths
+    dn#util#updateUserHelpTags()
+                                rebuild help tags in rtp "doc" subdirs
     dn#util#os()                determine operating system family
-    dn#utilis#Windows()         determine whether using windows OS
-    dn#utilis#Unix()            determine whether using unix-like OS
+    dn#utilis#isWindows()       determine whether using windows OS
+    dn#utilis#isUnix()          determine whether using unix-like OS
 
 Version control:                                     *dn-utils-git-functions*
                                                      *dn-utils-vcs-functions*
@@ -108,18 +109,19 @@ String manipulation:                              *dn-utils-string-functions*
     dn#util#deentitise()        replace html entities with characters
     dn#util#stringify()         convert variable to string
     dn#util#matchCount()        finds number of occurrences of string
-    dn#util#stridxNum()         finds the X'th match in a string
     dn#util#padInternal()       pad string at internal location
+    dn#util#padLeft()           left pad string               
     dn#util#padRight()          right pad string               
     dn#util#globalSubstitution()
                                 perform global substitution in file
+    dn#util#changeHeaderCaps()  changes capitalisation of line
+                                or visual selection
 
 Numbers                                           *dn-utils-number-functions*
     dn#util#validPosInt()       check whether input is valid positive int
 
 Miscellaneous:                             *dn-utils-miscellaneous-functions*
     dn#util#selectWord()        select |:<cword>| under cursor
-    dn#util#getSelection()      returns currently selected text
     dn#util#varType()           get variable type
     dn#util#testFn()            utility function used for testing only
 
@@ -213,6 +215,9 @@ dn#util#executeShellCommand({cmd}[, {msg}])   *dn#util#executeShellCommand()*
                 If the shell command returns a failure code the error message
                 {msg} is displayed (defaults to 'Error occurred:') followed by
                 the shell feedback from the command.
+
+dn#util#filetypes()                                     *dn#util#filetypes()*
+            Return list of available filetypes.
 
 dn#util#getFileDir()                                   *dn#util#getFileDir()*
                 Returns the path of the directory in which the file being
@@ -559,12 +564,17 @@ dn#util#prompt([{msg}])                                    *dn#util#prompt()*
             Display prompt message {msg} (defaults to "Press [Enter] to
             continue...").
 
+dn#util#runtimepaths()                               *dn#util#runtimepaths()*
+            Return list of available filetypes.
+
+dn#util#scriptNumber({script})                        *dn#util#scriptNumer()*
+            Get the SID/SNR number of a script. The complete script file
+            name (not path) must be provided, including file extension.
+            Wild cards can be used (assume \V, i.e., very nomagic).
+
 dn#util#selectWord()                                   *dn#util#selectWord()*
             Select the |:<cword>| under the cursor (must be only [0-9a-zA-Z_]
             and returns it. Returns "" if no <cword> can be selected.
-
-dn#util#filetypes()                                     *dn#util#filetypes()*
-            Return list of available filetypes.
 
 dn#util#showFiletypes()                             *dn#util#showFiletypes()*
             Displays list of available filetypes in echo area.

@@ -1101,6 +1101,8 @@ endfunction
 " does:   prepare quickfix output for the quickfix list
 " params: nil
 " return: content for quickfix window [List of Dicts]
+" note:   intended to be used by :Scriptnames command,
+"         so not included in help file
 " credit: adapted from tpope's vim-scriptease plugin at
 "         https://github.com/tpope/vim-scriptease
 function! dn#util#scriptnames() abort
@@ -1125,6 +1127,34 @@ function! dn#util#scriptnames() abort
         endif
     endfor
     return l:quickfix_list_items
+endfunction
+
+" dn#util#scriptNumber(script)                                         {{{3
+" does:   gets dynamically assigned number (SID, SNR) of script
+" params: script - file name of script [string, required]
+" prints: error message if fails
+" return: integer, null if error
+" note:   file name must be complete, i.e., 'base.ext', but can
+"         wildcards as if \V ("very nomagic") is in effect
+" note:   if no script name provided, returns null with no error
+" credit: from Stack Overflow [https://stackoverflow.com/a/39216373]
+function! dn#util#scriptNumber(script) abort
+    " check param
+    if empty(a:script) | return | endif
+    if type(a:script) != type('')
+        let l:err = 'Expected string script name, got '
+        call dn#util#error(l:err . dn#util#varType(a:script))
+        return
+    endif
+    " get script number
+    " - create List of script numbers+path with split and execute
+    " - return first matching number+path with matchstr
+    "   . use of '\V\/' and '\_$' means a:script must contain
+    "     complete file name
+    " - return beginning (space+)scriptnumber with matchstr
+    " - return trailing scriptnumber with matchstr
+    return matchstr(matchstr(matchstr(split(execute('scriptnames'), "\n"),
+                \ '\V\/' . a:script . '\_$'), '^\s*\d\+'), '\d\+$')
 endfunction
 
 " dn#util#filetypes()                                                  {{{3

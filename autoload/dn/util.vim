@@ -1836,8 +1836,8 @@ endfunction
 " does:   get variable type
 " params: var - variable to be analysed
 " insert: nil
-" return: variable type ('number'|'string'|'funcref'|'list'|
-"                        'dictionary'|'float'|'unknown')
+" return: variable type ('number'|'string'|'funcref'|'List'|
+"                        'Dictionary'|'float'|'unknown')
 function! dn#util#varType(var) abort
     if     type(a:var) == type(0)              | return 'number'
     elseif type(a:var) == type('')             | return 'string'

@@ -645,7 +645,7 @@ dn#util#validPosInt({val})                            *dn#util#validPosInt()*
 
 dn#util#varType({var})                                    *dn#util#varType()*
             Return the type of variable {var} as a string: "number", "string",
-            "funcref", "list", "dictionary", "float" or "unknown".
+            "funcref", "List", "Dictionary", "float" or "unknown".
 
 dn#util#warn({msg})                                          *dn#util#warn()*
             Display warning message {msg} in warning highlighting accompanied

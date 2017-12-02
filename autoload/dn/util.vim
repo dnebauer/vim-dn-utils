@@ -233,7 +233,7 @@ endfunction
 function! dn#util#warn(msg) abort
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
     echohl WarningMsg
-    echo a:msg
+    for l:msg in s:_listifyMsg(a:msg) | echo l:msg | endfor
     echohl Normal
 endfunction
 

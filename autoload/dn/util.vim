@@ -219,11 +219,8 @@ function! dn#util#error(msg) abort
     " require double quoting of execution string so backslash
     " is interpreted as an escape token
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
-    " create List of messages
-    let l:msgs = s:_listifyMsg(a:msg)
-    " output messages
     echohl ErrorMsg
-    for l:msg in l:msgs | echo l:msg | endfor
+    for l:msg in s:_listifyMsg(a:msg) | echo l:msg | endfor
     echohl Normal
 endfunction
 

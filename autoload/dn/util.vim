@@ -220,15 +220,7 @@ function! dn#util#error(msg) abort
     " is interpreted as an escape token
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
     " create List of messages
-    let l:msgs = []
-    if   type(a:msg) == type([])
-        for l:msg in a:msg
-            call add(l:msgs, (type(l:msg) == type('') ? l:msg
-                        \                             : string(l:msg)))
-        endfor
-    else
-        call add(l:msgs, (type(a:msg) == type('') ? a:msg : string(a:msg)))
-    endif
+    let l:msgs = s:_listifyMsg(a:msg)
     " output messages
     echohl ErrorMsg
     for l:msg in l:msgs | echo l:msg | endfor
@@ -2036,6 +2028,44 @@ function! s:_leapYear(year) abort
     else
         return g:dn_false
     endif
+endfunction
+
+" s:_listifyMsg(msg, type)    {{{2
+" does:   convert msg into List
+" params: msg - message variable to convert [required, any]
+"         type - message type [required, string,
+"                              must be 'info|warning|error']
+" insert: nil
+" prints: error if var other than List or string encountered
+" return: List
+function! s:_listifyMsg(msg, type) abort
+    " params
+    let l:valid_types = ['info', 'warning', 'error']
+    if empty(a:type) || !count(l:valid_types, a:type)
+        echoerr "Invalid message type '" . a:type . "'"
+        return
+    endif
+    " vars
+    let l:msgs = []
+    let l:errs = []
+    " convert
+    if     type(a:msg) == type('')
+        call add(l:msgs, a:msg)
+    elseif type(a:msg) == type([])
+        for l:msg in a:msg
+            if   type(l:msg) == type('') | call add(l:msgs, l:msg)
+            else                         | call add(l:errs, l:msg)
+            endif
+        endfor
+    else  " neither string nor List
+        call add(l:errs, a:msg)
+    endif
+    " display errors
+    let l:errs = map(copy(l:errs),
+                \ '"ERROR: Invalid ".a:type." message: ".string(v:var)')
+    for l:err in l:errs | echoerr l:err | endfor
+    " return List
+    return l:msgs
 endfunction
 
 " s:_menuSimpleType(var)    {{{2

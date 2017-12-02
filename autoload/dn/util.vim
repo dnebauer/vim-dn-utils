@@ -2038,13 +2038,6 @@ endfunction
 " return: List
 " note:   if arg is List, stringify each element, else stringify arg
 function! s:_listifyMsg(msg) abort
-    " params
-    let l:valid_types = ['info', 'warning', 'error']
-    if empty(a:type) || !count(l:valid_types, a:type)
-        echoerr "Invalid message type '" . a:type . "'"
-        return []
-    endif
-    " convert
     let l:msgs = []
     if type(a:msg) == type([])
         for l:msg in a:msg
@@ -2053,7 +2046,6 @@ function! s:_listifyMsg(msg) abort
     else
         call add(l:msgs, dn#util#stringify(a:msg))
     endif
-    " return List
     return l:msgs
 endfunction
 

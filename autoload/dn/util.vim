@@ -2038,6 +2038,73 @@ function! s:_leapYear(year) abort
     endif
 endfunction
 
+" s:_menuSimpleType(var)                                               {{{2
+" does:   whether variable is a plain option, i.e., number, float or string
+" params: var - variable to test [required, any]
+" insert: nil
+" return: boolean
+function! s:_menuSimpleType(...) abort
+    " process parameters
+    if a:0 == 0
+        call dn#util#error('Simple type test got no variable')
+        return
+    endif
+    if a:0 > 1
+        call dn#util#error('Simple type test got multiple variables')
+        return
+    endif
+    let l:var = a:1
+    " test var
+    let l:valid_types = [type(''), type(0), type(0.0)]
+    let l:type = type(l:var)
+    return count(l:valid_types, l:type)
+endfunction
+
+" s:_menuSubMenuType(var)                                              {{{2
+" does:   whether variable is a submenu option, i.e., List or Dict
+" params: var - variable to test [required, any]
+" insert: nil
+" return: boolean
+function! s:_menuSubmenuType(...) abort
+    " process parameters
+    if a:0 == 0
+        call dn#util#error('Submenu type test got no variable')
+        return
+    endif
+    if a:0 > 1
+        call dn#util#error('Submenu type test got multiple variables')
+        return
+    endif
+    let l:var = a:1
+    " test var
+    let l:valid_types = [type([]), type({})]
+    let l:type = type(l:var)
+    return count(l:valid_types, l:type)
+endfunction
+
+" s:_menuType(var)                                                     {{{2
+" does:   whether variable is a simple or submenu option,
+"         i.e., number, float, string, List or Dict
+" params: var - variable to test [required, any]
+" insert: nil
+" return: boolean
+function! s:_menuType(...) abort
+    " process parameters
+    if a:0 == 0
+        call dn#util#error('Menu type test got no variable')
+        return
+    endif
+    if a:0 > 1
+        call dn#util#error('Menu type test got multiple variables')
+        return
+    endif
+    let l:var = a:1
+    " test var
+    let l:valid_types = [type(''), type(0), type(0.0), type([]), type({})]
+    let l:type = type(l:var)
+    return count(l:valid_types, l:type)
+endfunction
+
 " s:_monthLength(year, month)                                          {{{2
 " does:   get length of month in days
 " params: year  - year [integer]
@@ -2156,73 +2223,6 @@ function! s:_yearDoomsday(year) abort
     let l:R = l:Q / 4
     let l:century_doomsday = s:_centuryDoomsday(a:year)
     return (l:P + l:Q + l:R + l:century_doomsday) % 7
-endfunction
-
-" s:_menuSimpleType(var)                                               {{{2
-" does:   whether variable is a plain option, i.e., number, float or string
-" params: var - variable to test [required, any]
-" insert: nil
-" return: boolean
-function! s:_menuSimpleType(...) abort
-    " process parameters
-    if a:0 == 0
-        call dn#util#error('Simple type test got no variable')
-        return
-    endif
-    if a:0 > 1
-        call dn#util#error('Simple type test got multiple variables')
-        return
-    endif
-    let l:var = a:1
-    " test var
-    let l:valid_types = [type(''), type(0), type(0.0)]
-    let l:type = type(l:var)
-    return count(l:valid_types, l:type)
-endfunction
-
-" s:_menuSubMenuType(var)                                              {{{2
-" does:   whether variable is a submenu option, i.e., List or Dict
-" params: var - variable to test [required, any]
-" insert: nil
-" return: boolean
-function! s:_menuSubmenuType(...) abort
-    " process parameters
-    if a:0 == 0
-        call dn#util#error('Submenu type test got no variable')
-        return
-    endif
-    if a:0 > 1
-        call dn#util#error('Submenu type test got multiple variables')
-        return
-    endif
-    let l:var = a:1
-    " test var
-    let l:valid_types = [type([]), type({})]
-    let l:type = type(l:var)
-    return count(l:valid_types, l:type)
-endfunction
-
-" s:_menuType(var)                                                     {{{2
-" does:   whether variable is a simple or submenu option,
-"         i.e., number, float, string, List or Dict
-" params: var - variable to test [required, any]
-" insert: nil
-" return: boolean
-function! s:_menuType(...) abort
-    " process parameters
-    if a:0 == 0
-        call dn#util#error('Menu type test got no variable')
-        return
-    endif
-    if a:0 > 1
-        call dn#util#error('Menu type test got multiple variables')
-        return
-    endif
-    let l:var = a:1
-    " test var
-    let l:valid_types = [type(''), type(0), type(0.0), type([]), type({})]
-    let l:type = type(l:var)
-    return count(l:valid_types, l:type)
 endfunction
 
 " Restore cpoptions                                                    {{{1

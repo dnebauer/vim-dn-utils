@@ -30,12 +30,12 @@ let s:submenu_token = '__!_SUBMENU_!_TOKEN_!__'
 " insert: current date in ISO format (yyyy-mm-dd) [string]
 " return: nil
 function! dn#util#insertCurrentDate(...) abort
-	" if call from command line then move cursor left
-	if !(a:0 > 0 && a:1) | execute 'normal! h' | endif
-	" insert date
-	execute 'normal! a' . s:_currentIsoDate()
-	" if finishing in insert mode move cursor to right
-	if a:0 > 0 && a:1 | execute 'normal! l' | startinsert | endif
+    " if call from command line then move cursor left
+    if !(a:0 > 0 && a:1) | execute 'normal! h' | endif
+    " insert date
+    execute 'normal! a' . s:_currentIsoDate()
+    " if finishing in insert mode move cursor to right
+    if a:0 > 0 && a:1 | execute 'normal! l' | startinsert | endif
 endfunction
 
 " dn#util#nowYear()                                                    {{{3
@@ -44,7 +44,7 @@ endfunction
 " insert: nil
 " return: current year (yyyy) [integer]
 function! dn#util#nowYear() abort
-	return strftime('%Y')
+    return strftime('%Y')
 endfunction
 
 " dn#util#nowMonth()                                                   {{{3
@@ -53,7 +53,7 @@ endfunction
 " insert: nil
 " return: current month (m) [integer]
 function! dn#util#nowMonth() abort
-	return substitute(strftime('%m'), '^0', '', '')
+    return substitute(strftime('%m'), '^0', '', '')
 endfunction
 
 " dn#util#nowDay()                                                     {{{3
@@ -62,7 +62,7 @@ endfunction
 " insert: nil
 " return: current day in month (d) [integer]
 function! dn#util#nowDay() abort
-	return substitute(strftime('%d'), '^0', '', '')
+    return substitute(strftime('%d'), '^0', '', '')
 endfunction
 
 " dn#util#dayOfWeek(year, month, day)                                  {{{3
@@ -73,14 +73,14 @@ endfunction
 " insert: nil
 " return: name of weekday [string]
 function! dn#util#dayOfWeek(year, month, day) abort
-	if !s:_validCalInput(a:year, a:month, a:day) | return '' | endif
-	let l:doomsday = s:_yearDoomsday(a:year)
-	let l:month_value = s:_monthValue(a:year, a:month)
-	let l:day_number = (a:day - l:month_value + 14 + l:doomsday) % 7
-	let l:day_number = (l:day_number == 0)
+    if !s:_validCalInput(a:year, a:month, a:day) | return '' | endif
+    let l:doomsday = s:_yearDoomsday(a:year)
+    let l:month_value = s:_monthValue(a:year, a:month)
+    let l:day_number = (a:day - l:month_value + 14 + l:doomsday) % 7
+    let l:day_number = (l:day_number == 0)
                 \ ? 7
                 \ : l:day_number
-	return s:_dayValue(l:day_number)
+    return s:_dayValue(l:day_number)
 endfunction
 
 " File/directory                                                       {{{2
@@ -89,7 +89,7 @@ endfunction
 " params: nil
 " return: filepath [string]
 function! dn#util#getFilePath() abort
-	return expand('%:p')
+    return expand('%:p')
 endfunction
 
 " dn#util#getFileDir()                                                 {{{3
@@ -184,44 +184,44 @@ endfunction
 "             'question'|'error', optional, string]
 " return: nil
 function! dn#util#showMsg(msg, ...) abort
-	let l:msg = a:msg
+    let l:msg = a:msg
     let l:valid_types = {'warning': 1, 'info': 1, 'question': 1, 'error': 1}
-	let l:type = ''
-	" sanity check
-	let l:error = 0
-	if l:msg ==? ''
-		let l:msg = "No message supplied to 'dn#util#showMsg'"
-		let l:error = 1
-		let l:type = 'Error'
-	endif
-	" set dialog type (if valid type supplied and not overridden by error)
-	if !l:error && a:0 > 0 && has_key(l:valid_types, tolower(a:1))
+    let l:type = ''
+    " sanity check
+    let l:error = 0
+    if l:msg ==? ''
+        let l:msg = "No message supplied to 'dn#util#showMsg'"
+        let l:error = 1
+        let l:type = 'Error'
+    endif
+    " set dialog type (if valid type supplied and not overridden by error)
+    if !l:error && a:0 > 0 && has_key(l:valid_types, tolower(a:1))
         let l:type = tolower(a:1)
-	endif
-	" for non-gui environment add message type to output
-	if !has ('gui_running') && l:type !=? ''
-		let l:msg = toupper(strpart(l:type, 0, 1))
-					\ . tolower(strpart(l:type, 1))
-					\ . ': '
-					\ . l:msg
-	endif
-	" display message
-	call confirm(l:msg, '&OK', 1, l:type)
+    endif
+    " for non-gui environment add message type to output
+    if !has ('gui_running') && l:type !=? ''
+        let l:msg = toupper(strpart(l:type, 0, 1))
+                    \ . tolower(strpart(l:type, 1))
+                    \ . ': '
+                    \ . l:msg
+    endif
+    " display message
+    call confirm(l:msg, '&OK', 1, l:type)
 endfunction
 
 " dn#util#error(msg)                                                   {{{3
 " does:   display error message
-" params: msg - error message [string]
+" params: msg - error message [required, string or List]
 " insert: nil
 " prints: error msg in error highlighting accompanied by system bell
 " return: nil
 function! dn#util#error(msg) abort
     " require double quoting of execution string so backslash
     " is interpreted as an escape token
-	if mode() ==# 'i' | execute "normal! \<Esc>" | endif
-	echohl ErrorMsg
-	echo a:msg
-	echohl Normal
+    if mode() ==# 'i' | execute "normal! \<Esc>" | endif
+    echohl ErrorMsg
+    echo a:msg
+    echohl Normal
 endfunction
 
 " dn#util#warn(msg)                                                    {{{3
@@ -231,10 +231,10 @@ endfunction
 " prints: warning msg in warning highlighting accompanied by system bell
 " return: nil
 function! dn#util#warn(msg) abort
-	if mode() ==# 'i' | execute "normal! \<Esc>" | endif
-	echohl WarningMsg
-	echo a:msg
-	echohl Normal
+    if mode() ==# 'i' | execute "normal! \<Esc>" | endif
+    echohl WarningMsg
+    echo a:msg
+    echohl Normal
 endfunction
 
 " dn#util#prompt([prompt])                                             {{{3
@@ -250,9 +250,9 @@ function! dn#util#prompt(...) abort
     else       | let l:prompt = 'Press [Enter] to continue...'
     endif
     " display prompt
-	echohl MoreMsg
-	call input(l:prompt)
-	echohl Normal
+    echohl MoreMsg
+    call input(l:prompt)
+    echohl Normal
     echo "\n"
 endfunction
 
@@ -368,7 +368,7 @@ function! dn#util#menuSelect(items, ...) abort
                 \                          : keys(a:items)
     let l:submenu_header = ''
     let l:options = [l:prompt] | let l:return_values = []
-	for l:Item in l:items
+    for l:Item in l:items
         " what kind of item do we have?
         if     s:_menuSimpleType(l:Item)  | let l:item_type = 'simple'
         elseif s:_menuSubmenuType(l:Item) | let l:item_type = 'submenu'
@@ -470,25 +470,25 @@ function! dn#util#menuSelect(items, ...) abort
         endif
     endfor
     " prepend index to menu options
-	let l:len = len(len(l:options))  " gives width of largest item index
+    let l:len = len(len(l:options))  " gives width of largest item index
     let l:index = 1  " no item number for prompt (in index 0)
     while l:index < len(l:options)
-		" - left pad index with spaces to ensure all right justified
-		let l:display_index = l:index
-		while len(l:display_index) < l:len
-			let l:display_index = ' ' . l:display_index
-		endwhile
-		let l:options[l:index] = l:display_index . ') ' . l:options[l:index]
+        " - left pad index with spaces to ensure all right justified
+        let l:display_index = l:index
+        while len(l:display_index) < l:len
+            let l:display_index = ' ' . l:display_index
+        endwhile
+        let l:options[l:index] = l:display_index . ') ' . l:options[l:index]
         let l:index += 1
     endwhile
-	" make choice
-	let l:choice = inputlist(l:options)
+    " make choice
+    let l:choice = inputlist(l:options)
     echo ' ' |    " needed to force next output to new line
     " process choice
-	" - must be valid selection
-	if l:choice <= 0 || l:choice >= len(l:options)
+    " - must be valid selection
+    if l:choice <= 0 || l:choice >= len(l:options)
         return ''
-	endif
+    endif
     " - get selected value
     "   . no prompt added to l:return_values,
     "     so is 'off by one' compared to l:options
@@ -699,7 +699,7 @@ endfunction
 "         if !exists('g:dn_help_data') | let g:dn_help_data = {} | endif
 "         let g:dn_help_data['foo_wibble'] = [ 'How to wibble:', '', 'Details...' ]
 function! dn#util#help(...) abort
-	echo '' | " clear command line
+    echo '' | " clear command line
     " variables
     let l:insert = (a:0 > 0 && a:1) ? g:dn_true : g:dn_false
     let l:topic = ''  " help topic selected by user
@@ -796,12 +796,12 @@ endfunction
 " return: whether successfully exchanged items [boolean]
 " note:   by not copying input list are acting on original
 function! dn#util#listExchangeItems(list, index1, index2) abort
-	if get(a:list, a:index1, ':INVALID:') ==# ':INVALID:' | return | endif
-	if get(a:list, a:index2, ':INVALID:') ==# ':INVALID:' | return | endif
-	let l:item1 = a:list[a:index1]
+    if get(a:list, a:index1, ':INVALID:') ==# ':INVALID:' | return | endif
+    if get(a:list, a:index2, ':INVALID:') ==# ':INVALID:' | return | endif
+    let l:item1 = a:list[a:index1]
     let a:list[a:index1] = a:list[a:index2]
     let a:list[a:index2] = l:item1
-	return g:dn_true
+    return g:dn_true
 endfunction
 
 " dn#util#listSubtract(list_1, list_2)                                 {{{3
@@ -811,15 +811,15 @@ endfunction
 " return: new list [List]
 " note:   performs 'list_1 - list_2'
 function! dn#util#listSubtract(list_1, list_2) abort
-	let l:list_new = []
-	" cycle through major list elements
-	" for each, check if in minor list - if not, add to return list
-	for l:item in a:list_1
-		if !count(a:list_2, l:item)
-			call add(l:list_new, l:item)
-		endif
-	endfor
-	return l:list_new
+    let l:list_new = []
+    " cycle through major list elements
+    " for each, check if in minor list - if not, add to return list
+    for l:item in a:list_1
+        if !count(a:list_2, l:item)
+            call add(l:list_new, l:item)
+        endif
+    endfor
+    return l:list_new
 endfunction
 
 " dn#util#listToScreen(list, width, start, delimiter)                  {{{3
@@ -832,41 +832,41 @@ endfunction
 "         delimiter - delimiter [default=' ', optional, integer]
 " return: formatted display [string]
 function! dn#util#listToScreen(list, ...) abort
-	" determine variables
-	let l:delim = ' ' | let l:scrn_width = 60 | let l:indent_len = 0
-	if a:0 >= 3 && a:3 !=? '' | let l:delim = a:3 | endif
-	if a:0 >= 2 && dn#util#validPosInt(a:2) | let l:indent_len = a:2 | endif
-	let l:indent = repeat(' ', l:indent_len)
-	if a:0 >= 1 && dn#util#validPosInt(a:1) | let l:scrn_width = a:1 | endif
-	let l:msg = ''
-	" get max element name length (to reset screen width if necessary)
-	let l:max_len = 0
-	for l:item in a:list
-		let l:item_len = strlen(l:item)
-		let l:max_len = (l:item_len > l:max_len) ? l:item_len : l:max_len
-	endfor
-	let l:max_item_width = l:indent_len + l:max_len
-	let l:scrn_width = (l:max_item_width > l:scrn_width)
-				\ ? l:max_item_width : l:scrn_width
-	" build display
-	let l:length = 0 | let l:index = 0
-	while get(a:list, l:index, ':INVALID:') !=# ':INVALID:'
-		let l:item = get(a:list, l:index)
-		if (l:length + strlen(l:item)) > l:scrn_width
-			let l:msg = l:msg . "\n"
-			let l:length = 0
-		endif
-		if l:length == 0
-			let l:length = l:indent_len + strlen(l:item)
-			let l:msg = l:msg . l:indent . l:item
-		else
-			let l:length = l:length + strlen(l:delim . l:item)
-			let l:msg = l:msg . l:delim . l:item
-		endif
-		let l:index += 1
-	endwhile
-	" return formatted string
-	return l:msg
+    " determine variables
+    let l:delim = ' ' | let l:scrn_width = 60 | let l:indent_len = 0
+    if a:0 >= 3 && a:3 !=? '' | let l:delim = a:3 | endif
+    if a:0 >= 2 && dn#util#validPosInt(a:2) | let l:indent_len = a:2 | endif
+    let l:indent = repeat(' ', l:indent_len)
+    if a:0 >= 1 && dn#util#validPosInt(a:1) | let l:scrn_width = a:1 | endif
+    let l:msg = ''
+    " get max element name length (to reset screen width if necessary)
+    let l:max_len = 0
+    for l:item in a:list
+        let l:item_len = strlen(l:item)
+        let l:max_len = (l:item_len > l:max_len) ? l:item_len : l:max_len
+    endfor
+    let l:max_item_width = l:indent_len + l:max_len
+    let l:scrn_width = (l:max_item_width > l:scrn_width)
+                \ ? l:max_item_width : l:scrn_width
+    " build display
+    let l:length = 0 | let l:index = 0
+    while get(a:list, l:index, ':INVALID:') !=# ':INVALID:'
+        let l:item = get(a:list, l:index)
+        if (l:length + strlen(l:item)) > l:scrn_width
+            let l:msg = l:msg . "\n"
+            let l:length = 0
+        endif
+        if l:length == 0
+            let l:length = l:indent_len + strlen(l:item)
+            let l:msg = l:msg . l:indent . l:item
+        else
+            let l:length = l:length + strlen(l:delim . l:item)
+            let l:msg = l:msg . l:delim . l:item
+        endif
+        let l:index += 1
+    endwhile
+    " return formatted string
+    return l:msg
 endfunction
 
 " dn#util#listToScreenColumns(list, [width], [padding], [indent])      {{{3
@@ -881,53 +881,53 @@ endfunction
 "                   [optional, integer]
 " return: formatted display [string]
 function! dn#util#listToScreenColumns(list, ...) abort
-	" determine variables
-	let l:scrn_width = 60 | let l:col_padding = 1 | let l:indent_len = 0
-	if a:0 >= 3 && dn#util#validPosInt(a:3) | let l:indent_len  = a:3 | endif
-	if a:0 >= 2 && dn#util#validPosInt(a:2) | let l:col_padding = a:2 | endif
-	if a:0 >= 1 && dn#util#validPosInt(a:1) | let l:scrn_width  = a:1 | endif
-	let l:indent = repeat(' ', l:indent_len)
-	let l:column_pad = repeat(' ', l:col_padding)
-	" get max element name length
-	let l:max_len = 0
-	for l:item in a:list
-		let l:item_len = strlen(l:item)
-		let l:max_len = (l:item_len > l:max_len)
+    " determine variables
+    let l:scrn_width = 60 | let l:col_padding = 1 | let l:indent_len = 0
+    if a:0 >= 3 && dn#util#validPosInt(a:3) | let l:indent_len  = a:3 | endif
+    if a:0 >= 2 && dn#util#validPosInt(a:2) | let l:col_padding = a:2 | endif
+    if a:0 >= 1 && dn#util#validPosInt(a:1) | let l:scrn_width  = a:1 | endif
+    let l:indent = repeat(' ', l:indent_len)
+    let l:column_pad = repeat(' ', l:col_padding)
+    " get max element name length
+    let l:max_len = 0
+    for l:item in a:list
+        let l:item_len = strlen(l:item)
+        let l:max_len = (l:item_len > l:max_len)
                     \ ? l:item_len
                     \ : l:max_len
-	endfor
-	let l:col_width = l:max_len + l:col_padding
-	let l:max_column_width = l:indent_len + l:col_width
-	let l:scrn_width = (l:max_column_width > l:scrn_width)
-				\ ? l:max_column_width
+    endfor
+    let l:col_width = l:max_len + l:col_padding
+    let l:max_column_width = l:indent_len + l:col_width
+    let l:scrn_width = (l:max_column_width > l:scrn_width)
+                \ ? l:max_column_width
                 \ : l:scrn_width
-	" get number of columns
-	let l:col_nums = 0 | let l:modulo = l:col_width + 1
-	while l:modulo >= l:col_width
-		let l:col_nums = l:col_nums + 1
-		let l:modulo = l:scrn_width - l:indent - (l:col_width * l:col_nums)
-	endwhile
-	" build display
-	let l:col_num = 1 | let l:msg = '' | let l:index = 0
-	while get(a:list, l:index, ':INVALID:') !=# ':INVALID:'
-		let l:item = get(a:list, l:index)
-		if l:col_num > l:col_nums  " add CR to end of line
-			let l:msg = l:msg . "\n"
-			let l:col_num = 1
-		endif
-		if l:col_num == 1  " add indent before col 1 and pad before other cols
-			let l:msg = l:msg . l:indent
-		else
-			let l:msg = l:msg . l:column_pad
-		endif
-		while strlen(l:item) < l:col_width  " pad item to col width
-			let l:item = l:item . ' '
-		endwhile
-		let l:msg = l:msg . l:item
-		let l:col_num = l:col_num + 1  " increment column number
-		let l:index += 1
-	endwhile
-	return dn#util#trimChar(l:msg)  " remove trailing spaces
+    " get number of columns
+    let l:col_nums = 0 | let l:modulo = l:col_width + 1
+    while l:modulo >= l:col_width
+        let l:col_nums = l:col_nums + 1
+        let l:modulo = l:scrn_width - l:indent - (l:col_width * l:col_nums)
+    endwhile
+    " build display
+    let l:col_num = 1 | let l:msg = '' | let l:index = 0
+    while get(a:list, l:index, ':INVALID:') !=# ':INVALID:'
+        let l:item = get(a:list, l:index)
+        if l:col_num > l:col_nums  " add CR to end of line
+            let l:msg = l:msg . "\n"
+            let l:col_num = 1
+        endif
+        if l:col_num == 1  " add indent before col 1 and pad before other cols
+            let l:msg = l:msg . l:indent
+        else
+            let l:msg = l:msg . l:column_pad
+        endif
+        while strlen(l:item) < l:col_width  " pad item to col width
+            let l:item = l:item . ' '
+        endwhile
+        let l:msg = l:msg . l:item
+        let l:col_num = l:col_num + 1  " increment column number
+        let l:index += 1
+    endwhile
+    return dn#util#trimChar(l:msg)  " remove trailing spaces
 endfunction
 
 " Programming                                                          {{{2
@@ -946,105 +946,105 @@ function! dn#util#unusedFunctions(...) abort
         echoerr 'dn#util#unusedFunctions() work only on vim scripts'
         return ''
     endif
-	try
-		" variables
-		let l:errmsg  = ''
+    try
+        " variables
+        let l:errmsg  = ''
         let l:cursors = []
         call add(l:cursors, getpos('.'))
-		let l:silent = 0
+        let l:silent = 0
         let l:lower  = 1
         let l:upper  = line('$')
         if a:0 >= 1 && a:1 | let l:silent = 1 | endif
-		if a:0 >= 2 && dn#util#validPosInt(a:2)
-			let l:lower = (a:2 > 1) ? (a:2 - 1) : 1
-		endif
-		if a:0 >= 2 && dn#util#validPosInt(a:2)
-			let l:upper = (a:2 <= l:upper) ? a:2 : l:upper
-		endif
-		if l:upper <= l:lower
-			let l:errmsg = 'Upper bound must be greater then lower bound'
-			throw ''
-		endif
-		let l:index = l:lower
-		let l:unused = []
-		" remove folds
-		execute 'normal! zR'
-		" time to start iterating through range
-		call cursor(l:lower, 1)
-		" find next function
-		let l:func_decl = '^\s\{}fu\%[nction]\s\{1,}\p\{1,}('
-		while search(l:func_decl, 'W') && line('.') <= l:upper
-			" extract function name
-			let l:func_start = line('.')
-			let l:line = getline('.')
-			let l:func_name = substitute(
-						\ 	l:line,
-						\ 	'^\s\{}fu\%[nction]\s\{1,}\(\p\{1,}\)(\p\{}$',
-						\ 	'\1',
-						\ 	''
-						\ )
-			" remove 's:' prefix if present
-			let l:func_srch = substitute(
-						\ 	l:func_name,
-						\ 	'^s:\(\p\{}\)$',
-						\ 	'\1',
-						\ 	''
-						\ )
-			" find end of function
-			let l:end_decl = '^\s\{}endf\%[unction]\s\{}$'
-			call search(l:end_decl, 'W')
-			let l:func_end = line('.')
-			if l:func_start == l:func_end
-				let l:errmsg = "Could not find 'endfunction' for function '"
-							\ . l:func_name . "'"
-				throw ''
-			endif
-			" now find whether function ever called
-			call cursor(l:lower, 1)
-			let l:called = g:dn_false
-			while search(l:func_srch . '(', 'W')
-						\ && line('.') <= l:upper
-				let l:line_num = line('.')
-				let l:line = getline('.')
-				" must ensure match is not part of function declaration ...
-				if !(l:line_num >= l:func_start
-							\ && l:line_num <= l:func_end)
-					" ... and not part of comment
-					let l:comment = '"[^"]\p\{-}'
-								\ . l:func_srch
-								\ . '[^"]\{}$'
-					if match(l:line, l:comment) == -1
-						let l:called = g:dn_true
-						break
-					endif
-				endif
-				call cursor(line('.') + 1, 1)
-			endwhile
-			" report if not called
-			if !l:called
-				let l:unused = add(l:unused, l:func_name)
-			endif
-			" position ourselves at end of last found function
-			call cursor(l:func_end, 1)
-		endwhile
-		" should now have list of uncalled functions
-		if empty(l:unused)
-			let l:msg = 'There are no unused functions'
-		else
-			let l:msg = 'Declared but unused functions:' . "\n"
-						\ . '[Warning: Algorithm is imperfect -- '
-						\ . 'check before deleting!]'
-						\ . "\n\n"
-						\ . dn#util#listToScreenColumns(l:unused, 1)
-		endif
+        if a:0 >= 2 && dn#util#validPosInt(a:2)
+            let l:lower = (a:2 > 1) ? (a:2 - 1) : 1
+        endif
+        if a:0 >= 2 && dn#util#validPosInt(a:2)
+            let l:upper = (a:2 <= l:upper) ? a:2 : l:upper
+        endif
+        if l:upper <= l:lower
+            let l:errmsg = 'Upper bound must be greater then lower bound'
+            throw ''
+        endif
+        let l:index = l:lower
+        let l:unused = []
+        " remove folds
+        execute 'normal! zR'
+        " time to start iterating through range
+        call cursor(l:lower, 1)
+        " find next function
+        let l:func_decl = '^\s\{}fu\%[nction]\s\{1,}\p\{1,}('
+        while search(l:func_decl, 'W') && line('.') <= l:upper
+            " extract function name
+            let l:func_start = line('.')
+            let l:line = getline('.')
+            let l:func_name = substitute(
+                        \ 	l:line,
+                        \ 	'^\s\{}fu\%[nction]\s\{1,}\(\p\{1,}\)(\p\{}$',
+                        \ 	'\1',
+                        \ 	''
+                        \ )
+            " remove 's:' prefix if present
+            let l:func_srch = substitute(
+                        \ 	l:func_name,
+                        \ 	'^s:\(\p\{}\)$',
+                        \ 	'\1',
+                        \ 	''
+                        \ )
+            " find end of function
+            let l:end_decl = '^\s\{}endf\%[unction]\s\{}$'
+            call search(l:end_decl, 'W')
+            let l:func_end = line('.')
+            if l:func_start == l:func_end
+                let l:errmsg = "Could not find 'endfunction' for function '"
+                            \ . l:func_name . "'"
+                throw ''
+            endif
+            " now find whether function ever called
+            call cursor(l:lower, 1)
+            let l:called = g:dn_false
+            while search(l:func_srch . '(', 'W')
+                        \ && line('.') <= l:upper
+                let l:line_num = line('.')
+                let l:line = getline('.')
+                " must ensure match is not part of function declaration ...
+                if !(l:line_num >= l:func_start
+                            \ && l:line_num <= l:func_end)
+                    " ... and not part of comment
+                    let l:comment = '"[^"]\p\{-}'
+                                \ . l:func_srch
+                                \ . '[^"]\{}$'
+                    if match(l:line, l:comment) == -1
+                        let l:called = g:dn_true
+                        break
+                    endif
+                endif
+                call cursor(line('.') + 1, 1)
+            endwhile
+            " report if not called
+            if !l:called
+                let l:unused = add(l:unused, l:func_name)
+            endif
+            " position ourselves at end of last found function
+            call cursor(l:func_end, 1)
+        endwhile
+        " should now have list of uncalled functions
+        if empty(l:unused)
+            let l:msg = 'There are no unused functions'
+        else
+            let l:msg = 'Declared but unused functions:' . "\n"
+                        \ . '[Warning: Algorithm is imperfect -- '
+                        \ . 'check before deleting!]'
+                        \ . "\n\n"
+                        \ . dn#util#listToScreenColumns(l:unused, 1)
+        endif
         if !l:silent | echo l:msg | endif
-	catch
-		let l:errmsg = (l:errmsg !=? '') ? l:errmsg
-					\ : 'Unhandled exception occurred'
-		call dn#util#showMsg(l:errmsg, 'Error')
-	finally
-		return l:unused
-	endtry
+    catch
+        let l:errmsg = (l:errmsg !=? '') ? l:errmsg
+                    \ : 'Unhandled exception occurred'
+        call dn#util#showMsg(l:errmsg, 'Error')
+    finally
+        return l:unused
+    endtry
 endfunction
 
 " dn#util#insertMode([skip])                                           {{{3
@@ -1057,19 +1057,19 @@ endfunction
 "         invoked with one right skip to compensate for the left skip
 "         that occured when initially escaping from insert mode
 function! dn#util#insertMode(...) abort
-	let l:right_skip = (a:0 > 0 && a:1 > 0)
+    let l:right_skip = (a:0 > 0 && a:1 > 0)
                 \ ? a:1
                 \ : 0
-	" override skip if cursor at eol to prevent error beep
-	if col('.') >= strlen(getline('.')) | let l:right_skip = 0 | endif
-	" skip right if so instructed
-	if l:right_skip > 0
+    " override skip if cursor at eol to prevent error beep
+    if col('.') >= strlen(getline('.')) | let l:right_skip = 0 | endif
+    " skip right if so instructed
+    if l:right_skip > 0
         silent execute 'normal! ' . l:right_skip . 'l'
     endif
-	" handle case where cursor at end of line
-	if col('.') >= strlen(getline('.')) | startinsert! " =~# 'A'
-	else                                | startinsert  " =~# 'i'
-	endif
+    " handle case where cursor at end of line
+    if col('.') >= strlen(getline('.')) | startinsert! " =~# 'A'
+    else                                | startinsert  " =~# 'i'
+    endif
 endfunction
 
 " dn#util#executeShellCommand(cmd, [msg])                              {{{3
@@ -1079,7 +1079,7 @@ endfunction
 " prints: if error display user error message and shell feedback
 " return: return status of command as vim boolean
 function! dn#util#executeShellCommand(cmd, ...) abort
-	echo '' | " clear command line
+    echo '' | " clear command line
     " variables
     let l:errmsg = (a:0 > 0) ? a:1 : ['Error occurred:']
     " run command
@@ -1430,11 +1430,11 @@ endfunction
 " params: str - string to edit [string]
 " return: altered string [string]
 function! dn#util#stripLastChar(edit_string) abort
-	return strpart(
-				\ 	a:edit_string,
-				\ 	0,
-				\ 	strlen(a:edit_string) - 1
-				\ )
+    return strpart(
+                \ 	a:edit_string,
+                \ 	0,
+                \ 	strlen(a:edit_string) - 1
+                \ )
 endfunction
 
 " dn#util#insertString(str, [paste])                                   {{{3
@@ -1453,9 +1453,9 @@ endfunction
 function! dn#util#insertString(inserted_text, ...) abort
     let l:restrictive = g:dn_true
     if a:0 > 1 && ! a:1 | let l:restrictive = g:dn_false | endif
-	if l:restrictive | let l:paste_setting = &paste | set paste | endif
-	silent execute 'normal! a' . a:inserted_text
-	if l:restrictive && ! l:paste_setting | set nopaste | endif
+    if l:restrictive | let l:paste_setting = &paste | set paste | endif
+    silent execute 'normal! a' . a:inserted_text
+    if l:restrictive && ! l:paste_setting | set nopaste | endif
 endfunction
 
 " dn#util#trimChar(str, [char])                                        {{{3
@@ -1464,16 +1464,16 @@ endfunction
 "         char - char to trim [optional, default=' ', char]
 " return: trimmed string [string]
 function! dn#util#trimChar(edit_string, ...) abort
-	" set trim character
-	let l:char = (a:0 > 0)
+    " set trim character
+    let l:char = (a:0 > 0)
                 \ ? a:1
                 \ : ' '
-	" build match terms
-	let l:left_match_str = '^' . l:char . '\+'
-	let l:right_match_str = l:char . '\+$'
-	" do trimming
-	let l:string = substitute(a:edit_string, l:left_match_str, '', '')
-	return substitute(l:string, l:right_match_str, '', '')
+    " build match terms
+    let l:left_match_str = '^' . l:char . '\+'
+    let l:right_match_str = l:char . '\+$'
+    " do trimming
+    let l:string = substitute(a:edit_string, l:left_match_str, '', '')
+    return substitute(l:string, l:right_match_str, '', '')
 endfunction
 
 " dn#util#entitise(str)                                                {{{3
@@ -1482,13 +1482,13 @@ endfunction
 " insert: nil
 " return: altered string [string]
 function! dn#util#entitise(str) abort
-	let l:str = a:str
-	let l:str = substitute(l:str, '&', '&amp;',  'g')
-	let l:str = substitute(l:str, '>', '&gt;',   'g')
-	let l:str = substitute(l:str, '<', '&lt;',   'g')
-	let l:str = substitute(l:str, "'", '&apos;', 'g')
-	let l:str = substitute(l:str, '"', '&quot;', 'g')
-	return l:str
+    let l:str = a:str
+    let l:str = substitute(l:str, '&', '&amp;',  'g')
+    let l:str = substitute(l:str, '>', '&gt;',   'g')
+    let l:str = substitute(l:str, '<', '&lt;',   'g')
+    let l:str = substitute(l:str, "'", '&apos;', 'g')
+    let l:str = substitute(l:str, '"', '&quot;', 'g')
+    return l:str
 endfunction
 
 " dn#util#deentitise(str)                                              {{{3
@@ -1497,13 +1497,13 @@ endfunction
 " insert: nil
 " return: altered string [string]
 function! dn#util#deentitise(str) abort
-	let l:str = a:str
-	let l:str = substitute(l:str, '&quot;', '"', 'g')
-	let l:str = substitute(l:str, '&apos;', "'", 'g')
-	let l:str = substitute(l:str, '&lt;',   '<', 'g')
-	let l:str = substitute(l:str, '&gt;',   '>', 'g')
-	let l:str = substitute(l:str, '&amp;',  '&', 'g')
-	return l:str
+    let l:str = a:str
+    let l:str = substitute(l:str, '&quot;', '"', 'g')
+    let l:str = substitute(l:str, '&apos;', "'", 'g')
+    let l:str = substitute(l:str, '&lt;',   '<', 'g')
+    let l:str = substitute(l:str, '&gt;',   '>', 'g')
+    let l:str = substitute(l:str, '&amp;',  '&', 'g')
+    return l:str
 endfunction
 
 " dn#util#stringify(var, [quote])                                      {{{3
@@ -1784,7 +1784,7 @@ endfunction
 " return: whether valid positive integer [boolean]
 " note:   zero is not a positive integer
 function! dn#util#validPosInt(value) abort
-	return a:value =~# '^[1-9]\{1}[0-9]\{}$'
+    return a:value =~# '^[1-9]\{1}[0-9]\{}$'
 endfunction
 
 " Miscellaneous                                                        {{{2
@@ -1794,42 +1794,42 @@ endfunction
 " insert: nil
 " return: selected text ('' if no text selected) [string]
 function! dn#util#selectWord() abort
-	" select <cword> and analyse
-	let l:fragment = expand('<cword>')
-	if l:fragment !~? '^\w\+$' | return '' | endif    " must be [[alnum]_]
-	" get index of fragment start
-	let l:orig_line = line('.') | let l:orig_col = col('.')
-	let l:target_col = l:orig_col - 1    " strings are zero-, not one-based
-	let l:line = getline('.')
-	let l:distance = 1000 | let l:iteration = 1 | let l:count = 0
-	let l:begin = -1 | let l:terminus = -1
-	let l:index = match(l:line, l:fragment, 0, l:iteration)
-	while l:index != -1
-		let l:match_distance = l:target_col - l:index
-		if l:match_distance < 0  " ensure absolute value
-			let l:match_distance = strpart(l:match_distance, 1)
-		endif
-		" keep match if begins closer to, but before, original cursor pos
-		if (l:match_distance <= l:distance) && (l:index <= l:target_col)
-			let l:distance = l:match_distance
-			let l:count = l:iteration
-		endif
-		let l:iteration += 1
-		let l:index = match(l:line, l:fragment, 0, l:iteration)
-	endwhile
-	if l:count == 0 | return '' | endif
-	let l:begin = match(l:line, l:fragment, 0, l:count)
-	" next, get index of fragment end
-	let l:terminus = matchend(l:line, l:fragment, 0, l:count) - 1
-	if l:terminus == -1 | return '' | endif
-	" adjust indices because strings are zero-based but lines are one-based
-	let l:begin += 1 | let l:terminus += 1
-	" select fragment
-	call cursor(l:orig_line, l:begin)
-	execute 'normal! v'
-	call cursor(l:orig_line, l:terminus)
-	" done
-	return l:fragment
+    " select <cword> and analyse
+    let l:fragment = expand('<cword>')
+    if l:fragment !~? '^\w\+$' | return '' | endif    " must be [[alnum]_]
+    " get index of fragment start
+    let l:orig_line = line('.') | let l:orig_col = col('.')
+    let l:target_col = l:orig_col - 1    " strings are zero-, not one-based
+    let l:line = getline('.')
+    let l:distance = 1000 | let l:iteration = 1 | let l:count = 0
+    let l:begin = -1 | let l:terminus = -1
+    let l:index = match(l:line, l:fragment, 0, l:iteration)
+    while l:index != -1
+        let l:match_distance = l:target_col - l:index
+        if l:match_distance < 0  " ensure absolute value
+            let l:match_distance = strpart(l:match_distance, 1)
+        endif
+        " keep match if begins closer to, but before, original cursor pos
+        if (l:match_distance <= l:distance) && (l:index <= l:target_col)
+            let l:distance = l:match_distance
+            let l:count = l:iteration
+        endif
+        let l:iteration += 1
+        let l:index = match(l:line, l:fragment, 0, l:iteration)
+    endwhile
+    if l:count == 0 | return '' | endif
+    let l:begin = match(l:line, l:fragment, 0, l:count)
+    " next, get index of fragment end
+    let l:terminus = matchend(l:line, l:fragment, 0, l:count) - 1
+    if l:terminus == -1 | return '' | endif
+    " adjust indices because strings are zero-based but lines are one-based
+    let l:begin += 1 | let l:terminus += 1
+    " select fragment
+    call cursor(l:orig_line, l:begin)
+    execute 'normal! v'
+    call cursor(l:orig_line, l:terminus)
+    " done
+    return l:fragment
 endfunction
 
 " dn#util#varType(var)                                                 {{{3
@@ -1868,12 +1868,12 @@ endfunction                                                          " }}}3
 " return: day in week [integer]
 " note:   uses Doomsday algorithm created by John Horton Conway
 function! s:_centuryDoomsday(year) abort
-	let l:century = (a:year - (a:year % 100)) / 100
-	let l:base_century = l:century % 4
-	return        l:base_century == 3 ? 4 :
-				\ l:base_century == 0 ? 3 :
-				\ l:base_century == 1 ? 1 :
-				\ l:base_century == 2 ? 6 : 0
+    let l:century = (a:year - (a:year % 100)) / 100
+    let l:base_century = l:century % 4
+    return        l:base_century == 3 ? 4 :
+                \ l:base_century == 0 ? 3 :
+                \ l:base_century == 1 ? 1 :
+                \ l:base_century == 2 ? 6 : 0
 endfunction
 
 " s:_currentIsoDate()                                                  {{{2
@@ -1882,7 +1882,7 @@ endfunction
 " insert: nil
 " return: date in ISO format [string]
 function! s:_currentIsoDate() abort
-	return strftime('%Y-%m-%d')
+    return strftime('%Y-%m-%d')
 endfunction
 
 " s:_dayValue(day)                                                     {{{2
@@ -1892,13 +1892,13 @@ endfunction
 " return: day name [string]
 " note:   1=Sunday, 2=Monday, ..., 7=Saturday
 function! s:_dayValue(day) abort
-	return        a:day == 1 ? 'Sunday'    :
-				\ a:day == 2 ? 'Monday'    :
-				\ a:day == 3 ? 'Tuesday'   :
-				\ a:day == 4 ? 'Wednesday' :
-				\ a:day == 5 ? 'Thursday'  :
-				\ a:day == 6 ? 'Friday'    :
-				\ a:day == 7 ? 'Saturday'  : ''
+    return        a:day == 1 ? 'Sunday'    :
+                \ a:day == 2 ? 'Monday'    :
+                \ a:day == 3 ? 'Tuesday'   :
+                \ a:day == 4 ? 'Wednesday' :
+                \ a:day == 5 ? 'Thursday'  :
+                \ a:day == 6 ? 'Friday'    :
+                \ a:day == 7 ? 'Saturday'  : ''
 endfunction
 
 " s:_headerCapsEngine(header, type)                                    {{{2
@@ -2034,18 +2034,18 @@ endfunction
 " insert: nil
 " return: length of month [integer]
 function! s:_monthLength(year, month) abort
-	return        a:month == 1  ? 31 :
-				\ a:month == 2  ? 28 + s:_leapYear(a:year) :
-				\ a:month == 3  ? 31 :
-				\ a:month == 4  ? 30 :
-				\ a:month == 5  ? 31 :
-				\ a:month == 6  ? 30 :
-				\ a:month == 7  ? 31 :
-				\ a:month == 8  ? 31 :
-				\ a:month == 9  ? 30 :
-				\ a:month == 10 ? 31 :
-				\ a:month == 11 ? 30 :
-				\ a:month == 12 ? 31 : 0
+    return        a:month == 1  ? 31 :
+                \ a:month == 2  ? 28 + s:_leapYear(a:year) :
+                \ a:month == 3  ? 31 :
+                \ a:month == 4  ? 30 :
+                \ a:month == 5  ? 31 :
+                \ a:month == 6  ? 30 :
+                \ a:month == 7  ? 31 :
+                \ a:month == 8  ? 31 :
+                \ a:month == 9  ? 30 :
+                \ a:month == 10 ? 31 :
+                \ a:month == 11 ? 30 :
+                \ a:month == 12 ? 31 : 0
 endfunction
 
 " s:_monthValue(year, month)                                           {{{2
@@ -2055,19 +2055,19 @@ endfunction
 " insert: nil
 " return: day in month [integer]
 function! s:_monthValue(year, month) abort
-	let l:Leapyear = s:_leapYear(a:year)
-	return        a:month == 1  ? (l:Leapyear == 0 ? 3 : 4) :
-				\ a:month == 2  ? (l:Leapyear == 0 ? 0 : 1) :
-			   	\ a:month == 3  ? 0  :
-				\ a:month == 4  ? 4  :
-				\ a:month == 5  ? 9  :
-				\ a:month == 6  ? 6  :
-				\ a:month == 7  ? 11 :
-				\ a:month == 8  ? 8  :
-				\ a:month == 9  ? 5  :
-				\ a:month == 10 ? 10 :
-				\ a:month == 11 ? 7  :
-				\ a:month == 12 ? 12 : 0
+    let l:Leapyear = s:_leapYear(a:year)
+    return        a:month == 1  ? (l:Leapyear == 0 ? 3 : 4) :
+                \ a:month == 2  ? (l:Leapyear == 0 ? 0 : 1) :
+               	\ a:month == 3  ? 0  :
+                \ a:month == 4  ? 4  :
+                \ a:month == 5  ? 9  :
+                \ a:month == 6  ? 6  :
+                \ a:month == 7  ? 11 :
+                \ a:month == 8  ? 8  :
+                \ a:month == 9  ? 5  :
+                \ a:month == 10 ? 10 :
+                \ a:month == 11 ? 7  :
+                \ a:month == 12 ? 12 : 0
 endfunction
 
 " s:_validCalInput(year, month, day)                                   {{{2
@@ -2079,20 +2079,20 @@ endfunction
 " print:  error message if invalid input detected
 " return: whether valid input [boolean]
 function! s:_validCalInput(year, month, day) abort
-	let l:retval :dn_true
-	if !s:_validYear(a:year)
-		let l:retval = g:dn_false
-		echo "Invalid year: '" . a:year . "'"
-	endif
-	if !s:_validMonth(a:month)
-		let l:retval = g:dn_false
-		echo "Invalid month: '" . a:month . "'"
-	endif
-	if !s:_validDay(a:year, a:month, a:day)
-		let l:retval = g:dn_false
-		echo "Invalid day:   '" . a:day . "'"
-	endif
-	return l:retval
+    let l:retval :dn_true
+    if !s:_validYear(a:year)
+        let l:retval = g:dn_false
+        echo "Invalid year: '" . a:year . "'"
+    endif
+    if !s:_validMonth(a:month)
+        let l:retval = g:dn_false
+        echo "Invalid month: '" . a:month . "'"
+    endif
+    if !s:_validDay(a:year, a:month, a:day)
+        let l:retval = g:dn_false
+        echo "Invalid day:   '" . a:day . "'"
+    endif
+    return l:retval
 endfunction
 
 " s:_validDay(year, month, day)                                        {{{2
@@ -2103,12 +2103,12 @@ endfunction
 " insert: nil
 " return: whether valid day [boolean]
 function! s:_validDay(year, month, day) abort
-	if dn#util#validPosInt(a:day)
-		if a:day <= s:_monthLength(a:year, a:month)
-			return g:dn_true
-		endif
-	endif
-	return g:dn_false
+    if dn#util#validPosInt(a:day)
+        if a:day <= s:_monthLength(a:year, a:month)
+            return g:dn_true
+        endif
+    endif
+    return g:dn_false
 endfunction
 
 " s:_validMonth(month)                                                 {{{2
@@ -2117,10 +2117,10 @@ endfunction
 " insert: nil
 " return: whether valid month [boolean]
 function! s:_validMonth (month) abort
-	if dn#util#validPosInt(a:month) && a:month <= 12
+    if dn#util#validPosInt(a:month) && a:month <= 12
         return g:dn_true
     endif
-	return g:dn_false
+    return g:dn_false
 endfunction
 
 " s:_validYear(year)                                                   {{{2
@@ -2129,7 +2129,7 @@ endfunction
 " insert: nil
 " return: whether valid year [boolean]
 function! s:_validYear(year) abort
-	return dn#util#validPosInt(a:year)
+    return dn#util#validPosInt(a:year)
 endfunction
 
 " s:_yearDoomsday(year)                                                {{{2
@@ -2139,12 +2139,12 @@ endfunction
 " return: day in week [integer]
 " note:   uses Doomsday algorithm created by John Horton Conway
 function! s:_yearDoomsday(year) abort
-	let l:years_in_century = a:year % 100
-	let l:P = l:years_in_century / 12
-	let l:Q = l:years_in_century % 12
-	let l:R = l:Q / 4
-	let l:century_doomsday = s:_centuryDoomsday(a:year)
-	return (l:P + l:Q + l:R + l:century_doomsday) % 7
+    let l:years_in_century = a:year % 100
+    let l:P = l:years_in_century / 12
+    let l:Q = l:years_in_century % 12
+    let l:R = l:Q / 4
+    let l:century_doomsday = s:_centuryDoomsday(a:year)
+    return (l:P + l:Q + l:R + l:century_doomsday) % 7
 endfunction
 
 " s:_menuSimpleType(var)                                               {{{2
@@ -2166,7 +2166,7 @@ function! s:_menuSimpleType(...) abort
     " test var
     let l:valid_types = [type(''), type(0), type(0.0)]
     let l:type = type(l:var)
-	return count(l:valid_types, l:type)
+    return count(l:valid_types, l:type)
 endfunction
 
 " s:_menuSubMenuType(var)                                              {{{2
@@ -2188,7 +2188,7 @@ function! s:_menuSubmenuType(...) abort
     " test var
     let l:valid_types = [type([]), type({})]
     let l:type = type(l:var)
-	return count(l:valid_types, l:type)
+    return count(l:valid_types, l:type)
 endfunction
 
 " s:_menuType(var)                                                     {{{2
@@ -2211,7 +2211,7 @@ function! s:_menuType(...) abort
     " test var
     let l:valid_types = [type(''), type(0), type(0.0), type([]), type({})]
     let l:type = type(l:var)
-	return count(l:valid_types, l:type)
+    return count(l:valid_types, l:type)
 endfunction
 
 " Restore cpoptions                                                    {{{1

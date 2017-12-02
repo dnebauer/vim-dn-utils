@@ -220,7 +220,7 @@ function! dn#util#error(msg) abort
     " is interpreted as an escape token
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
     " create List of messages
-    let l:msgs = s:_listifyMsg(a:msg, 'error')
+    let l:msgs = s:_listifyMsg(a:msg)
     " output messages
     echohl ErrorMsg
     for l:msg in l:msgs | echo l:msg | endfor
@@ -2030,15 +2030,14 @@ function! s:_leapYear(year) abort
     endif
 endfunction
 
-" s:_listifyMsg(msg, type)    {{{2
+" s:_listifyMsg(msg)    {{{2
 " does:   convert msg into List
 " params: msg - message variable to convert [required, any]
-"         type - message type [required, string,
-"                              must be 'info|warning|error']
 " insert: nil
 " prints: error if var other than List or string encountered
 " return: List
-function! s:_listifyMsg(msg, type) abort
+" note:   if arg is List, stringify each element, else stringify arg
+function! s:_listifyMsg(msg) abort
     " params
     let l:valid_types = ['info', 'warning', 'error']
     if empty(a:type) || !count(l:valid_types, a:type)
@@ -2047,11 +2046,11 @@ function! s:_listifyMsg(msg, type) abort
     endif
     " convert
     let l:msgs = []
-    if     type(a:msg) == type('')
-        call add(l:msgs, a:msg)
-    elseif type(a:msg) == type([])
-        for l:msg in a:msg | call add(dn#util#stringify(l:msg)) | endfor
-    else  " neither string nor List
+    if type(a:msg) == type([])
+        for l:msg in a:msg
+            call add(l:msgs, dn#util#stringify(l:msg))
+        endfor
+    else
         call add(l:msgs, dn#util#stringify(a:msg))
     endif
     " return List

@@ -2062,7 +2062,7 @@ function! s:_listifyMsg(msg, type) abort
     endif
     " display errors
     let l:errs = map(copy(l:errs),
-                \ '"ERROR: Invalid".a:type." message: ".string(v:var)')
+                \ '"ERROR: Invalid".a:type." message: ".string(v:val)')
     for l:err in l:errs | echoerr l:err | endfor
     " return List
     return l:msgs

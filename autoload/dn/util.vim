@@ -2043,7 +2043,7 @@ function! s:_listifyMsg(msg, type) abort
     let l:valid_types = ['info', 'warning', 'error']
     if empty(a:type) || !count(l:valid_types, a:type)
         echoerr "Invalid message type '" . a:type . "'"
-        return
+        return []
     endif
     " vars
     let l:msgs = []

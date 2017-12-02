@@ -2,28 +2,28 @@
 " Author:  David Nebauer
 " URL:     https://github.com/dnebauer/vim-dn-utils
 
-" Load once                                                            {{{1
+" Load once    {{{1
 if exists('g:loaded_dn_utils_autoload') | finish | endif
 let g:loaded_dn_utils_autoload = 1
 
-" Save coptions                                                        {{{1
+" Save coptions    {{{1
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
-" Temporary file                                                       {{{1
+" Temporary file    {{{1
 if !exists('s:temp_file')
     let s:temp_file = tempname()
 endif
 
-" Script variables                                                     {{{1
-" temporary file (as above)                                            {{{2
-" submenu token                                                        {{{2
+" Script variables    {{{1
+" temporary file (as above)    {{{2
+" submenu token    {{{2
 let s:submenu_token = '__!_SUBMENU_!_TOKEN_!__'
 
-" Public functions                                                     {{{1
+" Public functions    {{{1
 
-" Dates                                                                {{{2
-" dn#util#insertCurrentDate([insert_mode])                             {{{3
+" Dates    {{{2
+" dn#util#insertCurrentDate([insert_mode])    {{{3
 " does:   insert current date in ISO format
 " params: insert - whether called from insert mode
 "                  [optional, default=false, boolean]
@@ -38,7 +38,7 @@ function! dn#util#insertCurrentDate(...) abort
     if a:0 > 0 && a:1 | execute 'normal! l' | startinsert | endif
 endfunction
 
-" dn#util#nowYear()                                                    {{{3
+" dn#util#nowYear()    {{{3
 " does:   get current year
 " params: nil
 " insert: nil
@@ -47,7 +47,7 @@ function! dn#util#nowYear() abort
     return strftime('%Y')
 endfunction
 
-" dn#util#nowMonth()                                                   {{{3
+" dn#util#nowMonth()    {{{3
 " does:   get current month
 " params: nil
 " insert: nil
@@ -56,7 +56,7 @@ function! dn#util#nowMonth() abort
     return substitute(strftime('%m'), '^0', '', '')
 endfunction
 
-" dn#util#nowDay()                                                     {{{3
+" dn#util#nowDay()    {{{3
 " does:   get current day in month
 " params: nil
 " insert: nil
@@ -65,7 +65,7 @@ function! dn#util#nowDay() abort
     return substitute(strftime('%d'), '^0', '', '')
 endfunction
 
-" dn#util#dayOfWeek(year, month, day)                                  {{{3
+" dn#util#dayOfWeek(year, month, day)    {{{3
 " does:   get name of weekday
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -83,8 +83,8 @@ function! dn#util#dayOfWeek(year, month, day) abort
     return s:_dayValue(l:day_number)
 endfunction
 
-" File/directory                                                       {{{2
-" dn#util#getFilePath()                                                {{{3
+" File/directory    {{{2
+" dn#util#getFilePath()    {{{3
 " does:   get filepath of file being edited
 " params: nil
 " return: filepath [string]
@@ -92,7 +92,7 @@ function! dn#util#getFilePath() abort
     return expand('%:p')
 endfunction
 
-" dn#util#getFileDir()                                                 {{{3
+" dn#util#getFileDir()    {{{3
 " does:   get directory of file being edited
 " params: nil
 " return: directory [string]
@@ -100,7 +100,7 @@ function! dn#util#getFileDir() abort
     return expand('%:p:h')
 endfunction
 
-" dn#util#getFileName()                                                {{{3
+" dn#util#getFileName()    {{{3
 " does:   get name of file being edited
 " params: nil
 " return: directory [string]
@@ -108,7 +108,7 @@ function! dn#util#getFileName() abort
     return expand('%:p:t')
 endfunction
 
-" dn#util#getRtpDir(name, [multiple])                                  {{{3
+" dn#util#getRtpDir(name, [multiple])    {{{3
 " does:   finds directory in runtimepath
 " params: name     - directory name [string]
 "         multiple - allow multiples [boolean,optional, default=false]
@@ -140,7 +140,7 @@ function! dn#util#getRtpDir(name, ...) abort
     return dn#util#menuSelect(l:matches, 'Select directory path:')
 endfunction
 
-" dn#util#getRtpFile(name, [multiple])                                 {{{3
+" dn#util#getRtpFile(name, [multiple])    {{{3
 " does:   finds file under directories in runtimepath
 " params: name     - file name [required, string]
 "         multiple - allow multiples [boolean, optional, default=false]
@@ -176,8 +176,8 @@ function! dn#util#getRtpFile(name, ...) abort
     return dn#util#menuSelect(l:matches, 'Select file path:')
 endfunction
 
-" User interaction                                                     {{{2
-" dn#util#showMsg(msg, [type])                                         {{{3
+" User interaction    {{{2
+" dn#util#showMsg(msg, [type])    {{{3
 " does:   display message to user
 " params: 1 - message [string]
 "         2 - message type [allowed values='generic'|'warning'|'info'|
@@ -185,7 +185,7 @@ endfunction
 " return: nil
 function! dn#util#showMsg(msg, ...) abort
     let l:msg = a:msg
-    let l:valid_types = {'warning': 1, 'info': 1, 'question': 1, 'error': 1}
+    let l:valid_types =    {'warning': 1, 'info': 1, 'question': 1, 'error': 1}
     let l:type = ''
     " sanity check
     let l:error = 0
@@ -209,7 +209,7 @@ function! dn#util#showMsg(msg, ...) abort
     call confirm(l:msg, '&OK', 1, l:type)
 endfunction
 
-" dn#util#error(msg)                                                   {{{3
+" dn#util#error(msg)    {{{3
 " does:   display error message
 " params: msg - error message [required, string or List]
 " insert: nil
@@ -235,7 +235,7 @@ function! dn#util#error(msg) abort
     echohl Normal
 endfunction
 
-" dn#util#warn(msg)                                                    {{{3
+" dn#util#warn(msg)    {{{3
 " does:   display warning message
 " params: msg - warning message [string]
 " insert: nil
@@ -248,7 +248,7 @@ function! dn#util#warn(msg) abort
     echohl Normal
 endfunction
 
-" dn#util#prompt([prompt])                                             {{{3
+" dn#util#prompt([prompt])    {{{3
 " does:   display prompt message
 " params: prompt - prompt [default='Press [Enter] to continue...',
 "                  optional, string]
@@ -267,7 +267,7 @@ function! dn#util#prompt(...) abort
     echo "\n"
 endfunction
 
-" dn#util#wrap(msg)                                                    {{{3
+" dn#util#wrap(msg)    {{{3
 " does:   echoes text but wraps it sensibly
 " params: msg  - message [string]
 "         hang - hanging indent size [integer, optional, default=0]
@@ -331,7 +331,7 @@ function! dn#util#wrap(msg, ...) abort
     endwhile
 endfunction
 
-" dn#util#menuSelect(items, [prompt])                                  {{{3
+" dn#util#menuSelect(items, [prompt])    {{{3
 " does:   select item from menu
 " params: items  - menu items [List,Dict]
 "         prompt - prompt [default='Select an option:', optional, string]
@@ -512,7 +512,7 @@ function! dn#util#menuSelect(items, ...) abort
     endif
 endfunction
 
-" dn#util#menuAddOption(menu, option, [retval])                        {{{3
+" dn#util#menuAddOption(menu, option, [retval])    {{{3
 " does:   add option to menu used with dn#util#menuSelect
 " params: menu   - menu variable [required, List or Dict]
 "         option - menu option [required, String or Number or Float]
@@ -551,7 +551,7 @@ function! dn#util#menuAddOption(...) abort
         return
     endif
     " add option
-    let l:item = {}
+    let l:item =    {}
     let l:item[l:option] = l:retval
     if   type(l:menu) == type([])  " list
         call add(l:menu, l:item)
@@ -560,7 +560,7 @@ function! dn#util#menuAddOption(...) abort
     endif
 endfunction
 
-" dn#util#menuAddSubmenu(menu, header, submenu)                        {{{3
+" dn#util#menuAddSubmenu(menu, header, submenu)    {{{3
 " does:   add submenu to menu used with dn#util#menuSelect
 " params: menu    - menu variable [required, List or Dict]
 "         header  - submenu header [required, String]
@@ -602,7 +602,7 @@ function! dn#util#menuAddSubmenu(menu, header, submenu) abort
     endif
 endfunction
 
-" dn#util#consoleSelect(single, plural, items, [method])               {{{3
+" dn#util#consoleSelect(single, plural, items, [method])    {{{3
 " does:   select item from list using the console
 " params: single - item singular name [required, string]
 "         plural - item plural name [required, string]
@@ -621,7 +621,7 @@ endfunction
 " usage:  let l:element = dn#util#consoleSelect(
 "                   \ 'Element name', 'Element names', l:items 'complete')
 function! dn#util#consoleSelect(single, plural, items, ...) abort
-    " check variables                                                  {{{4
+    " check variables    {{{4
     for l:var in ['single', 'plural', 'items']
         if empty(a:{l:var})
             echoerr "No '" . l:var . "' parameter provided"
@@ -640,7 +640,7 @@ function! dn#util#consoleSelect(single, plural, items, ...) abort
             return ''
         endif
     endif
-    " check required files                                             {{{4
+    " check required files    {{{4
     " - temporary file must be writable and start empty
     let l:write_result = writefile([], s:temp_file)
     if l:write_result != 0  " -1 = error, 0 = success
@@ -653,7 +653,7 @@ function! dn#util#consoleSelect(single, plural, items, ...) abort
         echoerr 'dn-utils: cannot find console-select script'
         return ''
     endif
-    " assemble shell command to run script                             {{{4
+    " assemble shell command to run script    {{{4
     let l:opts = []
     let l:opts += ['--name-single', a:single]
     let l:opts += ['--name-plural', a:plural]
@@ -662,10 +662,10 @@ function! dn#util#consoleSelect(single, plural, items, ...) abort
     let l:opts += ['--select-method', l:method]
     call map(l:opts, 'shellescape(v:val)')
     let l:cmd = '!perl' . ' ' . l:script . ' ' . join(l:opts, ' ')
-    " run script to select docbook element                             {{{4
+    " run script to select docbook element    {{{4
     silent execute l:cmd
     redraw!
-    " retrieve and return result                                       {{{4
+    " retrieve and return result    {{{4
     if ! filereadable(s:temp_file)  " assume script aborted with error
         return ''
     endif
@@ -680,7 +680,7 @@ function! dn#util#consoleSelect(single, plural, items, ...) abort
     endif
 endfunction
 
-" dn#util#help([insert])                                               {{{3
+" dn#util#help([insert])    {{{3
 " does:   user can select from help topics
 " params: insert - insert mode [default=false, optional, boolean]
 " insert: nil
@@ -701,13 +701,13 @@ endfunction
 "         menu item reflecting the plugin name/type, and for the topic
 "         values to be made unique by appending to each a prefix unique to
 "         its plugin
-" example:if !exists('g:dn_help_plugins') | let g:dn_help_plugins = {} | endif
+" example:if !exists('g:dn_help_plugins') | let g:dn_help_plugins =    {} | endif
 "         if index(g:dn_help_plugins, 'foo', g:dn_true) == -1
 "           call add(g:dn_help_plugins, 'foo')
 "         endif
-"         if !exists('g:dn_help_topics') | let g:dn_help_topics = {} | endif
-"         let g:dn_help_topics['foo'] = { 'how to wibble': 'foo_wibble' }
-"         if !exists('g:dn_help_data') | let g:dn_help_data = {} | endif
+"         if !exists('g:dn_help_topics') | let g:dn_help_topics =    {} | endif
+"         let g:dn_help_topics['foo'] =    { 'how to wibble': 'foo_wibble' }
+"         if !exists('g:dn_help_data') | let g:dn_help_data =    {} | endif
 "         let g:dn_help_data['foo_wibble'] = [ 'How to wibble:', '', 'Details...' ]
 function! dn#util#help(...) abort
     echo '' | " clear command line
@@ -778,7 +778,7 @@ function! dn#util#help(...) abort
     if l:insert | call dn#util#insertMode(1) | endif
 endfunction
 
-" dn#util#getSelection()                                               {{{3
+" dn#util#getSelection()    {{{3
 " does:   returns selected text
 " params: nil
 " insert: nil
@@ -798,8 +798,8 @@ function! dn#util#getSelection() abort
     endtry
 endfunction
 
-" Lists                                                                {{{2
-" dn#util#listExchangeItems(list, index1, index2)                      {{{3
+" Lists    {{{2
+" dn#util#listExchangeItems(list, index1, index2)    {{{3
 " does:   exchange two elements in the same list
 " params: list    - list to process [List]
 "         insert1 - index of first element to exchange [integer]
@@ -815,7 +815,7 @@ function! dn#util#listExchangeItems(list, index1, index2) abort
     return g:dn_true
 endfunction
 
-" dn#util#listSubtract(list_1, list_2)                                 {{{3
+" dn#util#listSubtract(list_1, list_2)    {{{3
 " does:   subtract one list from another
 " params: list1 - list to subtract from [List]
 "         list2 - list to be subtracted [List]
@@ -833,7 +833,7 @@ function! dn#util#listSubtract(list_1, list_2) abort
     return l:list_new
 endfunction
 
-" dn#util#listToScreen(list, width, start, delimiter)                  {{{3
+" dn#util#listToScreen(list, width, start, delimiter)    {{{3
 " does:   formats list for screen display
 " params: list      - list to format for display [List]
 "         width     - maximum width of text
@@ -880,7 +880,7 @@ function! dn#util#listToScreen(list, ...) abort
     return l:msg
 endfunction
 
-" dn#util#listToScreenColumns(list, [width], [padding], [indent])      {{{3
+" dn#util#listToScreenColumns(list, [width], [padding], [indent])    {{{3
 " does:   formats list for screen display in columns
 " params: list    - list to format for display [List]
 "         width   - maximum width of text (default: 60)
@@ -941,8 +941,8 @@ function! dn#util#listToScreenColumns(list, ...) abort
     return dn#util#trimChar(l:msg)  " remove trailing spaces
 endfunction
 
-" Programming                                                          {{{2
-" dn#util#unusedFunctions([silent], [lower], [upper])                  {{{3
+" Programming    {{{2
+" dn#util#unusedFunctions([silent], [lower], [upper])    {{{3
 " does:   checks for uncalled vim functions
 " params: silent - suppress user feedback
 "                  [optional, default=0, boolean]
@@ -1058,7 +1058,7 @@ function! dn#util#unusedFunctions(...) abort
     endtry
 endfunction
 
-" dn#util#insertMode([skip])                                           {{{3
+" dn#util#insertMode([skip])    {{{3
 " does:   switch to insert mode
 " params: skip - right skip [optional, integer]
 " insert: nil
@@ -1083,7 +1083,7 @@ function! dn#util#insertMode(...) abort
     endif
 endfunction
 
-" dn#util#executeShellCommand(cmd, [msg])                              {{{3
+" dn#util#executeShellCommand(cmd, [msg])    {{{3
 " does:   execute shell command
 " params: cmd - shell command [required, string]
 "         msg - error message [optional, List, default='Error occured:']
@@ -1110,7 +1110,7 @@ function! dn#util#executeShellCommand(cmd, ...) abort
     endif
 endfunction
 
-" dn#util#scriptnames()                                                {{{3
+" dn#util#scriptnames()    {{{3
 " does:   prepare quickfix output for the quickfix list
 " params: nil
 " return: content for quickfix window [List of Dicts]
@@ -1133,7 +1133,7 @@ function! dn#util#scriptnames() abort
     let l:quickfix_list_items = []
     for l:line in split(l:output, "\n")
         if l:line =~# ':'
-            call add(l:quickfix_list_items, {
+            call add(l:quickfix_list_items,    {
                         \ 'text': matchstr(l:line, '\d\+'),
                         \ 'filename': expand(matchstr(l:line,
                         \                             ': \zs.*'))})
@@ -1142,7 +1142,7 @@ function! dn#util#scriptnames() abort
     return l:quickfix_list_items
 endfunction
 
-" dn#util#scriptNumber(script)                                         {{{3
+" dn#util#scriptNumber(script)    {{{3
 " does:   gets dynamically assigned number (SID, SNR) of script
 " params: script - file name of script [string, required]
 " prints: error message if fails
@@ -1170,7 +1170,7 @@ function! dn#util#scriptNumber(script) abort
                 \ '\V\/' . a:script . '\_$'), '^\s*\d\+'), '\d\+$')
 endfunction
 
-" dn#util#filetypes()                                                  {{{3
+" dn#util#filetypes()    {{{3
 " does:   get list of available filetypes
 " params: nil
 " insert: nil
@@ -1193,7 +1193,7 @@ function! dn#util#filetypes() abort
     return uniq(sort(l:filetypes))
 endfunction
 
-" dn#util#showFiletypes()                                              {{{3
+" dn#util#showFiletypes()    {{{3
 " does:   display available filetypes in echo area
 " params: nil
 " return: nil
@@ -1207,7 +1207,7 @@ function! dn#util#showFiletypes() abort
     echo l:display
 endfunction
 
-" dn#util#runtimepaths()                                               {{{3
+" dn#util#runtimepaths()    {{{3
 " does:   get list of runtime paths
 " params: nil
 " insert: nil
@@ -1216,7 +1216,7 @@ function! dn#util#runtimepaths() abort
     return split(&runtimepath, ',')
 endfunction
 
-" dn#util#showRuntimepaths()                                           {{{3
+" dn#util#showRuntimepaths()    {{{3
 " does:   display available filetypes in echo area
 " params: nil
 " return: nil
@@ -1229,7 +1229,7 @@ function! dn#util#showRuntimepaths() abort
     endfor
 endfunction
 
-" dn#util#updateUserHelpTags()                                         {{{3
+" dn#util#updateUserHelpTags()    {{{3
 " does:   individually updates user vim helpdocs
 " params: nil
 " return: nil
@@ -1262,7 +1262,7 @@ function! dn#util#updateUserHelpTags() abort
     endif
 endfunction
 
-" dn#util#os()                                                         {{{3
+" dn#util#os()    {{{3
 " does:   determine operating system in use
 " params: nil
 " return: string ('windows'|'unix'|'other')
@@ -1276,7 +1276,7 @@ function! dn#util#os() abort
     endif
 endfunction
 
-" dn#util#isWindows()                                                  {{{3
+" dn#util#isWindows()    {{{3
 " does:   determine whether operating system is windows
 " params: nil
 " return: boolean
@@ -1284,7 +1284,7 @@ function! dn#util#isWindows() abort
     return dn#util#os() ==# 'windows'
 endfunction
 
-" dn#util#isUnix()                                                      {{{3
+" dn#util#isUnix()    {{{3
 " does:   determine whether operating system is unix-like
 " params: nil
 " return: boolean
@@ -1292,8 +1292,8 @@ function! dn#util#isUnix() abort
     return dn#util#os() ==# 'unix'
 endfunction
 
-" Version control                                                      {{{2
-" dn#util#localGitRepoFetch(dir, [prefix])                             {{{3
+" Version control    {{{2
+" dn#util#localGitRepoFetch(dir, [prefix])    {{{3
 " does:   perform a fetch on a local git repository
 " params: dir    - path to '.git' subdirectory in repository [required]
 "         prefix - prepend string to all output
@@ -1338,7 +1338,7 @@ function! dn#util#localGitRepoFetch(dir, ...) abort
     return 1
 endfunction
 
-" dn#util#localGitRepoUpdatedRecently(dir, time, [prefix])             {{{3
+" dn#util#localGitRepoUpdatedRecently(dir, time, [prefix])    {{{3
 " does:   check that a local repository has been updated
 "         within a given time period
 " params: dir    - directory containing local repository [required]
@@ -1435,8 +1435,8 @@ function! dn#util#localGitRepoUpdatedRecently(dir, time, ...) abort
     if l:diff < a:time | return g:dn_true | else | return | endif
 endfunction
 
-" Strings                                                              {{{2
-" dn#util#stripLastChar(str)                                           {{{3
+" Strings    {{{2
+" dn#util#stripLastChar(str)    {{{3
 " does:   removes last character from string
 " params: str - string to edit [string]
 " return: altered string [string]
@@ -1448,7 +1448,7 @@ function! dn#util#stripLastChar(edit_string) abort
                 \ )
 endfunction
 
-" dn#util#insertString(str, [paste])                                   {{{3
+" dn#util#insertString(str, [paste])    {{{3
 " does:   insert string at current cursor location
 " params: str   - string for insertion [string]
 "         paste - use 'paste' setting  [optional, default=true, boolean]
@@ -1469,7 +1469,7 @@ function! dn#util#insertString(inserted_text, ...) abort
     if l:restrictive && ! l:paste_setting | set nopaste | endif
 endfunction
 
-" dn#util#trimChar(str, [char])                                        {{{3
+" dn#util#trimChar(str, [char])    {{{3
 " does:   removes leading and trailing chars from string
 " params: str  - string to trim [string]
 "         char - char to trim [optional, default=' ', char]
@@ -1487,7 +1487,7 @@ function! dn#util#trimChar(edit_string, ...) abort
     return substitute(l:string, l:right_match_str, '', '')
 endfunction
 
-" dn#util#entitise(str)                                                {{{3
+" dn#util#entitise(str)    {{{3
 " does:   replace special html characters with entities
 " params: str - string [string]
 " insert: nil
@@ -1502,7 +1502,7 @@ function! dn#util#entitise(str) abort
     return l:str
 endfunction
 
-" dn#util#deentitise(str)                                              {{{3
+" dn#util#deentitise(str)    {{{3
 " does:   replace entities with characters for special html characters
 " params: str - string [string]
 " insert: nil
@@ -1517,7 +1517,7 @@ function! dn#util#deentitise(str) abort
     return l:str
 endfunction
 
-" dn#util#stringify(var, [quote])                                      {{{3
+" dn#util#stringify(var, [quote])    {{{3
 " does:   convert variables to string
 " params: var   - variable [any]
 "         quote - quote_strings [optional, default=false, boolean]
@@ -1576,7 +1576,7 @@ function! dn#util#stringify(var, ...) abort
     endif
 endfunction
 
-" dn#util#matchCount(haystack, needle)                                 {{{3
+" dn#util#matchCount(haystack, needle)    {{{3
 " does:   finds number of occurrences of a substring in a string
 " params: haystack - string to search [string]
 "         needle   - substring to search for [string]
@@ -1600,7 +1600,7 @@ function! dn#util#matchCount(haystack, needle) abort
     return l:matches
 endfunction
 
-" dn#util#padInternal(str, start, finish, char)                        {{{3
+" dn#util#padInternal(str, start, finish, char)    {{{3
 " does:   insert char at given position until initial location is at
 "         the desired location
 " params: str    - initial string [string]
@@ -1647,7 +1647,7 @@ function! dn#util#padInternal(string, start, target, ...) abort
                 \ . strpart(a:string, a:start)
 endfunction
 
-" dn#util#padLeft(str, length, [char])                                 {{{3
+" dn#util#padLeft(str, length, [char])    {{{3
 " does:   add char to start of string until it is the target length
 " params: str    - initial string [string]
 "         length - target string length[number]
@@ -1676,7 +1676,7 @@ function! dn#util#padLeft(string, length, ...) abort
     return l:string
 endfunction
 
-" dn#util#padRight(str, length, [char])                                {{{3
+" dn#util#padRight(str, length, [char])    {{{3
 " does:   add char to end of string until it is the target length
 " params: str    - initial string [string]
 "         length - target string length[number]
@@ -1703,7 +1703,7 @@ function! dn#util#padRight(string, length, ...) abort
     return l:string
 endfunction
 
-" dn#util#globalSubstitution(pattern, substitution)                    {{{3
+" dn#util#globalSubstitution(pattern, substitution)    {{{3
 " does:   perform global substitution in file
 " insert: nil
 " params: pattern      - string to search for [string]
@@ -1724,7 +1724,7 @@ function! dn#util#globalSubstitution(pattern, substitute) abort
     call setpos('.', l:pos)
 endfunction
 
-" dn#util#changeHeaderCaps(mode)                                       {{{3
+" dn#util#changeHeaderCaps(mode)    {{{3
 " does:   changes capitalisation of line or visual selection
 " params: mode - calling mode ['n'|'v'|'i']
 " insert: replaces line or selection with altered line or selection
@@ -1739,7 +1739,7 @@ function! dn#util#changeHeaderCaps(mode) abort
     " variables
     let l:line_replace_modes = ['n', 'i']
     let l:visual_replace_modes = ['v']
-    let l:options = {
+    let l:options =    {
                 \ 'Upper case':            'upper',
                 \ 'Lower case':            'lower',
                 \ 'Capitalise every word': 'start',
@@ -1787,8 +1787,8 @@ function! dn#util#changeHeaderCaps(mode) abort
     if l:mode ==# 'i' | call dn#util#insertMode(1) | endif
 endfunction
 
-" Numbers                                                              {{{2
-" dn#util#validPosInt(val                                              {{{3
+" Numbers    {{{2
+" dn#util#validPosInt(val    {{{3
 " does:   check whether input is valid positive integer
 " params: val - value to check [integer]
 " insert: nil
@@ -1798,8 +1798,8 @@ function! dn#util#validPosInt(value) abort
     return a:value =~# '^[1-9]\{1}[0-9]\{}$'
 endfunction
 
-" Miscellaneous                                                        {{{2
-" dn#util#selectWord()                                                 {{{3
+" Miscellaneous    {{{2
+" dn#util#selectWord()    {{{3
 " does:   selects <cword> under cursor (must be only [0-9a-zA-Z_]
 " params: nil
 " insert: nil
@@ -1843,7 +1843,7 @@ function! dn#util#selectWord() abort
     return l:fragment
 endfunction
 
-" dn#util#varType(var)                                                 {{{3
+" dn#util#varType(var)    {{{3
 " does:   get variable type
 " params: var - variable to be analysed
 " insert: nil
@@ -1860,7 +1860,7 @@ function! dn#util#varType(var) abort
     endif
 endfunction
 
-" dn#util#testFn()                                                     {{{3
+" dn#util#testFn()    {{{3
 " does:   utility function used for testing purposes only
 " params: varies
 " insert: varies
@@ -1868,11 +1868,11 @@ endfunction
 function! dn#util#testFn() range abort
     let l:var = 'A RABBIT AND A DOG SHOW'
     call dn#util#showMsg(string(l:var))
-endfunction                                                          " }}}3
+endfunction    " }}}3
 
-" Private functions                                                    {{{1
+" Private functions    {{{1
 
-" s:_centuryDoomsday(year)                                             {{{2
+" s:_centuryDoomsday(year)    {{{2
 " does:   return doomsday for century
 " params: year - year [integer]
 " insert: nil
@@ -1887,7 +1887,7 @@ function! s:_centuryDoomsday(year) abort
                 \ l:base_century == 2 ? 6 : 0
 endfunction
 
-" s:_currentIsoDate()                                                  {{{2
+" s:_currentIsoDate()    {{{2
 " does:   return current date in ISO format (yyyy-mm-dd)
 " params: nil
 " insert: nil
@@ -1896,7 +1896,7 @@ function! s:_currentIsoDate() abort
     return strftime('%Y-%m-%d')
 endfunction
 
-" s:_dayValue(day)                                                     {{{2
+" s:_dayValue(day)    {{{2
 " does:   get matching day name for day number
 " params: day - day number [integer]
 " insert: nil
@@ -1912,7 +1912,7 @@ function! s:_dayValue(day) abort
                 \ a:day == 7 ? 'Saturday'  : ''
 endfunction
 
-" s:_headerCapsEngine(header, type)                                    {{{2
+" s:_headerCapsEngine(header, type)    {{{2
 " does:   change capitalisation of header
 " params: header - header to convert [string]
 "         type   - caps type
@@ -2024,7 +2024,7 @@ catch
 endtry
 endfunction
 
-" s:_leapYear(year)                                                    {{{2
+" s:_leapYear(year)    {{{2
 " does:   determine whether leap year or not
 " params: year - year [integer]
 " insert: nil
@@ -2038,7 +2038,7 @@ function! s:_leapYear(year) abort
     endif
 endfunction
 
-" s:_menuSimpleType(var)                                               {{{2
+" s:_menuSimpleType(var)    {{{2
 " does:   whether variable is a plain option, i.e., number, float or string
 " params: var - variable to test [required, any]
 " insert: nil
@@ -2060,7 +2060,7 @@ function! s:_menuSimpleType(...) abort
     return count(l:valid_types, l:type)
 endfunction
 
-" s:_menuSubMenuType(var)                                              {{{2
+" s:_menuSubMenuType(var)    {{{2
 " does:   whether variable is a submenu option, i.e., List or Dict
 " params: var - variable to test [required, any]
 " insert: nil
@@ -2082,7 +2082,7 @@ function! s:_menuSubmenuType(...) abort
     return count(l:valid_types, l:type)
 endfunction
 
-" s:_menuType(var)                                                     {{{2
+" s:_menuType(var)    {{{2
 " does:   whether variable is a simple or submenu option,
 "         i.e., number, float, string, List or Dict
 " params: var - variable to test [required, any]
@@ -2105,7 +2105,7 @@ function! s:_menuType(...) abort
     return count(l:valid_types, l:type)
 endfunction
 
-" s:_monthLength(year, month)                                          {{{2
+" s:_monthLength(year, month)    {{{2
 " does:   get length of month in days
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -2126,7 +2126,7 @@ function! s:_monthLength(year, month) abort
                 \ a:month == 12 ? 31 : 0
 endfunction
 
-" s:_monthValue(year, month)                                           {{{2
+" s:_monthValue(year, month)    {{{2
 " does:   get day in month that is same day of week as year doomsday
 " params: year - year [integer]
 "         month - month number [integer]
@@ -2148,7 +2148,7 @@ function! s:_monthValue(year, month) abort
                 \ a:month == 12 ? 12 : 0
 endfunction
 
-" s:_validCalInput(year, month, day)                                   {{{2
+" s:_validCalInput(year, month, day)    {{{2
 " does:   check validity of calendrical input
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -2173,7 +2173,7 @@ function! s:_validCalInput(year, month, day) abort
     return l:retval
 endfunction
 
-" s:_validDay(year, month, day)                                        {{{2
+" s:_validDay(year, month, day)    {{{2
 " does:   check day validity
 " params: year  - year [integer]
 "         month - month number [integer]
@@ -2189,7 +2189,7 @@ function! s:_validDay(year, month, day) abort
     return g:dn_false
 endfunction
 
-" s:_validMonth(month)                                                 {{{2
+" s:_validMonth(month)    {{{2
 " does:   check month validity
 " params: month - month integer [integer]
 " insert: nil
@@ -2201,7 +2201,7 @@ function! s:_validMonth (month) abort
     return g:dn_false
 endfunction
 
-" s:_validYear(year)                                                   {{{2
+" s:_validYear(year)    {{{2
 " does:   check year validity
 " params: year - year [integer]
 " insert: nil
@@ -2210,7 +2210,7 @@ function! s:_validYear(year) abort
     return dn#util#validPosInt(a:year)
 endfunction
 
-" s:_yearDoomsday(year)                                                {{{2
+" s:_yearDoomsday(year)    {{{2
 " does:   return doomsday for year
 " params: year - year [integer]
 " insert: nil
@@ -2225,8 +2225,8 @@ function! s:_yearDoomsday(year) abort
     return (l:P + l:Q + l:R + l:century_doomsday) % 7
 endfunction
 
-" Restore cpoptions                                                    {{{1
+" Restore cpoptions    {{{1
 let &cpoptions = s:save_cpo
-unlet s:save_cpo                                                     " }}}1
+unlet s:save_cpo    " }}}1
 
 " vim: set foldmethod=marker :

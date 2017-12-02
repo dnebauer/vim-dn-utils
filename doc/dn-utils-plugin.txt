@@ -206,7 +206,12 @@ dn#util#entitise({text})                                 *dn#util#entitise()*
 
 dn#util#error({msg})                                        *dn#util#error()*
                 Displays error message in error highlighting accompanied by
-                system bell.
+                system bell. The {msg} is expected to be a string or a List
+                of strings. Any non-string values in a List {msg} are
+                stringified with the |string()| function. If {msg} is
+                anything other than a string or List, it too is stringified
+                with the |string()| function. Each string resulting from
+                {msg} is output on a separate line.
 
 dn#util#executeShellCommand({cmd}[, {msg}])   *dn#util#executeShellCommand()*
                 Executes a shell command ({cmd}, String) and returns the

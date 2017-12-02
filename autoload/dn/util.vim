@@ -219,8 +219,19 @@ function! dn#util#error(msg) abort
     " require double quoting of execution string so backslash
     " is interpreted as an escape token
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
+    " create List of messages
+    let l:msgs = []
+    if   type(a:msg) == type([])
+        for l:msg in a:msg
+            call add(l:msgs, (type(l:msg) == type('') ? l:msg
+                        \                             : string(l:msg)))
+        endfor
+    else
+        call add(l:msgs, (type(a:msg) == type('') ? a:msg : string(a:msg)))
+    endif
+    " output messages
     echohl ErrorMsg
-    echo a:msg
+    for l:msg in l:msgs | echo l:msg | endfor
     echohl Normal
 endfunction
 

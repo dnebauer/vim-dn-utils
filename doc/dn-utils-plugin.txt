@@ -207,9 +207,9 @@ dn#util#entitise({text})                                 *dn#util#entitise()*
 dn#util#error({msg})                                        *dn#util#error()*
                 Displays error message in error highlighting accompanied by
                 system bell. The {msg} is expected to be a string or List of
-                strings. Each string is output on a separate line. Any
-                non-string values that are encountered are displayed in
-                separate error messages.
+                strings. Any non-string values are stringified with
+                |dn#util#stringify()|. Each string obtained from {msg} is
+                output on a separate line.
 
 dn#util#executeShellCommand({cmd}[, {msg}])   *dn#util#executeShellCommand()*
                 Executes a shell command ({cmd}, String) and returns the

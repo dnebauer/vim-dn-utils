@@ -2045,25 +2045,15 @@ function! s:_listifyMsg(msg, type) abort
         echoerr "Invalid message type '" . a:type . "'"
         return []
     endif
-    " vars
-    let l:msgs = []
-    let l:errs = []
     " convert
+    let l:msgs = []
     if     type(a:msg) == type('')
         call add(l:msgs, a:msg)
     elseif type(a:msg) == type([])
-        for l:msg in a:msg
-            if   type(l:msg) == type('') | call add(l:msgs, l:msg)
-            else                         | call add(l:errs, l:msg)
-            endif
-        endfor
+        for l:msg in a:msg | call add(dn#util#stringify(l:msg)) | endfor
     else  " neither string nor List
-        call add(l:errs, a:msg)
+        call add(l:msgs, dn#util#stringify(a:msg))
     endif
-    " display errors
-    let l:errs = map(copy(l:errs),
-                \ '"ERROR: Invalid".a:type." message: ".string(v:val)')
-    for l:err in l:errs | echoerr l:err | endfor
     " return List
     return l:msgs
 endfunction

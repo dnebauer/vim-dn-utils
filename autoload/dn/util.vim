@@ -220,7 +220,7 @@ function! dn#util#error(msg) abort
     " is interpreted as an escape token
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
     " create List of messages
-    let l:msgs = s:_listifyMsg(a:msg)
+    let l:msgs = s:_listifyMsg(a:msg, 'error message')
     " output messages
     echohl ErrorMsg
     for l:msg in l:msgs | echo l:msg | endfor

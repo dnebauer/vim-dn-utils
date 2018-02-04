@@ -81,14 +81,14 @@ endif
 vmap <buffer> <unique> <Plug>DNHCV
             \ :call dn#util#changeHeaderCaps('v')<CR>
 
-" \hh : provide user help                                              {{{2
+" \help : provide user help                                            {{{2
 if !hasmapto('<Plug>DnHI')
-	imap <buffer> <unique> <LocalLeader>hh <Plug>DnHI
+	imap <buffer> <unique> <LocalLeader>help <Plug>DnHI
 endif
 imap <buffer> <unique> <Plug>DnHI
             \ <Esc>:call dn#util#help(g:dn_true)<CR>
 if !hasmapto('<Plug>DnHN')
-	nmap <buffer> <unique> <LocalLeader>hh <Plug>DnHN
+	nmap <buffer> <unique> <LocalLeader>help <Plug>DnHN
 endif
 nmap <buffer> <unique> <Plug>DnHN :call dn#util#help()<CR>
 

@@ -220,7 +220,7 @@ function! dn#util#error(msg) abort
     " is interpreted as an escape token
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
     echohl ErrorMsg
-    for l:msg in s:_listifyMsg(a:msg) | echo l:msg | endfor
+    for l:msg in s:_listifyMsg(a:msg) | echomsg l:msg | endfor
     echohl Normal
 endfunction
 
@@ -233,7 +233,7 @@ endfunction
 function! dn#util#warn(msg) abort
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
     echohl WarningMsg
-    for l:msg in s:_listifyMsg(a:msg) | echo l:msg | endfor
+    for l:msg in s:_listifyMsg(a:msg) | echomsg l:msg | endfor
     echohl Normal
 endfunction
 
@@ -289,7 +289,7 @@ function! dn#util#wrap(msg, ...) abort
             if !l:first_line
                 let l:msg = l:hang_indent . l:msg
             endif
-            echo l:msg
+            echomsg l:msg
             break
         endif
         " find wrap point
@@ -303,14 +303,14 @@ function! dn#util#wrap(msg, ...) abort
         endwhile
         " if no wrap point then have ugly situation where no breakpoint
         " exists so just output whole thing (ick!)
-        if l:break == -1 | echo l:msg | break | endif
+        if l:break == -1 | echomsg l:msg | break | endif
         " let's wrap!
         let l:break += 1
         let l:output = strpart(l:msg, 0, l:break)
         if !l:first_line
             let l:output = l:hang_indent . l:output
         endif
-        echo l:output
+        echomsg l:output
         let l:msg = strpart(l:msg, l:break)
         " - if broke line on punctuation mark may now have leading space
         if strpart(l:msg, 0, 1) ==? ' '
@@ -1037,7 +1037,7 @@ function! dn#util#unusedFunctions(...) abort
                         \ . "\n\n"
                         \ . dn#util#listToScreenColumns(l:unused, 1)
         endif
-        if !l:silent | echo l:msg | endif
+        if !l:silent | echomsg l:msg | endif
     catch
         let l:errmsg = (l:errmsg !=? '') ? l:errmsg
                     \ : 'Unhandled exception occurred'
@@ -1090,9 +1090,9 @@ function! dn#util#executeShellCommand(cmd, ...) abort
         for l:line in l:errmsg
             call dn#util#error(l:line)
         endfor
-        echo '--------------------------------------'
-        echo l:shell_feedback
-        echo '--------------------------------------'
+        echomsg '--------------------------------------'
+        echomsg l:shell_feedback
+        echomsg '--------------------------------------'
         return
     else
         return g:dn_true
@@ -2168,15 +2168,15 @@ function! s:_validCalInput(year, month, day) abort
     let l:retval :dn_true
     if !s:_validYear(a:year)
         let l:retval = g:dn_false
-        echo "Invalid year: '" . a:year . "'"
+        echomsg "Invalid year: '" . a:year . "'"
     endif
     if !s:_validMonth(a:month)
         let l:retval = g:dn_false
-        echo "Invalid month: '" . a:month . "'"
+        echomsg "Invalid month: '" . a:month . "'"
     endif
     if !s:_validDay(a:year, a:month, a:day)
         let l:retval = g:dn_false
-        echo "Invalid day:   '" . a:day . "'"
+        echomsg "Invalid day:   '" . a:day . "'"
     endif
     return l:retval
 endfunction

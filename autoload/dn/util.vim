@@ -114,7 +114,7 @@ set cpoptions&vim
 " s:rev           - revision number    {{{1
 
 ""
-" Revision number in the form "yyyymmdd"
+" Revision number in the form "yyyymmdd".
 let s:rev = 20180806
 
 " s:submenu_token - submenu token    {{{1
@@ -2125,11 +2125,11 @@ endfunction
 " <
 " or, more robustly:
 " >
-"   if exists('*dn#util#rev') && dn#util#rev =~? '\v^{\d{8,}$'
+"   if exists('*dn#util#rev') && dn#util#rev() =~? '\v^{\d{8,}$'
 " <
 " or, if trying to detect when the @plugin(name) plugin is missing:
 " >
-"   if !(exists('*dn#util#rev') && dn#util#rev =~? '\v^{\d{8,}$')
+"   if !(exists('*dn#util#rev') && dn#util#rev() =~? '\v^{\d{8,}$')
 " <
 function! dn#util#rev()
     return s:rev

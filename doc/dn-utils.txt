@@ -550,6 +550,22 @@ dn#util#prompt([prompt], [Enter])                           *dn#util#prompt()*
   Display [prompt] |String| using |hl-MoreMsg| highlighting.
   [prompt] is 'Press [Enter] to continue...' if omitted.
 
+dn#util#rev()                                                  *dn#util#rev()*
+  Return the current revision number of this plugin. The revision number is
+  the date of the most recent revision in "yyyymmdd" form. This function
+  should be used in testing for the presence of the dn-utils plugin:
+>
+    if exists('*dn#util#rev')
+<
+  or, more robustly:
+>
+    if exists('*dn#util#rev') && dn#util#rev =~? '\v^{\d{8}$'
+<
+  or, if trying to detect when the dn-utils plugin is missing:
+>
+    if !(exists('*dn#util#rev') && dn#util#rev =~? '\v^{\d{8}$')
+<
+
 dn#util#runtimepaths()                                *dn#util#runtimepaths()*
   Get |List| of runtime paths.
 

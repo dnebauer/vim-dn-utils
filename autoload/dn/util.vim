@@ -1,5 +1,5 @@
 " Vim utility plugin
-" Last change: 2018 Aug 5
+" Last change: 2018 Aug 6
 " Maintainer: David Nebauer
 " License: GPL3
 
@@ -110,6 +110,12 @@ set cpoptions&vim
 " }}}1
 
 " Scripts variables
+
+" s:rev           - revision number    {{{1
+
+""
+" Revision number in the form "yyyymmdd"
+let s:rev = 20180806
 
 " s:submenu_token - submenu token    {{{1
 
@@ -2105,6 +2111,28 @@ function! dn#util#prompt(...) abort
     call input(l:prompt)
     echohl Normal
     echo "\n"
+endfunction
+
+" dn#util#rev()    {{{1
+
+""
+" @public
+" Return the current revision number of this plugin. The revision number is
+" the date of the most recent revision in "yyyymmdd" form. This function
+" should be used in testing for the presence of the @plugin(name) plugin:
+" >
+"   if exists('*dn#util#rev')
+" <
+" or, more robustly:
+" >
+"   if exists('*dn#util#rev') && dn#util#rev =~? '\v^{\d{8,}$'
+" <
+" or, if trying to detect when the @plugin(name) plugin is missing:
+" >
+"   if !(exists('*dn#util#rev') && dn#util#rev =~? '\v^{\d{8,}$')
+" <
+function! dn#util#rev()
+    return s:rev
 endfunction
 
 " dn#util#runtimepaths()    {{{1

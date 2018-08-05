@@ -5,6 +5,7 @@ scriptencoding utf-8
 if exists('b:disable_dn_utils') && b:disable_dn_utils | finish | endif
 if exists('s:loaded') | finish | endif
 let s:loaded = 1
+let g:loaded_dn_utils = v:true  " for backwards compatibility
 
 let s:save_cpo = &cpoptions
 set cpoptions&vim

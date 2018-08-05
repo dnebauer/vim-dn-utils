@@ -2125,11 +2125,18 @@ endfunction
 " <
 " or, more robustly:
 " >
-"   if exists('*dn#util#rev') && dn#util#rev() =~? '\v^{\d{8,}$'
+"   if exists('*dn#util#rev') && dn#util#rev() =~? '\v^\d{8,}$'
 " <
 " or, if trying to detect when the @plugin(name) plugin is missing:
 " >
-"   if !(exists('*dn#util#rev') && dn#util#rev() =~? '\v^{\d{8,}$')
+"   if !(exists('*dn#util#rev') && dn#util#rev() =~? '\v^\d{8,}$')
+" <
+" The |exists()| function does not load autoloaded functions so it is possible
+" for this test to fail if the function has not yet been loaded. This can be
+" forced:
+" >
+"   silent! call dn#util#rev()  " load function if available
+"   if !(exists('*dn#util#rev') && dn#util#rev() =~? '\v^\d{8,}$')
 " <
 function! dn#util#rev()
     return s:rev

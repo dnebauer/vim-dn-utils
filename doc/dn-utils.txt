@@ -1,0 +1,739 @@
+*dn-utils.txt*	Personal utility plugin developed by author
+David Nebauer                                                       *dn-utils*
+
+==============================================================================
+CONTENTS                                                   *dn-utils-contents*
+  1. Introduction.............................................|dn-utils-intro|
+  2. Configuration...........................................|dn-utils-config|
+  3. Commands..............................................|dn-utils-commands|
+  4. Functions............................................|dn-utils-functions|
+  5. Mappings..............................................|dn-utils-mappings|
+  6. Function List....................................|dn-utils-function-list|
+
+==============================================================================
+INTRODUCTION                                                  *dn-utils-intro*
+
+A plugin to provide useful generic functions. It is intended to be available
+to all files being edited. These functions were developed over time by the
+author and later combined into a library. All functions are global and have
+the prefix "dn#util#" to try and avoid namespace collisions. Some
+|dn-utils-commands| and |dn-utils-mappings| are provided.
+
+==============================================================================
+CONFIGURATION                                                *dn-utils-config*
+
+                                                           *g:dn_help_plugins*
+One of three variables (|g:dn_help_plugins|, |g:dn_help_topics| and
+|g:dn_help_data|) and function |dn#util#help()| that together constitute an
+extensible help system.
+
+This variable is a |List| that shows the plugins that have added to the help
+variables. It is purely informative and plays no part in displaying help.
+
+This variable is not created by the dn-utils plugin so any contributor should
+first ensure it exists:
+>
+  if !exists('g:dn_help_plugins')
+      let g:dn_help_plugins = []
+  endif
+<
+See |g:dn_help_data| for a complete example of adding to the help system.
+
+                                                            *g:dn_help_topics*
+One of three variables (|g:dn_help_plugins|, |g:dn_help_topics| and
+|g:dn_help_data|) and function |dn#util#help()| that together constitute an
+extensible help system.
+
+This variable is a |Dictionary| that defines a multi-level menu which is
+submitted to the function |dn#menu#menuSelect()| for the user to select a help
+topic.  See the help for that function for details of how to structure the
+menu. By convention |g:dn_help_topics| is a |Dictionary|. Each contributor to
+the plugin should provide a new unique top-level key whose value contains a
+sub-menu containing all the options for that contributor.
+
+The |g:dn_help_data| variable is a |Dictionary| whose keys are the help topics
+which are provided by |g:dn_help_topics| and |dn#util#help()|. For that reason
+they must be unique. Each contributor to the help system is encouraged to use
+a unique prefix for their help topics to help avoid namespace collisions.
+
+This variable is not created by the dn-utils plugin so any contributor should
+first ensure it exists:
+>
+  if !exists('g:dn_help_topics')
+      let g:dn_help_topics = {}
+  endif
+<
+See |g:dn_help_data| for a complete example of adding to the help system.
+
+                                                              *g:dn_help_data*
+One of three variables (|g:dn_help_plugins|, |g:dn_help_topics| and
+|g:dn_help_data|) and function |dn#util#help()| that together constitute an
+extensible help system.
+
+The |g:dn_help_topics| variable is used to enable the user to select a unique
+help topic. |g:dn_help_data| is a |Dictionary| whose keys are the unique help
+topics from |g:dn_help_topics|. The value for each key is a |List| of lines
+which are displayed as concatenated text. To insert a newline use an empty
+element (''). To insert a blank line use to consecutive empty elements.
+
+This variable is not created by the dn-utils plugin so any contributor should
+first ensure it exists.
+
+What follows is a complete example of adding to the help system taken from the
+|dn_md_utils| plugin. The prefix "markdown_utils_" is used for help topics to
+ensure they are unique and do not collide with help topics supplied by other
+contributors.
+>
+  if !exists('g:dn_help_plugins')
+      let g:dn_help_plugins = []
+  endif
+  if !exists('g:dn_help_topics')
+      let g:dn_help_topics = {}
+  endif
+  if !exists('g:dn_help_data')
+      let g:dn_help_data = {}
+  endif
+  if count(g:dn_help_plugins, 'dn-md-utils') == 0
+      call add(g:dn_help_plugins, 'dn-md-utils')
+      if !has_key(g:dn_help_topics, 'markdown utils ftplugin')
+          let g:dn_help_topics['markdown utils ftplugin'] = {}
+      endif
+      let g:dn_help_topics['markdown utils ftplugin']['refs']
+                  \ = 'markdown_utils_refs'
+      let g:dn_help_data['markdown_utils_refs'] = [
+          \ 'Format for equations (Eq), figures (Fig), tables (Tbl):',
+          \ '',
+          \ '',
+          \ '',
+          \ 'Eq:  $$ y = mx + b $$ {#eq:id}',
+          \ '',
+          \ '',
+          \ '',
+          \ '     See @eq:id or {@eq:id}.',
+          \ '',
+          \ '',
+          \ '',
+          \ 'Fig: ![Caption.][imageref]',
+          \ '',
+          \ '',
+          \ '',
+          \ '     See @fig:id or {@fig:id}.',
+          \ '',
+          \ '',
+          \ '',
+          \ '        [imageref]: image.png "Alt text" {#fig:id}',
+          \ '',
+          \ '',
+          \ '',
+          \ 'Tbl: A B',
+          \ '',
+          \ '     - -',
+          \ '',
+          \ '     0 1',
+          \ '',
+          \ '',
+          \ '',
+          \ '     Table: Caption. {#tbl:id}',
+          \ '',
+          \ '',
+          \ '',
+          \ '     See @tbl:id or {@tbl:id}.',
+          \ ]
+      let g:dn_help_topics['markdown utils ftplugin']['utilities']
+                  \ = 'markdown_utils_util'
+      let g:dn_help_data['markdown_utils_util'] = [
+          \ 'This markdown ftplugin has the following utility features:',
+          \ '',
+          \ '',
+          \ '',
+          \ 'Feature                     Mapping  Command',
+          \ '',
+          \ '--------------------------  -------  -----------------',
+          \ '',
+          \ 'add metadata boilerplate    \ab      MUAddBoilerplate',
+          \ '',
+          \ 'clean output                \co      MUCleanOutput',
+          \ '',
+          \ 'insert figure               \fig     MUInsertFigure',
+          \ '',
+          \ 'convert metadata to panzer  \pm      MUPanzerifyMetadata',
+          \ ]
+  endif
+<
+
+==============================================================================
+COMMANDS                                                   *dn-utils-commands*
+
+:Scriptnames                                                    *:Scriptnames*
+  Displays script names in a quickfix window (|:ccl| to close). Calls
+  |dn#util#scriptnames()|.
+
+:Filetypes                                                        *:Filetypes*
+  Displays all available filetypes in the echo area. Calls
+  |dn#util#showFiletypes()|.
+
+:Runtimepaths                                                  *:Runtimepaths*
+  Displays runtime paths in the echo area. Calls |dn#util#showRuntimepaths()|.
+
+==============================================================================
+FUNCTIONS                                                 *dn-utils-functions*
+
+dn#util#changeHeaderCaps({mode})                  *dn#util#changeHeaderCaps()*
+  Changes capitalisation of line or visual selection. The {mode} is "n"
+  (|Normal-mode|) "i" (|Insert-mode|) or "v" (|Visual-mode|). The line or
+  selection is replaced with the altered line or selection. The user chooses
+  the type of capitalisation from a menu: upper case:
+    * convert to all uppercase characters
+
+  lower case:
+    * convert to all lowercase characters
+
+  sentence case:
+    * convert the first character to uppercase and all other characters to
+      lowercase
+
+  start case:
+    * convert the first letter of each word to uppercase and all other letters
+      to lower case
+
+  title case:
+    * capitalises first and last words, and all other words except articles,
+      prepositions and conjunctions of fewer than five letters
+
+  Newlines in a selection are preserved.
+
+dn#util#consoleSelect({singular}, {plural}, {items}, [method])
+                                                     *dn#util#consoleSelect()*
+  Select item from list using the console. During user interaction items in
+  the menu may be referred to by {singular} or {plural} terms. For example, if
+  the list contains elements, the {singular} term might be "element name"
+  while the {plural} term might be "element names". The menu {items} are
+  provided in a |List|.
+
+  The optional selection [method] can be "complete" or "filter". The
+  "complete" selection method uses word completion. The "filter" selection
+  method enables the user to type part of the target item and select from the
+  resulting list of matches. Both selection methods can handle unescaped
+  spaces in the menu items.
+  [method] is 'filter' if omitted.
+
+  Returns the selected item, or "" if no item was selected.
+
+  This function uses a perl5 script called "vim-dn-utils-console-select" that
+  is installed as part of this plugin, so a working perl installation is
+  required. The "complete" selection method uses the Term::Complete::complete
+  perl5 function while the "filter" selection method uses the
+  Term::Clui::choose perl5 function.
+
+dn#util#dayOfWeek({year}, {month}, {day})                *dn#util#dayOfWeek()*
+  Get name of weekday defined by {year}, {month} and {day} (all integers).
+
+  The name of the weekday is determined using the Doomsday algorithm created
+  by John Horton Conway. This algorithm takes advantage of each year having a
+  certain day of the week, called the "doomsday", upon which certain
+  easy-to-remember dates fall; for example, 4/4, 6/6, 8/8, 10/10, 12/12, and
+  the last day of February all occur on the same day of the week in any year.
+
+dn#util#deentitise({string})                            *dn#util#deentitise()*
+  Replace the following html entities in {string} with corresponding
+  characters: "&quot;" to """, "&apos;" to "'", "&lt;" to "<", "&gt;" to ">",
+  and "&amp;" to "&". Returns the altered {string}.
+
+dn#util#entitise({string})                                *dn#util#entitise()*
+  Replace special html characters in {string} with html entities. See
+  |dn#util#deentitise()| for the characters that are replaced. Returns the
+  altered {string}.
+
+dn#util#error({message})                                     *dn#util#error()*
+  Display error {message}. The {message} can be a string or a |List|. A List
+  is converted to a string by |dn#util#stringify()|. The error message is
+  displayed in error highlighting (see |hl-ErrorMsg|).
+
+dn#util#exceptionError({exception})                 *dn#util#exceptionError()*
+  Extracts error message from a Vim {exception}.
+
+  This is useful for Vim exceptions, i.e., those that begin with the string
+  "Vim", which vim does not allow to be re-thrown. This function extracts the
+  error message from Vim exceptions, allowing them to be re-thrown. Non-Vim
+  exceptions are returned unaltered.
+
+dn#util#executeShellCommand({cmd}, [message])  *dn#util#executeShellCommand()*
+  Execute shell command {cmd} and return exit status using a conventional vim
+  bool value, i.e., true value means the shell command executed successfully.
+  If an error occurs when {cmd} is executed an error [message] is displayed,
+  followed by shell feedback. The error [message] is a |List| and each string
+  item is displayed on a separate line.
+  [message] is 'Error occured:' if omitted.
+
+dn#util#fileExists({filepath})                          *dn#util#fileExists()*
+  Determine whether {filepath} exists.
+
+  Uses |glob()| which is more robust than using |filereadable()| and
+  |filewritable()| which can give a false negative result if the user lacks
+  read and write permissions for the file being sought. While |glob()| is not
+  similarly affected, it too can return a false negative result if the user
+  does not have execute permissions for the directory containing the sough
+  file.
+
+dn#util#filetypes()                                      *dn#util#filetypes()*
+  Get |List| of available |filetypes|.
+
+dn#util#getFilePath()                                  *dn#util#getFilePath()*
+  Get filepath of file being edited.
+
+dn#util#getFileDir()                                    *dn#util#getFileDir()*
+  Get directory of file being edited.
+
+dn#util#getFileName()                                  *dn#util#getFileName()*
+  Get name of file being edited.
+
+dn#util#getRtpDir({directory}, [multiple])               *dn#util#getRtpDir()*
+  Finds {directory} in 'runtimepath'. Returns a single matching directory as a
+  string. If no matches are found an empty string is returned. If multiple
+  matches are found the user is required to select one.  If [multiple] is a
+  true value then all matches are returned in a |List|, even if there is only
+  one match. If there are no matches an empty List is returned.
+  [multiple] is false if omitted.
+
+dn#util#getRtpFile({file}, [multiple])                  *dn#util#getRtpFile()*
+  Finds {file} if it is located anywhere under the directories in runtimepath.
+  Returns a single matching filepath as a string. If no matches are found an
+  empty string is returned. If multiple matches are found the user is required
+  to select one.  If [multiple] is a true value then all matches are returned
+  in a |List|, even if there is only one match. If there are no matches an
+  empty List is returned.
+  [multiple] is false if omitted.
+
+dn#util#getSelection()                                *dn#util#getSelection()*
+  Returns selected text ("" if no text selected). Works for all selection
+  types.
+
+  Newlines are preserved which means a multi-line string can be returned. Be
+  aware that functions using the return value may be executed once on the
+  entire string or separately for each line in the string, depending on
+  whether the function accepts a range.  (See |:call| and
+  |function-range-example|.)
+
+dn#util#globalSubstitution({pattern}, {substitute})
+                                                *dn#util#globalSubstitution()*
+  Perform global substitution of {pattern} for {substitute} in current buffer.
+
+dn#util#help([insert])                                        *dn#util#help()*
+  Display a menu of help topics for the user to select from. When a topic is
+  selected the associated help text for that topic is displayed. The boolean
+  [insert] option is true if this function is called from |Insert-mode|.
+  [insert] is false if omitted.
+
+  The help menu is constructed dynamically at invocation from the variables
+  |g:dn_help_plugins|, |g:dn_help_topics| and |g:dn_help_data|. See these
+  variables and |dn-utils-config| for an explanation of how to configure them.
+  This help system is designed to be extensible. In particular, other plugins,
+  and even individual users, can add to the help variables.
+
+dn#util#insertCurrentDate([insert])              *dn#util#insertCurrentDate()*
+  Insert current date in ISO format (yyyy-mm-dd). The optional [insert]
+  argument indicates whether the function was called from |Insert-mode|.
+  [insert] is false if omitted.
+
+dn#util#insertMode([skip])                              *dn#util#insertMode()*
+  Switch to |Insert-mode|. The right [skip] is an integer number of spaces to
+  the right the cursor should be moved before entering |Insert-mode|. This
+  function is often used by other functions if they were called from insert
+  mode. In such cases it will usually be invoked with one right skip to
+  compensate for the left skip that occured when initially escaping from
+  |Insert-mode|.
+  [skip] is 0 if omitted.
+
+dn#util#insertString({string}, [paste])               *dn#util#insertString()*
+  Insert {string} at current cursor location. The [paste] argument is a
+  boolean indicating whether to use the 'paste' setting.
+  [paste] is true if omitted.
+
+dn#util#isWindows()                                      *dn#util#isWindows()*
+  Whether operating system is windows. Returns a bool.
+
+dn#util#isUnix()                                            *dn#util#isUnix()*
+  Whether operating system is unix-like. Returns a bool.
+
+dn#util#listExchangeItems({list}, {index1}, {index2})
+                                                 *dn#util#listExchangeItems()*
+  Exchange two elements in the same {list}. The |List| locations of the
+  elements to exchange are given by {index1} and {index2}. The {list} is
+  modified in place. The function's boolean return value indicates whether the
+  exchange occurred successfully. No error message is displayed in the event
+  of failure.
+
+  This function short-circuits a lot of error-checking by using the value
+  ":INVALID:" as an error token. If one of the {list} elements to be swapped
+  has this precise value the exchange operation will fail and the function
+  returns a failure value.
+
+dn#util#listSubtract({list_1}, {list_2})              *dn#util#listSubtract()*
+  Subtracts {list_2} from {list_1} and returns a new |List|.
+
+dn#util#listToScreen({list}, [width], [indent], [delimiter])
+                                                      *dn#util#listToScreen()*
+  Formats {list} for screen display. Three optional arguments affect the
+  format of the display: [width] is the preferred maximum width of text,
+  [indent] is the size of the left index, and [delimiter] is used to join list
+  items. There is no restriction on the length of [delimiter], but it is
+  assumed to be a single character so longer delimiters may give unexpected
+  results.
+  [width] is 60 if omitted.
+  [indent] is 0 if omitted.
+  [delimiter] is ' ' if omitted.
+
+  This function is intended for use with short strings. It does not break long
+  string elements. Even worse, it resets the maximum width to equal that of
+  the longest {list} item. Consider using |dn#util#wrap()| if it is important
+  to limit the maximum text width as that function breaks a string at sensible
+  locations.
+
+  This function short-circuits a lot of error-checking by using the value
+  ":INVALID:" as an error token. If one of the {list} elements has this
+  precise value, processing may stop prematurely.
+
+  Returns a single formatted string containing newlines.
+
+dn#util#listToScreenColumns({list}, [width], [padding], [indent])
+                                               *dn#util#listToScreenColumns()*
+  Formats {list} for screen display in columns. The optional arguments affect
+  formatting: [width] is the preferred maximum width of text, [padding] is the
+  size of column padding (column width = length of the longest {list} item +
+  padding), and [indent] is the size of the indent at the start of each line.
+  This function is intended for use with short strings, e.g., single words.
+  [width] is 60 if omitted.
+  [padding] is 1 if omitted.
+  [indent] is 0 if omitted.
+
+  This function short-circuits a lot of error-checking by using the value
+  ":INVALID:" as an error token. If one of the {list} elements has this
+  precise value the formatting will break down.
+
+  Returns a single formatted string containing newlines.
+
+dn#util#localGitRepoFetch({git_path}, [prefix])  *dn#util#localGitRepoFetch()*
+  Perform a fetch on a local git repository. The {git_path} is the path to the
+  ".git" subdirectory in the repository. The [prefix] is an optional string
+  that is prepended to all shell output, and must include any additional
+  punctuation, e.g., ': '. Returns a boolean indicating whether the fetch
+  operation was successful, as reported by git (using vim boolean semantics).
+  [prefix] is 'dn-utils: ' if omitted.
+
+dn#util#localGitRepoUpdatedRecently({git_path}, {time}, [prefix])
+                                       *dn#util#localGitRepoUpdatedRecently()*
+  Check that a local git repository has been updated within a given time
+  period. More specifically, it checks on the time since the last git "fetch"
+  operation was performed (which includes git "pull" operations). The
+  {git_path} is the path to the ".git" subdirectory in the repository. The
+  {time} period is specified in seconds. For example, a week is 604800
+  seconds. The [prefix] is an optional string that is prepended to all shell
+  output, and must include any additional punctuation, e.g., ': '.
+
+  Uses |python-commands| and requires python modules "os" and "time".
+
+  Returns a boolean value indicating whether the repository has been updated
+  within the specified time period. The function is designed to determine
+  whether a repository needs to be updated so if it fails it returns false,
+  presumably triggering an update,  i.e., update on failure is safer than not
+  updating on a failure. The function can fail if it cannot find the
+  ".git/FETCH_HEAD" file, the {time} value is invalid, python is not
+  available, or a python command fails or returns unexpected output. In all of
+  these cases an error message is displayed.
+  [prefix] is 'dn-utils: ' if omitted.
+
+dn#util#matchCount({haystack}, {needle})                *dn#util#matchCount()*
+  Finds number of occurrences of {needle} substring in a {haystack} string.
+
+dn#util#menuAddOption({menu}, {option}, [return_value])
+                                                     *dn#util#menuAddOption()*
+  Add {option} to a {menu} intended for use with |dn#util#menuSelect()|. The
+  {menu} can be a |List| or |Dict|. The {option} can be a |String|, |Number|
+  or |Float|. The menu {option} can return either its own value or an
+  alternative [return_value]. No [return_value] needs to be provided if the
+  menu option is intended to return its own value when selected.
+
+  The {menu} variable is edited in place. The function does not return any
+  value. Error messages are displayed if invalid arguments are provided.
+
+dn#util#menuAddSubmenu({menu}, {header}, {submenu}) *dn#util#menuAddSubmenu()*
+  Add {submenu} to a {menu} intended for use with |dn#util#menuSelect()|. The
+  {submenu} had a {header} which is added to the {menu} and which, when
+  selected, opens the {submenu}. Both {menu} and {submenu} can be either a
+  |List| or a |Dict|, independently of each other.
+
+  The {menu} variable is edited in place. The function does not return any
+  value. Error messages are displayed if invalid arguments are provided.
+
+dn#util#menuSelect({menu}, [prompt])                    *dn#util#menuSelect()*
+  Select an option from a multi-level |List| or |Dict| {menu}. An optional
+  [prompt] can be provided. The selected menu option (or its associated value)
+  is returned, with "" indicating no items was selected. This means it is
+  possible to provide an empty menu item which can be selected and returned,
+  and there is no way to distinguish this from a cancelled selection.
+  [prompt] is 'Select an option:' if omitted.
+
+  In the following discussion a "simple" menu is one without any submenus, and
+  "simple" variables are |String|, |Number|, |Float|, boolean (|v:true| or
+  |v:false|), and null (|v:null|). A "simple" List has elements which are all
+  either simple variables or single key-value Dicts whose values are also
+  simple variables. A "simple" Dict has values which are all simple variables.
+
+  If a simple List {menu} is provided, its simple elements are displayed in
+  the menu and returned if selected, while for single key-value elements the
+  key is displayed in the menu and, if selected, its value is returned.
+
+  If a simple Dict {menu} is provided, its Dict keys form the menu items and
+  when an item is selected its corresponding value is returned.
+
+  Submenus can be added to both List and Dict menus. In such a case the header
+  for the submenu, or child menu, is indicated in the parent menu by appending
+  an arrow ( ->) to the header option in the parent menu. Adding a submenu to
+  a Dict is easy - the new submenu is added as a new key-value pair to the
+  parent menu. The new key is the submenu header in the parent menu while the
+  new value is a List or Dict defining the new submenu options. The situation
+  is more complicated when adding a submenu to a List.  Before adding the List
+  or Dict submenu two elements must be added to the parent List: an element
+  consisting of the submenu token "__!_SUBMENU_!_TOKEN_!__" followed by an
+  element containing the submenu header.
+
+  A single menu can contain a mixture of List and Dict elements, and
+  multi-level menus can become complex. The functions
+  |dn#util#menuAddSubmenu()| and |dn#util#menuAddOption()| assist with
+  "top-down" menu construction.
+
+dn#util#nowDay()                                            *dn#util#nowDay()*
+  Get integer number of current day in the current month. There is no leading
+  zero.
+
+dn#util#nowMonth()                                        *dn#util#nowMonth()*
+  Get integer number of current month in the current year There is no leading
+  zero.
+
+dn#util#nowYear()                                          *dn#util#nowYear()*
+  Get current year as four-digit integer.
+
+dn#util#os()                                                    *dn#util#os()*
+  Determine operating system in use. Returns "windows", "unix" or "other".
+
+dn#util#padInternal({string}, {start}, {finish}, [char])
+                                                       *dn#util#padInternal()*
+  Insert character [char] into {string} at the given {start} position until
+  the initial location is shifted to the desired {finish} location. If {start}
+  and {finish} are non-integers or are not sensible, an error message is
+  displayed and the original {string} is returned.  If [char] is longer than a
+  single character only the first character is used.
+  [char] is ' ' if omitted.
+
+  As an example:
+>
+    let l:string1 = 'Column Twenty & Column Twenty One'
+    let l:string2 = dn#util#padInternal(l:string1, 14, 4)
+<
+  results in string2 being "Column Twenty     & Column Twenty One".
+
+dn#util#padLeft({string}, {length}, [char])                *dn#util#padLeft()*
+  Add [char] to start of {string} until the it is the target {length}. If
+  [char] is longer than a single character only the first character is used.
+  If an error occurs a message is displayed and the original {string} is
+  returned.
+  [char] is ' ' if omitted.
+
+dn#util#padRight({string}, {length}, [char])              *dn#util#padRight()*
+  Add [char] to the end of {string} until the it is the target {length}. If
+  [char] is longer than a single character only the first character is used.
+  If an error occurs a message is displayed and the original {string} is
+  returned.
+  [char] is ' ' if omitted.
+
+dn#util#prompt([prompt], [Enter])                           *dn#util#prompt()*
+  Display [prompt] |String| using |hl-MoreMsg| highlighting.
+  [prompt] is 'Press [Enter] to continue...' if omitted.
+
+dn#util#runtimepaths()                                *dn#util#runtimepaths()*
+  Get |List| of runtime paths.
+
+dn#util#scriptNumber({script})                        *dn#util#scriptNumber()*
+  Gets the dynamically assigned number (SID, SNR) of {script}. In the event of
+  an error a message is displayed and |v:null| is returned. If no {script}
+  file name is provided |v:null| is silently returned. The file name for
+  {script} must be complete, i.e., "base.ext", but wildcards can be used as if
+  |/\V| "very nomagic" is in effect. This is adapted from a Stack Overflow
+  answer at https://stackoverflow.com/a/39216373.
+
+dn#util#selectWord()                                    *dn#util#selectWord()*
+  Selects |<cword>| under cursor (must be only 0-9a-zA-Z_). Returns selected
+  text |String|, or  "" if no text is currently selected selected.
+
+dn#util#showFiletypes()                              *dn#util#showFiletypes()*
+  Display available filetypes in the echo area.
+
+dn#util#showRuntimepaths()                        *dn#util#showRuntimepaths()*
+  Display runtime paths in the echo area.
+
+dn#util#showMsg({message}, [type])                         *dn#util#showMsg()*
+  Display {message} to user via gui dialog, if available and running a gui
+  version of vim, or the console. The optional message [type] can be
+  "generic", "warning", "info", "question", or "error". Any other value is
+  ignored. If no {message} is provided an error message is displayed instead.
+  [type] is 'generic' if omitted.
+
+dn#util#stringify({variable}, [quote])                   *dn#util#stringify()*
+  Convert {variable} to |String| and return the converted string. If [quote]
+  is true strings in {variable} will be enclosed in single quotes in the
+  output, with internal single quotes doubled. For |Dictionaries| perl-like
+  "big-arrow" (" => ") notation is used between keys and values. Consider
+  using |string()| instead of this function.
+  [quote] is false if omitted.
+
+dn#util#stripLastChar({string})                      *dn#util#stripLastChar()*
+  Removes last character from {string}. Return altered {string}.
+
+dn#util#testFn()                                            *dn#util#testFn()*
+  Utility function used for testing purposes only params: varies insert:
+  varies return: varies
+
+dn#util#trimChar({string}, [char])                        *dn#util#trimChar()*
+  Removes leading and trailing [char] from {string}. If [char] in longer than
+  a single character only the first character is used. Returns the trimmed
+  {string}.
+  [char] is ' ' if omitted.
+
+dn#util#unusedFunctions([silent], [lower], [upper])
+                                                   *dn#util#unusedFunctions()*
+  Checks for uncalled vim functions in the current buffer. Fails with error
+  message if buffer |filetype| is not "vim". Displays feedback to user about
+  any uncalled functions, and also returns a |List| of unused functions. If
+  [silent] is true no feedback is displayed. The whole of the buffer is
+  analysed by default, but [lower] and [upper] line numbers can be provided to
+  limit the search area.
+  [lower] is 1 if omitted.
+  [upper] is line('$') if omitted.
+
+  This function is most definitely unreliable. Double-check its results before
+  taking any action based on its output!
+
+dn#util#updateUserHelpTags()                    *dn#util#updateUserHelpTags()*
+  Individually updates user vim helpdocs.
+
+dn#util#validPosInt({val})                             *dn#util#validPosInt()*
+  Determines whether {val} is a valid positive integer. Zero is not considered
+  a positive integer. Returns a bool.
+
+dn#util#varType({variable})                                *dn#util#varType()*
+  Get type of {variable} as a string rather than a numeric code as given by
+  |type()|. The possible return values are "number", "string", "funcref",
+  "List", "Dictionary", "float", "boolean" (for |v:true| and |v:false|),
+  "null" (for |v:null|) and "unknown".
+
+dn#util#warn({msg})                                           *dn#util#warn()*
+  Display a warning message with |hl-WarningMsg| highlighting.
+
+dn#util#wrap({msg}, [hang])                                   *dn#util#wrap()*
+  Echoes text but wraps it sensibly. A hanging indent (which applies to all
+  output lines except the first) can be applied, in which case the size of the
+  indent is specified with [hang].
+  [hang] is 0 if omitted.
+
+==============================================================================
+MAPPINGS                                                   *dn-utils-mappings*
+
+
+[NIV]<Leader>ic
+  * change current line or selection to initial caps
+
+[NIV]<Leader>hc
+  * change header case of current line or selection
+  * calls |dn#util#changeHeaderCaps()|
+
+[NI]<Leader>help
+  * display user help
+  * calls |dn#util#help()|
+
+[NIV]<Leader>tt
+  * calls test function |dn#util#testFn()|
+
+==============================================================================
+FUNCTION LIST                                         *dn-utils-function-list*
+
+This is a list of functions grouped by what they are used for.
+
+Dates
+  * |dn#util#insertCurrentDate()| insert current date in ISO format
+  * |dn#util#nowYear()|           get current year
+  * |dn#util#nowMonth()|          get current month
+  * |dn#util#nowDay()|            get current day in month
+  * |dn#util#dayOfWeek()|         get name of weekday
+
+Files and directories
+  * |dn#util#fileExists()|        whether file exists (uses |glob()|)
+  * |dn#util#getFilePath()|       get filepath of file being edited
+  * |dn#util#getFileDir()|        get directory of file being edited
+  * |dn#util#getFileName()|       get name of file being edited
+  * |dn#util#getRtpDir()|         finds directory from runtimepath
+  * |dn#util#getRtpFile()|        finds file(s) in directories under 'rtp'
+
+User interaction
+  * |dn#util#showMsg()|           display message to user
+  * |dn#util#error()|             display error message
+  * |dn#util#warn()|              display warning message
+  * |dn#util#prompt()|            display prompt message
+  * |dn#util#wrap()|              echoes text but wraps it sensibly
+  * |dn#util#menuSelect()|        select item from menu
+  * |dn#util#menuAddOption()|     add option to menu
+  * |dn#util#menuAddSubmenu()|    add submenu to menu
+  * |dn#util#consoleSelect()|     select item from list using the console
+  * |dn#util#help()|              user can select from help topics
+  * |dn#util#getSelection()|      returns currently selected text
+
+Lists
+  * |dn#util#listExchangeItems()| exchange two elements in the same list
+  * |dn#util#listSubtract()|      subtract one list from another
+  * |dn#util#listToScreen()|      formats list for screen display
+  * |dn#util#listToScreenColumns()| formats list for coloumnar screen display
+
+Programming
+  * |dn#util#unusedFunctions()|   checks for uncalled functions
+  * |dn#util#insertMode()|        switch to insert mode
+  * |dn#util#executeShellCommand()| execute shell command
+  * |dn#util#exceptionError()|    extract error message from exception
+  * |dn#util#scriptNumber()|      get SID of given script
+  * |dn#util#filetypes()|         get list of available filetypes
+  * |dn#util#showFiletypes()|     display list of available filetypes
+  * |dn#util#runtimepaths()|      get list of runtime paths
+  * |dn#util#showRuntimepaths()|  display list of runtime paths
+  * |dn#util#updateUserHelpTags()| rebuild help tags in rtp "doc" subdirs
+  * |dn#util#os()|                determine operating system family
+  * |dn#utilis#isWindows()|       determine whether using windows OS
+  * |dn#utilis#isUnix()|          determine whether using unix-like OS
+
+Version control
+  * |dn#util#localGitRepoFetch()| perform a fetch on a local git repository
+  * |dn#util#localGitRepoUpdatedRecently()| check that a local repo has been
+    updated
+
+String manipulation
+  * |dn#util#stripLastChar()|     removes last character from string
+  * |dn#util#insertString()|      insert string at current cursor location
+  * |dn#util#trimChar()|          removes leading and trailing chars
+  * |dn#util#entitise()|          replace special html chars with entities
+  * |dn#util#deentitise()|        replace html entities with characters
+  * |dn#util#stringify()|         convert variable to string
+  * |dn#util#matchCount()|        finds number of occurrences of string
+  * |dn#util#padInternal()|       pad string at internal location
+  * |dn#util#padLeft()|           left pad string
+  * |dn#util#padRight()|          right pad string
+  * |dn#util#globalSubstitution()| perform global substitution in file
+  * |dn#util#changeHeaderCaps()|  changes capitalisation of line or visual
+    selection
+
+Numbers
+  * |dn#util#validPosInt()|       check whether input is valid positive int
+
+Miscellaneous
+  * |dn#util#selectWord()|        select |<cword>| under cursor
+  * |dn#util#varType()|           get variable type
+  * |dn#util#testFn()|            utility function used for testing only
+
+
+vim:tw=78:ts=8:ft=help:norl:

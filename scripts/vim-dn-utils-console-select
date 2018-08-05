@@ -128,7 +128,7 @@ for ($select_method) {
 
     # use filter and select
     when ( $_ eq 'filter' ) {
-        my $prompt = "Enter part of $name_single [<C-d> to quit]:");
+        my $prompt = "Enter part of $name_single [<C-d> to quit]:";
         my $filter = Term::Clui::ask($prompt);
         my @matches;
         if ($filter) {

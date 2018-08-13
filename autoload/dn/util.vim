@@ -932,7 +932,7 @@ endfunction
 " @public
 " Finds {directory} in 'runtimepath'. Returns a single matching directory as a
 " string. If no matches are found an empty string is returned. If multiple
-" matches are found the user is required to select one.  If [multiple] is a
+" matches are found the user is required to select one. If [multiple] is a
 " true value then all matches are returned in a |List|, even if there is only
 " one match. If there are no matches an empty List is returned.
 " @default multiple=false
@@ -958,7 +958,7 @@ endfunction
 " Finds {file} if it is located anywhere under the directories in runtimepath.
 " Returns a single matching filepath as a string. If no matches are found an
 " empty string is returned. If multiple matches are found the user is required
-" to select one.  If [multiple] is a true value then all matches are returned
+" to select one. If [multiple] is a true value then all matches are returned
 " in a |List|, even if there is only one match. If there are no matches an
 " empty List is returned.
 " @default multiple=false
@@ -990,7 +990,7 @@ endfunction
 " Newlines are preserved which means a multi-line string can be returned. Be
 " aware that functions using the return value may be executed once on the
 " entire string or separately for each line in the string, depending on
-" whether the function accepts a range.  (See |:call| and
+" whether the function accepts a range. (See |:call| and
 " |function-range-example|.)
 function! dn#util#getSelection() abort
     try
@@ -1050,7 +1050,7 @@ endfunction
 "
 " This variable is a |Dictionary| that defines a multi-level menu which is
 " submitted to the function @function(dn#menu#menuSelect) for the user to
-" select a help topic.  See the help for that function for details of how to
+" select a help topic. See the help for that function for details of how to
 " structure the menu. By convention |g:dn_help_topics| is a |Dictionary|. Each
 " contributor to the plugin should provide a new unique top-level key whose
 " value contains a sub-menu containing all the options for that contributor.
@@ -1786,7 +1786,7 @@ endfunction
 " a Dict is easy - the new submenu is added as a new key-value pair to the
 " parent menu. The new key is the submenu header in the parent menu while the
 " new value is a List or Dict defining the new submenu options. The situation
-" is more complicated when adding a submenu to a List.  Before adding the List
+" is more complicated when adding a submenu to a List. Before adding the List
 " or Dict submenu two elements must be added to the parent List: an element
 " consisting of the submenu token "__!_SUBMENU_!_TOKEN_!__" followed by an
 " element containing the submenu header.
@@ -1997,7 +1997,7 @@ endfunction
 " Insert character [char] into {string} at the given {start} position until
 " the initial location is shifted to the desired {finish} location. If {start}
 " and {finish} are non-integers or are not sensible, an error message is
-" displayed and the original {string} is returned.  If [char] is longer than a
+" displayed and the original {string} is returned. If [char] is longer than a
 " single character only the first character is used.
 " @default char=' '
 "

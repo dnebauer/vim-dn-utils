@@ -21,6 +21,9 @@ set cpoptions&vim
 " author and later combined into a library. All functions are global and have
 " the prefix "dn#util#" to try and avoid namespace collisions. Some
 " @section(commands) and @section(mappings) are provided.
+"
+" See @function(dn#util#rev) for a discussion of how scripts depending on
+" @plugin(name) can check for its availability.
 
 ""
 " @section Function List, function-list

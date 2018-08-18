@@ -15,7 +15,7 @@ set cpoptions&vim
 ""
 " @section Introduction, intro
 " @library
-" @order function-list
+" @order intro config commands mappings function-list functions
 " A plugin to provide useful generic functions. It is intended to be available
 " to all files being edited. These functions were developed over time by the
 " author and later combined into a library. All functions are global and have
@@ -27,7 +27,10 @@ set cpoptions&vim
 
 ""
 " @section Function List, function-list
-" This is a list of functions grouped by what they are used for.
+" This is a list of functions grouped by what they are used for. An
+" alphabetical list of function descriptions is located at
+" @section(functions). Use CTRL-] on the function name to jump to detailed
+" help on it.
 "
 " Dates
 "   * @function(dn#util#insertCurrentDate) insert current date in ISO format

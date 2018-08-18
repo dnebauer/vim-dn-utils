@@ -6,9 +6,9 @@ CONTENTS                                                   *dn-utils-contents*
   1. Introduction.............................................|dn-utils-intro|
   2. Configuration...........................................|dn-utils-config|
   3. Commands..............................................|dn-utils-commands|
-  4. Functions............................................|dn-utils-functions|
-  5. Mappings..............................................|dn-utils-mappings|
-  6. Function List....................................|dn-utils-function-list|
+  4. Mappings..............................................|dn-utils-mappings|
+  5. Function List....................................|dn-utils-function-list|
+  6. Functions............................................|dn-utils-functions|
 
 ==============================================================================
 INTRODUCTION                                                  *dn-utils-intro*
@@ -179,6 +179,108 @@ COMMANDS                                                   *dn-utils-commands*
   Displays runtime paths in the echo area. Calls |dn#util#showRuntimepaths()|.
 
 ==============================================================================
+MAPPINGS                                                   *dn-utils-mappings*
+
+
+[NIV]<Leader>ic
+  * change current line or selection to initial caps
+
+[NIV]<Leader>hc
+  * change header case of current line or selection
+  * calls |dn#util#changeHeaderCaps()|
+
+[NI]<Leader>help
+  * display user help
+  * calls |dn#util#help()|
+
+[NIV]<Leader>tt
+  * calls test function |dn#util#testFn()|
+
+==============================================================================
+FUNCTION LIST                                         *dn-utils-function-list*
+
+This is a list of functions grouped by what they are used for. An alphabetical
+list of function descriptions is located at |dn-utils-functions|. Use CTRL-]
+on the function name to jump to detailed help on it.
+
+Dates
+  * |dn#util#insertCurrentDate()| insert current date in ISO format
+  * |dn#util#nowYear()|           get current year
+  * |dn#util#nowMonth()|          get current month
+  * |dn#util#nowDay()|            get current day in month
+  * |dn#util#dayOfWeek()|         get name of weekday
+
+Files and directories
+  * |dn#util#fileExists()|        whether file exists (uses |glob()|)
+  * |dn#util#getFilePath()|       get filepath of file being edited
+  * |dn#util#getFileDir()|        get directory of file being edited
+  * |dn#util#getFileName()|       get name of file being edited
+  * |dn#util#getRtpDir()|         finds directory from runtimepath
+  * |dn#util#getRtpFile()|        finds file(s) in directories under 'rtp'
+
+User interaction
+  * |dn#util#showMsg()|           display message to user
+  * |dn#util#error()|             display error message
+  * |dn#util#warn()|              display warning message
+  * |dn#util#prompt()|            display prompt message
+  * |dn#util#wrap()|              echoes text but wraps it sensibly
+  * |dn#util#menuSelect()|        select item from menu
+  * |dn#util#menuAddOption()|     add option to menu
+  * |dn#util#menuAddSubmenu()|    add submenu to menu
+  * |dn#util#consoleSelect()|     select item from list using the console
+  * |dn#util#help()|              user can select from help topics
+  * |dn#util#getSelection()|      returns currently selected text
+
+Lists
+  * |dn#util#listExchangeItems()| exchange two elements in the same list
+  * |dn#util#listSubtract()|      subtract one list from another
+  * |dn#util#listToScreen()|      formats list for screen display
+  * |dn#util#listToScreenColumns()| formats list for coloumnar screen display
+
+Programming
+  * |dn#util#unusedFunctions()|   checks for uncalled functions
+  * |dn#util#insertMode()|        switch to insert mode
+  * |dn#util#executeShellCommand()| execute shell command
+  * |dn#util#exceptionError()|    extract error message from exception
+  * |dn#util#scriptNumber()|      get SID of given script
+  * |dn#util#filetypes()|         get list of available filetypes
+  * |dn#util#showFiletypes()|     display list of available filetypes
+  * |dn#util#runtimepaths()|      get list of runtime paths
+  * |dn#util#showRuntimepaths()|  display list of runtime paths
+  * |dn#util#updateUserHelpTags()| rebuild help tags in rtp "doc" subdirs
+  * |dn#util#os()|                determine operating system family
+  * |dn#utilis#isWindows()|       determine whether using windows OS
+  * |dn#utilis#isUnix()|          determine whether using unix-like OS
+
+Version control
+  * |dn#util#localGitRepoFetch()| perform a fetch on a local git repository
+  * |dn#util#localGitRepoUpdatedRecently()| check that a local repo has been
+    updated
+
+String manipulation
+  * |dn#util#stripLastChar()|     removes last character from string
+  * |dn#util#insertString()|      insert string at current cursor location
+  * |dn#util#trimChar()|          removes leading and trailing chars
+  * |dn#util#entitise()|          replace special html chars with entities
+  * |dn#util#deentitise()|        replace html entities with characters
+  * |dn#util#stringify()|         convert variable to string
+  * |dn#util#matchCount()|        finds number of occurrences of string
+  * |dn#util#padInternal()|       pad string at internal location
+  * |dn#util#padLeft()|           left pad string
+  * |dn#util#padRight()|          right pad string
+  * |dn#util#globalSubstitution()| perform global substitution in file
+  * |dn#util#changeHeaderCaps()|  changes capitalisation of line or visual
+    selection
+
+Numbers
+  * |dn#util#validPosInt()|       check whether input is valid positive int
+
+Miscellaneous
+  * |dn#util#selectWord()|        select |<cword>| under cursor
+  * |dn#util#varType()|           get variable type
+  * |dn#util#testFn()|            utility function used for testing only
+
+==============================================================================
 FUNCTIONS                                                 *dn-utils-functions*
 
 dn#util#changeHeaderCaps({mode})                  *dn#util#changeHeaderCaps()*
@@ -274,9 +376,12 @@ dn#util#fileExists({filepath})                          *dn#util#fileExists()*
   Uses |glob()| which is more robust than using |filereadable()| and
   |filewritable()| which can give a false negative result if the user lacks
   read and write permissions for the file being sought. While |glob()| is not
-  similarly affected, it too can return a false negative result if the user
-  does not have execute permissions for the directory containing the sough
-  file.
+  similarly affected, it too can return false negative results in the
+  following circumstances:
+    * if the user does not have execute permissions for the directory
+      containing the sought file
+    * the file sought is a symlink whose target does not exist, i.e., the
+      symlink is broken
 
 dn#util#filetypes()                                      *dn#util#filetypes()*
   Get |List| of available |filetypes|.
@@ -660,106 +765,6 @@ dn#util#wrap({msg}, [hang])                                   *dn#util#wrap()*
   output lines except the first) can be applied, in which case the size of the
   indent is specified with [hang].
   [hang] is 0 if omitted.
-
-==============================================================================
-MAPPINGS                                                   *dn-utils-mappings*
-
-
-[NIV]<Leader>ic
-  * change current line or selection to initial caps
-
-[NIV]<Leader>hc
-  * change header case of current line or selection
-  * calls |dn#util#changeHeaderCaps()|
-
-[NI]<Leader>help
-  * display user help
-  * calls |dn#util#help()|
-
-[NIV]<Leader>tt
-  * calls test function |dn#util#testFn()|
-
-==============================================================================
-FUNCTION LIST                                         *dn-utils-function-list*
-
-This is a list of functions grouped by what they are used for.
-
-Dates
-  * |dn#util#insertCurrentDate()| insert current date in ISO format
-  * |dn#util#nowYear()|           get current year
-  * |dn#util#nowMonth()|          get current month
-  * |dn#util#nowDay()|            get current day in month
-  * |dn#util#dayOfWeek()|         get name of weekday
-
-Files and directories
-  * |dn#util#fileExists()|        whether file exists (uses |glob()|)
-  * |dn#util#getFilePath()|       get filepath of file being edited
-  * |dn#util#getFileDir()|        get directory of file being edited
-  * |dn#util#getFileName()|       get name of file being edited
-  * |dn#util#getRtpDir()|         finds directory from runtimepath
-  * |dn#util#getRtpFile()|        finds file(s) in directories under 'rtp'
-
-User interaction
-  * |dn#util#showMsg()|           display message to user
-  * |dn#util#error()|             display error message
-  * |dn#util#warn()|              display warning message
-  * |dn#util#prompt()|            display prompt message
-  * |dn#util#wrap()|              echoes text but wraps it sensibly
-  * |dn#util#menuSelect()|        select item from menu
-  * |dn#util#menuAddOption()|     add option to menu
-  * |dn#util#menuAddSubmenu()|    add submenu to menu
-  * |dn#util#consoleSelect()|     select item from list using the console
-  * |dn#util#help()|              user can select from help topics
-  * |dn#util#getSelection()|      returns currently selected text
-
-Lists
-  * |dn#util#listExchangeItems()| exchange two elements in the same list
-  * |dn#util#listSubtract()|      subtract one list from another
-  * |dn#util#listToScreen()|      formats list for screen display
-  * |dn#util#listToScreenColumns()| formats list for coloumnar screen display
-
-Programming
-  * |dn#util#unusedFunctions()|   checks for uncalled functions
-  * |dn#util#insertMode()|        switch to insert mode
-  * |dn#util#executeShellCommand()| execute shell command
-  * |dn#util#exceptionError()|    extract error message from exception
-  * |dn#util#scriptNumber()|      get SID of given script
-  * |dn#util#filetypes()|         get list of available filetypes
-  * |dn#util#showFiletypes()|     display list of available filetypes
-  * |dn#util#runtimepaths()|      get list of runtime paths
-  * |dn#util#showRuntimepaths()|  display list of runtime paths
-  * |dn#util#updateUserHelpTags()| rebuild help tags in rtp "doc" subdirs
-  * |dn#util#os()|                determine operating system family
-  * |dn#utilis#isWindows()|       determine whether using windows OS
-  * |dn#utilis#isUnix()|          determine whether using unix-like OS
-
-Version control
-  * |dn#util#localGitRepoFetch()| perform a fetch on a local git repository
-  * |dn#util#localGitRepoUpdatedRecently()| check that a local repo has been
-    updated
-
-String manipulation
-  * |dn#util#stripLastChar()|     removes last character from string
-  * |dn#util#insertString()|      insert string at current cursor location
-  * |dn#util#trimChar()|          removes leading and trailing chars
-  * |dn#util#entitise()|          replace special html chars with entities
-  * |dn#util#deentitise()|        replace html entities with characters
-  * |dn#util#stringify()|         convert variable to string
-  * |dn#util#matchCount()|        finds number of occurrences of string
-  * |dn#util#padInternal()|       pad string at internal location
-  * |dn#util#padLeft()|           left pad string
-  * |dn#util#padRight()|          right pad string
-  * |dn#util#globalSubstitution()| perform global substitution in file
-  * |dn#util#changeHeaderCaps()|  changes capitalisation of line or visual
-    selection
-
-Numbers
-  * |dn#util#validPosInt()|       check whether input is valid positive int
-
-Miscellaneous
-  * |dn#util#selectWord()|        select |<cword>| under cursor
-  * |dn#util#varType()|           get variable type
-  * |dn#util#testFn()|            utility function used for testing only
 
 
 vim:tw=78:ts=8:ft=help:norl:

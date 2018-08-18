@@ -872,9 +872,12 @@ endfunction
 " Uses |glob()| which is more robust than using |filereadable()| and
 " |filewritable()| which can give a false negative result if the user lacks
 " read and write permissions for the file being sought. While |glob()| is not
-" similarly affected, it too can return a false negative result if the user
-" does not have execute permissions for the directory containing the sough
-" file.
+" similarly affected, it too can return false negative results in the
+" following circumstances:
+" * if the user does not have execute permissions for the directory containing
+"   the sought file
+" * the file sought is a symlink whose target does not exist, i.e., the
+"   symlink is broken
 function! dn#util#fileExists(filepath)
     return !empty(glob(a:filepath))
 endfunction

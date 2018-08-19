@@ -2667,4 +2667,4 @@ let &cpoptions = s:save_cpo
 unlet s:save_cpo
 " }}}1
 
-" vim: set foldmethod=marker :
+" vim:foldmethod=marker:

@@ -18,7 +18,7 @@ set cpoptions&vim
 " [NIV]<Leader>ic
 "   * change current line or selection to initial caps
 "
-" [NIV]<Leader>hc
+" [NIV]<Leader>cc
 "   * change header case of current line or selection
 "   * calls @function(dn#util#changeHeaderCaps)
 "
@@ -32,6 +32,23 @@ set cpoptions&vim
 " }}}1
 
 " Mappings
+
+" \cc   - change header case    {{{1
+if !hasmapto('<Plug>DnHCI')
+    imap <buffer> <unique> <LocalLeader>cc <Plug>DNHCI
+endif
+imap <buffer> <unique> <Plug>DNHCI
+            \ <Esc>:call dn#util#changeHeaderCaps('i')<CR>
+if !hasmapto('<Plug>DnHCN')
+    nmap <buffer> <unique> <LocalLeader>cc <Plug>DNHCN
+endif
+nmap <buffer> <unique> <Plug>DNHCN
+            \ :call dn#util#changeHeaderCaps('n')<CR>
+if !hasmapto('<Plug>DnHCV')
+    vmap <buffer> <unique> <LocalLeader>cc <Plug>DNHCV
+endif
+vmap <buffer> <unique> <Plug>DNHCV
+            \ :call dn#util#changeHeaderCaps('v')<CR>
 
 " \ic   - initial caps in selection or line    {{{1
 if !hasmapto('<Plug>DnICI')
@@ -73,23 +90,6 @@ endif
     "   character (&), and
     " return to mark (`v)
 vmap <buffer> <unique> <Plug>DnICV mvugv:s/\%V\<./\u&/<CR>`v
-
-" \hc   - change header case    {{{1
-if !hasmapto('<Plug>DnHCI')
-    imap <buffer> <unique> <LocalLeader>hc <Plug>DNHCI
-endif
-imap <buffer> <unique> <Plug>DNHCI
-            \ <Esc>:call dn#util#changeHeaderCaps('i')<CR>
-if !hasmapto('<Plug>DnHCN')
-    nmap <buffer> <unique> <LocalLeader>hc <Plug>DNHCN
-endif
-nmap <buffer> <unique> <Plug>DNHCN
-            \ :call dn#util#changeHeaderCaps('n')<CR>
-if !hasmapto('<Plug>DnHCV')
-    vmap <buffer> <unique> <LocalLeader>hc <Plug>DNHCV
-endif
-vmap <buffer> <unique> <Plug>DNHCV
-            \ :call dn#util#changeHeaderCaps('v')<CR>
 
 " \help - provide user help    {{{1
 if !hasmapto('<Plug>DnHI')

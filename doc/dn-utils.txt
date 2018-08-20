@@ -185,7 +185,7 @@ MAPPINGS                                                   *dn-utils-mappings*
 [NIV]<Leader>ic
   * change current line or selection to initial caps
 
-[NIV]<Leader>hc
+[NIV]<Leader>cc
   * change header case of current line or selection
   * calls |dn#util#changeHeaderCaps()|
 

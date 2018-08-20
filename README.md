@@ -1,5 +1,4 @@
-Dn Utilities for Vim
-====================
+# Dn Utilities for Vim #
 
 A plugin to provide useful functions, variables, mappings and commands.
 

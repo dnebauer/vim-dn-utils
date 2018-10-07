@@ -806,9 +806,14 @@ endfunction
 
 ""
 " @public
-" Display error {message}. The {message} can be a string or a |List|. A List
-" is converted to a string by @function(dn#util#stringify). The error message
-" is displayed in error highlighting (see |hl-ErrorMsg|).
+" Display error {message}. A |String| {message} is converted to a
+" single-element |List|. Any other type of non-|List| value is stringified by
+" @function(dn#util#stringify) and converted to a single-element |List|. If a
+" |List| is provided, all elements of the |List| are stringified by
+" @function(dn#util#stringify). Once a final |List| has been generated, all
+" elements are displayed sequentially using |echomsg|, to ensure they are
+" saved in the |message-history|, using error highlighting (see
+" |hl-ErrorMsg|).
 function! dn#util#error(message) abort
     " require double quoting of execution string so backslash
     " is interpreted as an escape token
@@ -2588,7 +2593,14 @@ endfunction
 
 ""
 " @public
-" Display a warning message with |hl-WarningMsg| highlighting.
+" Display warning {message}. A |String| {message} is converted to a
+" single-element |List|. Any other type of non-|List| value is stringified by
+" @function(dn#util#stringify) and converted to a single-element |List|. If a
+" |List| is provided, all elements of the |List| are stringified by
+" @function(dn#util#stringify). Once a final |List| has been generated, all
+" elements are displayed sequentially using |echomsg|, to ensure they are
+" saved in the |message-history|, using error highlighting (see
+" |hl-ErrorMsg|).
 function! dn#util#warn(msg) abort
     if mode() ==# 'i' | execute "normal! \<Esc>" | endif
     echohl WarningMsg

@@ -350,9 +350,13 @@ dn#util#entitise({string})                                *dn#util#entitise()*
   altered {string}.
 
 dn#util#error({message})                                     *dn#util#error()*
-  Display error {message}. The {message} can be a string or a |List|. A List
-  is converted to a string by |dn#util#stringify()|. The error message is
-  displayed in error highlighting (see |hl-ErrorMsg|).
+  Display error {message}. A |String| {message} is converted to a
+  single-element |List|. Any other type of non-|List| value is stringified by
+  |dn#util#stringify()| and converted to a single-element |List|. If a |List|
+  is provided, all elements of the |List| are stringified by
+  |dn#util#stringify()|. Once a final |List| has been generated, all elements
+  are displayed sequentially using |echomsg|, to ensure they are saved in the
+  |message-history|, using error highlighting (see |hl-ErrorMsg|).
 
 dn#util#exceptionError({exception})                 *dn#util#exceptionError()*
   Extracts error message from a Vim {exception}.
@@ -757,8 +761,14 @@ dn#util#varType({variable})                                *dn#util#varType()*
   "List", "Dictionary", "float", "boolean" (for |v:true| and |v:false|),
   "null" (for |v:null|) and "unknown".
 
-dn#util#warn({msg})                                           *dn#util#warn()*
-  Display a warning message with |hl-WarningMsg| highlighting.
+dn#util#warn({message})                                       *dn#util#warn()*
+  Display warning {message}. A |String| {message} is converted to a
+  single-element |List|. Any other type of non-|List| value is stringified by
+  |dn#util#stringify()| and converted to a single-element |List|. If a |List|
+  is provided, all elements of the |List| are stringified by
+  |dn#util#stringify()|. Once a final |List| has been generated, all elements
+  are displayed sequentially using |echomsg|, to ensure they are saved in the
+  |message-history|, using error highlighting (see |hl-ErrorMsg|).
 
 dn#util#wrap({msg}, [hang])                                   *dn#util#wrap()*
   Echoes text but wraps it sensibly. A hanging indent (which applies to all

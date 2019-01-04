@@ -193,9 +193,6 @@ MAPPINGS                                                   *dn-utils-mappings*
   * display user help
   * calls |dn#util#help()|
 
-[NIV]<Leader>tt
-  * calls test function |dn#util#testFn()|
-
 ==============================================================================
 FUNCTION LIST                                         *dn-utils-function-list*
 
@@ -278,7 +275,6 @@ Numbers
 Miscellaneous
   * |dn#util#selectWord()|        select |<cword>| under cursor
   * |dn#util#varType()|           get variable type
-  * |dn#util#testFn()|            utility function used for testing only
 
 ==============================================================================
 FUNCTIONS                                                 *dn-utils-functions*
@@ -723,10 +719,6 @@ dn#util#stringify({variable}, [quote])                   *dn#util#stringify()*
 
 dn#util#stripLastChar({string})                      *dn#util#stripLastChar()*
   Removes last character from {string}. Return altered {string}.
-
-dn#util#testFn()                                            *dn#util#testFn()*
-  Utility function used for testing purposes only params: varies insert:
-  varies return: varies
 
 dn#util#trimChar({string}, [char])                        *dn#util#trimChar()*
   Removes leading and trailing [char] from {string}. If [char] in longer than

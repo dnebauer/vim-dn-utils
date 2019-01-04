@@ -25,9 +25,6 @@ set cpoptions&vim
 " [NI]<Leader>help
 "   * display user help
 "   * calls @function(dn#util#help)
-"
-" [NIV]<Leader>tt
-"   * calls test function @function(dn#util#testFn)
 
 " }}}1
 
@@ -101,23 +98,6 @@ if !hasmapto('<Plug>DnHN')
 	nmap <buffer> <unique> <LocalLeader>help <Plug>DnHN
 endif
 nmap <buffer> <unique> <Plug>DnHN :call dn#util#help()<CR>
-
-" \tt   - execute test function    {{{1
-if !hasmapto('<Plug>DnTI')
-	imap <buffer> <unique> <LocalLeader>tt <Plug>DnTI
-endif
-imap <buffer> <unique> <Plug>DnTI
-            \ <Esc>:call dn#util#testFn()<CR>
-if !hasmapto('<Plug>DnTN')
-	nmap <buffer> <unique> <LocalLeader>tt <Plug>DnTN
-endif
-nmap <buffer> <unique> <Plug>DnTN
-            \ :call dn#util#testFn()<CR>
-if !hasmapto('<Plug>DnTV')
-	vmap <buffer> <unique> <LocalLeader>tt <Plug>DnTV
-endif
-vmap <buffer> <unique> <Plug>DnTV
-            \ :call dn#util#testFn()<CR>
 " }}}1
 
 " Control statements    {{{1

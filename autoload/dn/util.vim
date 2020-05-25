@@ -101,7 +101,7 @@ set cpoptions&vim
 "   * @function(dn#util#padInternal)       pad string at internal location
 "   * @function(dn#util#padLeft)           left pad string               
 "   * @function(dn#util#padRight)          right pad string               
-"   * @function(dn#util#substitute()       perform global substitution in file
+"   * @function(dn#util#substitute)        perform global substitution in file
 "   * @function(dn#util#changeHeaderCaps)  changes capitalisation of line
 "                                          or visual selection
 " 

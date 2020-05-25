@@ -270,7 +270,7 @@ String manipulation
   * |dn#util#padInternal()|       pad string at internal location
   * |dn#util#padLeft()|           left pad string
   * |dn#util#padRight()|          right pad string
-  * |dn#util#substitute(()|       perform global substitution in file
+  * |dn#util#substitute()|        perform global substitution in file
   * |dn#util#changeHeaderCaps()|  changes capitalisation of line or visual
     selection
 

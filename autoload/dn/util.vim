@@ -34,10 +34,10 @@ set cpoptions&vim
 "
 " Dates
 "   * @function(dn#util#insertCurrentDate) insert current date in ISO format
-"   * @function(dn#util#nowYear)           get current year
-"   * @function(dn#util#nowMonth)          get current month
-"   * @function(dn#util#nowDay)            get current day in month
 "   * @function(dn#util#dayOfWeek)         get name of weekday
+"   * @function(dn#util#nowDay)            get current day in month
+"   * @function(dn#util#nowMonth)          get current month
+"   * @function(dn#util#nowYear)           get current year
 " 
 " Files and directories
 "   * @function(dn#util#fileExists)        whether file exists (uses |glob()|)
@@ -95,13 +95,13 @@ set cpoptions&vim
 "   * @function(dn#util#trimChar)          removes leading and trailing chars
 "   * @function(dn#util#entitise)          replace special html chars with entities
 "   * @function(dn#util#deentitise)        replace html entities with characters
+"   * @function(dn#util#dumbifyQuotes()    replace smart quotes with straight quotes
 "   * @function(dn#util#stringify)         convert variable to string
 "   * @function(dn#util#matchCount)        finds number of occurrences of string
 "   * @function(dn#util#padInternal)       pad string at internal location
 "   * @function(dn#util#padLeft)           left pad string               
 "   * @function(dn#util#padRight)          right pad string               
-"   * @function(dn#util#globalSubstitution)
-"                                          perform global substitution in file
+"   * @function(dn#util#substitute()       perform global substitution in file
 "   * @function(dn#util#changeHeaderCaps)  changes capitalisation of line
 "                                          or visual selection
 " 
@@ -768,6 +768,29 @@ function! dn#util#dayOfWeek(year, month, day) abort
     return s:dayValue(l:day_number)
 endfunction
 
+" dn#util#dumbifyQuotes()    {{{1
+
+""
+" @public
+" Convert "smart" quotes and apostrophes in the current buffer to their
+" corresponding "dumb" equivalent.
+"
+" The "smart" characters are:
+" * “ - left double quotation mark (U+201C)
+" * ” - right double quotation mark (U+201D)
+" * ‘ - left single quotation mark (U+2018)
+" * ’ - right single quotation mark, apostrophe (U+2019)
+"
+" The "dumb" equivalents these characters are converted to are:
+" * " - quotation mark (U+0022)
+" * ' - apostrophe, single quotation mark (U+0027)
+function! dn#util#dumbifyQuotes() abort
+    echo 'Dumbifying smart double quotes... '
+    call dn#util#substitute('[“”]', '"')
+    echo 'Dumbifying smart single quotes... '
+    call dn#util#substitute('[‘’]', "'")
+endfunction
+
 " dn#util#deentitise(string)    {{{1
 
 ""
@@ -1014,26 +1037,6 @@ function! dn#util#getSelection() abort
     finally
         let @a = l:a_save
     endtry
-endfunction
-
-" dn#util#globalSubstitution(pattern, substitute)    {{{1
-
-""
-" @public
-" Perform global substitution of {pattern} for {substitute} in current buffer.
-function! dn#util#globalSubstitution(pattern, substitute) abort
-    let l:pos = getcurpos()
-    call setpos('.', [0, 1, 1, 0])
-    let l:line_num = search(a:pattern, 'nW')
-    while l:line_num > 0
-        let l:line = getline(l:line_num)
-        let l:new_line = substitute(l:line, a:pattern, a:substitute, 'g')
-        if l:new_line != l:line
-            call setline(l:line_num, l:new_line)
-        endif
-        let l:line_num = search(a:pattern, 'nW')
-    endwhile
-    call setpos('.', l:pos)
 endfunction
 
 " dn#util#help([insert])    {{{1
@@ -2373,6 +2376,78 @@ function! dn#util#stripLastChar(string) abort
                 \ 	0,
                 \ 	strlen(a:string) - 1
                 \ )
+endfunction
+
+" dn#util#substitute(pattern, ...)    {{{1
+
+""
+" @public
+" Performs a configuration-agnostic substitution in the current buffer.
+" For the duration of the substitution, 'gdefault' is on, 'ignorecase' is off,
+" and 'smartcase' is off. These settings are restored after the substitution.
+" The e flag is inverted: errors will not be shown unless the e flag is
+" present.
+" The cursor does not move.
+" The range is the whole file by default.
+"
+" Copied from github repository google/vim-maktaba -- see file 
+" "autoload/maktaba/buffer.vim" at https://github.com/google/vim-maktaba
+"
+" {pattern} The pattern to replace.
+" [replacement] The replacement string.
+" [flags] The search flags. See |:s_flags|. "e" and "g" are on by default.
+" [firstline] The first line of the replacement range.
+" @default firstline=0
+" [lastline] The last line of the replacement range.
+" @default lastline=equal to line('$')
+" [usecase] Whether to honor the user's case sensitivity settings.
+" @default usecase=0
+" [searchdelimiter] The search delimiter to use. Must be accepted by |:s|.
+" @default searchdelimiter='/'
+function! dn#util#substitute(pattern, ...) abort
+    " Range must be passed explicitly because vimscript moves the cursor to
+    " the first line of a range during ':call'. A [range] function has no way
+    " to save and restore the window position. See http://goo.gl/kGDEO for
+    " discussion of the limitation and a proposed fix. Even if this limitation
+    " is fixed, we assume 7.2 and must do things this way.
+
+    " capture view of current window
+    let l:winview = winsaveview()
+
+    " capture state of option 'gdefault'
+    let l:gdefault = &gdefault
+    let &gdefault = 1
+
+    " use user's settings if requested
+    let l:use_user_sensitivity = get(a:, 5, 0)
+    if !l:use_user_sensitivity
+        let l:smartcase = &smartcase
+        let l:ignorecase = &ignorecase
+        let &smartcase = 0
+        let &ignorecase = 0
+    endif
+
+    " process remaining arguments
+    let l:sub = get(a:, 1, '')
+    let l:flags_arg = get(a:, 2, '')
+    let l:flags = (l:flags_arg =~# 'e')
+                \ ? substitute(l:flags_arg, '\Ce', '', '')
+                \ : l:flags_arg . 'e'
+    let l:firstline = get(a:, 3, 1)
+    let l:lastline = get(a:, 4, line('$'))
+    let l:slash = get(a:, 6, '/')
+
+    " perform substitution
+    let l:replace = 's' . l:slash . a:pattern . l:slash . l:sub . l:slash
+    execute l:firstline . ',' . l:lastline . l:replace . l:flags
+
+    " restore settings
+    if !l:use_user_sensitivity
+        let &ignorecase = l:ignorecase
+        let &smartcase = l:smartcase
+    endif
+    let &gdefault = l:gdefault
+    call winrestview(l:winview)
 endfunction
 
 " dn#util#testFn()    {{{1

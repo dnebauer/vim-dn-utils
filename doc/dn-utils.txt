@@ -167,9 +167,9 @@ contributors.
 ==============================================================================
 COMMANDS                                                   *dn-utils-commands*
 
-:Scriptnames                                                    *:Scriptnames*
-  Displays script names in a quickfix window (|:ccl| to close). Calls
-  |dn#util#scriptnames()|.
+:DumbifyQuotes                                                *:DumbifyQuotes*
+  Replaces smart quotes with plain ascii "straight" single quotes
+  (apostrophes) and double quotes. Calls |dn#util#dumbifyQuotes()|.
 
 :Filetypes                                                        *:Filetypes*
   Displays all available filetypes in the echo area. Calls
@@ -177,6 +177,10 @@ COMMANDS                                                   *dn-utils-commands*
 
 :Runtimepaths                                                  *:Runtimepaths*
   Displays runtime paths in the echo area. Calls |dn#util#showRuntimepaths()|.
+
+:Scriptnames                                                    *:Scriptnames*
+  Displays script names in a quickfix window (|:ccl| to close). Calls
+  |dn#util#scriptnames()|.
 
 ==============================================================================
 MAPPINGS                                                   *dn-utils-mappings*
@@ -202,10 +206,10 @@ on the function name to jump to detailed help on it.
 
 Dates
   * |dn#util#insertCurrentDate()| insert current date in ISO format
-  * |dn#util#nowYear()|           get current year
-  * |dn#util#nowMonth()|          get current month
-  * |dn#util#nowDay()|            get current day in month
   * |dn#util#dayOfWeek()|         get name of weekday
+  * |dn#util#nowDay()|            get current day in month
+  * |dn#util#nowMonth()|          get current month
+  * |dn#util#nowYear()|           get current year
 
 Files and directories
   * |dn#util#fileExists()|        whether file exists (uses |glob()|)
@@ -260,12 +264,13 @@ String manipulation
   * |dn#util#trimChar()|          removes leading and trailing chars
   * |dn#util#entitise()|          replace special html chars with entities
   * |dn#util#deentitise()|        replace html entities with characters
+  * |dn#util#dumbifyQuotes(()|    replace smart quotes with straight quotes
   * |dn#util#stringify()|         convert variable to string
   * |dn#util#matchCount()|        finds number of occurrences of string
   * |dn#util#padInternal()|       pad string at internal location
   * |dn#util#padLeft()|           left pad string
   * |dn#util#padRight()|          right pad string
-  * |dn#util#globalSubstitution()| perform global substitution in file
+  * |dn#util#substitute(()|       perform global substitution in file
   * |dn#util#changeHeaderCaps()|  changes capitalisation of line or visual
     selection
 
@@ -275,6 +280,7 @@ Numbers
 Miscellaneous
   * |dn#util#selectWord()|        select |<cword>| under cursor
   * |dn#util#varType()|           get variable type
+  * |dn#util#testFn()|            utility function used for testing only
 
 ==============================================================================
 FUNCTIONS                                                 *dn-utils-functions*
@@ -334,6 +340,20 @@ dn#util#dayOfWeek({year}, {month}, {day})                *dn#util#dayOfWeek()*
   certain day of the week, called the "doomsday", upon which certain
   easy-to-remember dates fall; for example, 4/4, 6/6, 8/8, 10/10, 12/12, and
   the last day of February all occur on the same day of the week in any year.
+
+dn#util#dumbifyQuotes()                              *dn#util#dumbifyQuotes()*
+  Convert "smart" quotes and apostrophes in the current buffer to their
+  corresponding "dumb" equivalent.
+
+  The "smart" characters are:
+    * “ - left double quotation mark (U+201C)
+    * ” - right double quotation mark (U+201D)
+    * ‘ - left single quotation mark (U+2018)
+    * ’ - right single quotation mark, apostrophe (U+2019)
+
+  The "dumb" equivalents these characters are converted to are:
+    * " - quotation mark (U+0022)
+    * ' - apostrophe, single quotation mark (U+0027)
 
 dn#util#deentitise({string})                            *dn#util#deentitise()*
   Replace the following html entities in {string} with corresponding
@@ -421,10 +441,6 @@ dn#util#getSelection()                                *dn#util#getSelection()*
   entire string or separately for each line in the string, depending on
   whether the function accepts a range. (See |:call| and
   |function-range-example|.)
-
-dn#util#globalSubstitution({pattern}, {substitute})
-                                                *dn#util#globalSubstitution()*
-  Perform global substitution of {pattern} for {substitute} in current buffer.
 
 dn#util#help([insert])                                        *dn#util#help()*
   Display a menu of help topics for the user to select from. When a topic is
@@ -719,6 +735,32 @@ dn#util#stringify({variable}, [quote])                   *dn#util#stringify()*
 
 dn#util#stripLastChar({string})                      *dn#util#stripLastChar()*
   Removes last character from {string}. Return altered {string}.
+
+dn#util#substitute({pattern}, [replacement], [flags], [firstline], [lastline],
+  [usecase], [searchdelimiter])                         *dn#util#substitute()*
+  Performs a configuration-agnostic substitution in the current buffer. For
+  the duration of the substitution, 'gdefault' is on, 'ignorecase' is off, and
+  'smartcase' is off. These settings are restored after the substitution. The
+  e flag is inverted: errors will not be shown unless the e flag is present.
+  The cursor does not move. The range is the whole file by default.
+
+  Copied from github repository google/vim-maktaba -- see file
+  "autoload/maktaba/buffer.vim" at https://github.com/google/vim-maktaba
+
+  {pattern} The pattern to replace. [replacement] The replacement string.
+  [flags] The search flags. See |:s_flags|. "e" and "g" are on by default.
+  [firstline] The first line of the replacement range.
+  [firstline] is 0 if omitted.
+  [lastline] The last line of the replacement range.
+  [lastline] is equal to line('$') if omitted.
+  [usecase] Whether to honor the user's case sensitivity settings.
+  [usecase] is 0 if omitted.
+  [searchdelimiter] The search delimiter to use. Must be accepted by |:s|.
+  [searchdelimiter] is '/' if omitted.
+
+dn#util#testFn()                                            *dn#util#testFn()*
+  Utility function used for testing purposes only params: varies insert:
+  varies return: varies
 
 dn#util#trimChar({string}, [char])                        *dn#util#trimChar()*
   Removes leading and trailing [char] from {string}. If [char] in longer than

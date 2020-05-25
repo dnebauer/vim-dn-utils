@@ -12,27 +12,34 @@ set cpoptions&vim
 
 " Commands
 
-" Scriptnames  - display script names in quickfix window    {{{1
+" DumbifyQuotes - replace smart quotes with " and '    {{{1
 
 ""
-" Displays script names in a quickfix window (|:ccl| to close). Calls
-" @function(dn#util#scriptnames).
-command! -bar Scriptnames
-            \ call setqflist(dn#util#scriptnames())|copen
+" Replaces smart quotes with plain ascii "straight" single quotes
+" (apostrophes) and double quotes. Calls @function(dn#util#dumbifyQuotes).
+command DumbifyQuotes call dn#util#dumbifyQuotes()
 
-" Filetypes    - display fileypes in echo area    {{{1
+" Filetypes     - display fileypes in echo area    {{{1
 
 ""
 " Displays all available filetypes in the echo area. Calls
 " @function(dn#util#showFiletypes).
 command Filetypes call dn#util#showFiletypes()
 
-" Runtimepaths - display runtime paths in echo area    {{{1
+" Runtimepaths  - display runtime paths in echo area    {{{1
 
 ""
 " Displays runtime paths in the echo area. Calls
 " @function(dn#util#showRuntimepaths).
 command Runtimepaths call dn#util#showRuntimepaths()
+
+" Scriptnames   - display script names in quickfix window    {{{1
+
+""
+" Displays script names in a quickfix window (|:ccl| to close). Calls
+" @function(dn#util#scriptnames).
+command! -bar Scriptnames
+            \ call setqflist(dn#util#scriptnames())|copen
 " }}}1
 
 " Control statements    {{{1

@@ -54,31 +54,31 @@ while ( my $opt = shift @ARGV ) {
     }
 
     # --name-single
-    if ( grep { $opt eq $_ } @opts_single ) {
+    if (grep { $opt eq $_ } @opts_single ) {
         my $val = shift @ARGV;
         if ( defined $val and $val ne q{} ) { $name_single = $val; }
     }
 
     # --name-plural
-    if ( grep { $opt eq $_ } @opts_plural ) {
+    if (grep { $opt eq $_ } @opts_plural ) {
         my $val = shift @ARGV;
         if ( defined $val and $val ne q{} ) { $name_plural = $val; }
     }
 
     # --output-file
-    if ( grep { $opt eq $_ } @opts_output ) {
+    if (grep { $opt eq $_ } @opts_output ) {
         my $val = shift @ARGV;
         if ( defined $val and $val ne q{} ) { $output_file = $val; }
     }
 
     # --select-method
-    if ( grep { $opt eq $_ } @opts_method ) {
+    if (grep { $opt eq $_ } @opts_method  ) {
         my $val = shift @ARGV;
         if ( defined $val and $val ne q{} ) { $select_method = $val; }
     }
 
     # --items
-    if ( grep { $opt eq $_ } @opts_items ) {
+    if (grep { $opt eq $_ } @opts_items ) {
         my $val = shift @ARGV;
         if ( defined $val and $val ne q{} ) {
             push @items, split( /\t/, $val );
@@ -86,7 +86,7 @@ while ( my $opt = shift @ARGV ) {
     }
 
     # default
-    if ( not( grep { $opt eq $_ } @opts_all ) ) {
+    if (not(grep { $opt eq $_ } @opts_all )) {
         die "$SELF: invalid option '$opt'\n";
     }
 }
@@ -120,14 +120,14 @@ my $item;
 for ($select_method) {
 
     # use completion
-    when ( /\Acomplete\Z/ ) {
+    when ( $_ eq 'complete' ) {
         say "Completion shortcuts available while entering $name_single:";
         say '[<Tab> completes, <C-d> prints completions, <C-u> erases input]';
         $item = Term::Complete::Complete( "Enter $name_single: ", @items );
     }
 
     # use filter and select
-    when ( /\Afilter\Z/ ) {
+    when ( $_ eq 'filter' ) {
         my $prompt = "Enter part of $name_single [<C-d> to quit]:";
         my $filter = Term::Clui::ask($prompt);
         my @matches;
@@ -179,8 +179,7 @@ vim-dn-utils-console-select - select item from list in console
 
 =head1 USAGE
 
-B<vim-dn-utils-console-select> B<-s> I<noun> B<-p> I<noun> B<-o> I<path> B<-l>
-I<items> B<-m> I<'complete'|'filter'>
+B<vim-dn-utils-console-select> B<-s> I<noun> B<-p> I<noun> B<-o> I<path> B<-l> I<items> B<-m> I<'complete'|'filter'>
 
 B<vim-dn-utils-console-select -h>
 
@@ -234,25 +233,19 @@ Display help and exit.
 
 =head2 Overview
 
-Enable user to select an item from a list on the console. This script is
-designed to be used by vim scripts. It is included in the L<vim-dn-utils
-plugin|https://github.com/dnebauer/vim-dn-utils> and used by the plugin
-function C<dn#util#consoleSelect>.
+Enable user to select an item from a list on the console. This script is designed to be used by vim scripts. It is included in the L<vim-dn-utils plugin|https://github.com/dnebauer/vim-dn-utils> and used by the plugin function C<dn#util#consoleSelect>.
 
 =head2 Selection methods
 
-There are two methods for selecting a list item. Both can be used when list
-items contain spaces.
+There are two methods for selecting a list item. Both can be used when list items contain spaces.
 
 =over
 
 =item word completion
 
-This method is used if C<complete> is supplied as the C<--select-method>
-(C<-m>) option.
+This method is used if C<complete> is supplied as the C<--select-method> (C<-m>) option.
 
-It relies on the user entering the first character(s) of the item and using
-keyboard shortcuts to complete the item:
+It relies on the user entering the first character(s) of the item and using keyboard shortcuts to complete the item:
 
 =over
 
@@ -260,9 +253,7 @@ keyboard shortcuts to complete the item:
 
 =item E<lt>TabE<gt>
 
-Attempts completion, i.e., if the only possible matches remaining have
-additional common characters remaining, they will be automatically entered. If
-there is only one remaining match it will be completed.
+Attempts completion, i.e., if the only possible matches remaining have additional common characters remaining, they will be automatically entered. If there is only one remaining match it will be completed.
 
 =item E<lt>Ctrl-dE<gt>
 
@@ -280,11 +271,9 @@ Uses the L<Term::Complete> module.
 
 =item filter and select
 
-This method is used if C<filter> is supplied as the C<--select-method> (C<-m>)
-option.
+This method is used if C<filter> is supplied as the C<--select-method> (C<-m>) option.
 
-The user enter a fragment of the target item and selects from those items that
-contain that fragment. E<lt>C-dE<gt> aborts the selection process.
+The user enter a fragment of the target item and selects from those items that contain that fragment. E<lt>C-dE<gt> aborts the selection process.
 
 Uses the L<Term::Clui> module.
 
@@ -292,19 +281,13 @@ Uses the L<Term::Clui> module.
 
 =head2 Capturing user selection in a temporary file
 
-The user's selection is written to the temporary output file provided as a
-parameter. No newline is appended to the result.
+The user's selection is written to the temporary output file provided as a parameter. No newline is appended to the result.
 
 =head2 Detecting script success and failure
 
 The script exits with shell success or error codes as appropriate.
 
-Since the script writes the user selection to the output file only when
-successful, the presence or absence of content in the output file can be used
-to detect success or failure. This script makes no attempt to delete the output
-file, or remove its content, in the event of failure. So, to use output file
-content as a marker of success or failure the calling application must ensure
-the output file is absent or empty before calling this script.
+Since the script writes the user selection to the output file only when successful, the presence or absence of content in the output file can be used to detect success or failure. This script makes no attempt to delete the output file, or remove its content, in the event of failure. So, to use output file content as a marker of success or failure the calling application must ensure the output file is absent or empty before calling this script.
 
 =head1 DEPENDENCIES
 
@@ -322,11 +305,11 @@ Please report any bugs to the author.
 
 =head1 AUTHOR
 
-David Nebauer E<lt>david@nebauer.comE<gt>
+David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2016 David Nebauer E<lt>david@nebauer.comE<gt>
+Copyright (c) 2016 David Nebauer E<lt>davidnebauer@hotkey.net.auE<gt>
 
 =cut
 # vim:fdm=marker:

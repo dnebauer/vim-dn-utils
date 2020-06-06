@@ -87,7 +87,7 @@ set cpoptions&vim
 " Version control
 "   * @function(dn#util#localGitRepoFetch) perform a fetch on a local git repository
 "   * @function(dn#util#localGitRepoUpdatedRecently)
-"                                          check that a local repo has been updated
+"                                          check that local repo is updated
 " 
 " String manipulation
 "   * @function(dn#util#stripLastChar)     removes last character from string
@@ -102,8 +102,7 @@ set cpoptions&vim
 "   * @function(dn#util#padLeft)           left pad string               
 "   * @function(dn#util#padRight)          right pad string               
 "   * @function(dn#util#substitute)        perform global substitution in file
-"   * @function(dn#util#changeHeaderCaps)  changes capitalisation of line
-"                                          or visual selection
+"   * @function(dn#util#changeHeaderCaps)  changes capitalisation of selection
 " 
 " Numbers
 "   * @function(dn#util#validPosInt)       check whether input is valid positive int
@@ -1779,7 +1778,7 @@ endfunction
 " @public
 " Select an option from a multi-level |List| or |Dict| {menu}. An optional
 " [prompt] can be provided. The selected menu option (or its associated value)
-" is returned, with "" indicating no items was selected. This means it is
+" is returned, with "" indicating no item was selected. This means it is
 " possible to provide an empty menu item which can be selected and returned,
 " and there is no way to distinguish this from a cancelled selection.
 " @default prompt='Select an option:'
@@ -1791,11 +1790,15 @@ endfunction
 " simple variables. A "simple" Dict has values which are all simple variables.
 "
 " If a simple List {menu} is provided, its simple elements are displayed in
-" the menu and returned if selected, while for single key-value elements the
-" key is displayed in the menu and, if selected, its value is returned.
+" the menu and returned if selected. If a List item is a Dict containing one
+" key-value pair, the key is displayed in the menu and, if selected, its value
+" is returned. (It is a fatal error if a List item is a Dict containing
+" multiple key-value pairs.)
 "
 " If a simple Dict {menu} is provided, its Dict keys form the menu items and
-" when an item is selected its corresponding value is returned.
+" when an item is selected its corresponding value is returned. Because the
+" order of key-value pairs in a Dict is undefined, the order of menu items
+" arising from a Dict {menu} cannot be predicted.
 "
 " Submenus can be added to both List and Dict menus. In such a case the header
 " for the submenu, or child menu, is indicated in the parent menu by appending

@@ -224,7 +224,7 @@ User interaction
   * |dn#util#error()|             display error message
   * |dn#util#warn()|              display warning message
   * |dn#util#prompt()|            display prompt message
-  * |dn#util#wrap()|              echoes text but wraps it sensibly
+  * |dn#util#echoWrap()|          echoes text but wraps it sensibly
   * |dn#util#menuSelect()|        select item from menu
   * |dn#util#menuAddOption()|     add option to menu
   * |dn#util#menuAddSubmenu()|    add submenu to menu
@@ -271,6 +271,7 @@ String manipulation
   * |dn#util#padRight()|          right pad string
   * |dn#util#substitute()|        perform global substitution in file
   * |dn#util#changeHeaderCaps()|  changes capitalisation of selection
+  * |dn#util#fmt()|               wrap string(s) using fmt utilty
 
 Numbers
   * |dn#util#validPosInt()|       check whether input is valid positive int
@@ -358,6 +359,16 @@ dn#util#deentitise({string})                            *dn#util#deentitise()*
   characters: "&quot;" to """, "&apos;" to "'", "&lt;" to "<", "&gt;" to ">",
   and "&amp;" to "&". Returns the altered {string}.
 
+dn#util#echoWrap({msg}, [hang])                           *dn#util#echoWrap()*
+  Echoes text but wraps it sensibly. A hanging indent (which applies to all
+  output lines except the first) can be applied, in which case the size of the
+  indent is specified with [hang].
+  [hang] is 0 if omitted.
+  Throws ERROR(BadHang) if the hanging indent size is not a number
+  Throws ERROR(BadMsg) if message is not a string
+  Throws ERROR(BigHang) if width is not at least 10 greater than hanging
+  indent size
+
 dn#util#entitise({string})                                *dn#util#entitise()*
   Replace special html characters in {string} with html entities. See
   |dn#util#deentitise()| for the characters that are replaced. Returns the
@@ -403,6 +414,32 @@ dn#util#fileExists({filepath})                          *dn#util#fileExists()*
 
 dn#util#filetypes()                                      *dn#util#filetypes()*
   Get |List| of available |filetypes|.
+
+dn#util#fmt({message}, [width])                                *dn#util#fmt()*
+  Processes a message string or strings through "fmt". This is a utility which
+  is found on all *nix systems as a core utility, and there are versions
+  available for other operating systems. The "fmt" utility is primarily
+  intended for formatting C/C++ and has been extended to other languages. It
+  does a good job of wrapping plain text, hence its use in this function.
+
+  The {message} string can be a single |string| or a |List| of strings. Any of
+  these strings may contain newline characters. The return value matches the
+  type of message variable provided: string or List.
+
+  The maximum [width] of the wrapped string must be at least 10 (with one
+  exception covered in the next paragraph). Any lesser value is silently
+  converted to 10. Note that the standard "fmt" utilty on *nix systems strives
+  for a goal width of 93% of the maximum width provided.
+
+  A special width value is 0, which is allowed. It means no wrapping is done
+  and the message is returned unchanged.
+  [width] is 79 if omitted.
+  Throws ERROR(BadMsg) if message type is not a string or List
+  Throws ERROR(BadWidth) if width is not a number
+  Throws ERROR(DeleteFail) if unable to delete a temporary file
+  Throws ERROR(FmtError) if 'fmt' exits with an error code
+  Throws ERROR(NoFmt) if unable to locate the 'fmt' utility
+  Throws ERROR(WriteFail) if unable to write a temporary file
 
 dn#util#getFilePath()                                  *dn#util#getFilePath()*
   Get filepath of file being edited.
@@ -507,9 +544,9 @@ dn#util#listToScreen({list}, [width], [indent], [delimiter])
 
   This function is intended for use with short strings. It does not break long
   string elements. Even worse, it resets the maximum width to equal that of
-  the longest {list} item. Consider using |dn#util#wrap()| if it is important
-  to limit the maximum text width as that function breaks a string at sensible
-  locations.
+  the longest {list} item. Consider using |dn#util#echoWrap()| if it is
+  important to limit the maximum text width as that function breaks a string
+  at sensible locations.
 
   This function short-circuits a lot of error-checking by using the value
   ":INVALID:" as an error token. If one of the {list} elements has this
@@ -587,13 +624,26 @@ dn#util#menuAddSubmenu({menu}, {header}, {submenu}) *dn#util#menuAddSubmenu()*
   The {menu} variable is edited in place. The function does not return any
   value. Error messages are displayed if invalid arguments are provided.
 
-dn#util#menuSelect({menu}, [prompt])                    *dn#util#menuSelect()*
-  Select an option from a multi-level |List| or |Dict| {menu}. An optional
-  [prompt] can be provided. The selected menu option (or its associated value)
-  is returned, with "" indicating no item was selected. This means it is
-  possible to provide an empty menu item which can be selected and returned,
-  and there is no way to distinguish this from a cancelled selection.
-  [prompt] is 'Select an option:' if omitted.
+dn#util#menuSelect({menu}, [prompt], [preamble])        *dn#util#menuSelect()*
+  Select an option from a multi-level |List| or |Dict| {menu}.
+
+  If the list is shorter than the current window, it will be displayed in the
+  current window using an |inputlist()|. If it is too long to fit in the
+  current window, it will be displayed in a full-size buffer.
+
+  An optional [prompt] string can be provided to this function. An optional
+  [preamble] can also be provided. This is a List of strings which are
+  displayed, one per line, before the menu. They are intended to be displayed
+  before long menus in the full-size buffer. It should be used for information
+  the user will need to make their selection from the menu.  Empty strings are
+  output as empty lines, except for empty strings at the end of the List which
+  are ignored.
+
+  The selected menu option (or its associated value) is returned, with ""
+  indicating no item was selected. This means it is possible to provide an
+  empty menu item which can be selected and returned, and there is no way to
+  distinguish this from a cancelled selection.  @default prompt='Select an
+  option:'
 
   In the following discussion a "simple" menu is one without any submenus, and
   "simple" variables are |String|, |Number|, |Float|, boolean (|v:true| or
@@ -627,6 +677,8 @@ dn#util#menuSelect({menu}, [prompt])                    *dn#util#menuSelect()*
   multi-level menus can become complex. The functions
   |dn#util#menuAddSubmenu()| and |dn#util#menuAddOption()| assist with
   "top-down" menu construction.
+  [prompt] is 'Select an option:' if omitted.
+  [preamble] is [] if omitted.
 
 dn#util#nowDay()                                            *dn#util#nowDay()*
   Get integer number of current day in the current month. There is no leading
@@ -806,11 +858,26 @@ dn#util#warn({message})                                       *dn#util#warn()*
   are displayed sequentially using |echomsg|, to ensure they are saved in the
   |message-history|, using error highlighting (see |hl-ErrorMsg|).
 
-dn#util#wrap({msg}, [hang])                                   *dn#util#wrap()*
-  Echoes text but wraps it sensibly. A hanging indent (which applies to all
-  output lines except the first) can be applied, in which case the size of the
-  indent is specified with [hang].
+dn#util#wrap({message}, [wrap], [hang], [width])              *dn#util#wrap()*
+  Wraps a {message} string sensibly at [wrap] columns. A width of 0 means the
+  string is not wrapped and is returned unchanged. A hanging indent (which
+  applies to all output lines except the first) can be applied, in which case
+  the size of the indent is specified with [hang]. A hanging indent of 0
+
+  If no hang is specified, this function first attempts to wrap the message
+  string using the system utility "fmt". (This is a utility which is found on
+  all *nix systems as a core utility, and there are versions available for
+  other operating systems. Although primarily intended for formatting C/C++,
+  it does a good job of wrapping plain text.) If "fmt" is unavailable or
+  unable to wrap the message string, this function performs the wrapping
+  itself.
+  [width] is 0 if omitted.
   [hang] is 0 if omitted.
+  Throws ERROR(BadHang) if the hanging indent size is not a number
+  Throws ERROR(BadMsg) if message is not a string
+  Throws ERROR(BadWidth) if width is not a number
+  Throws ERROR(BigHang) if width is not at least 10 greater than hanging
+  indent size
 
 
 vim:tw=78:ts=8:ft=help:norl:

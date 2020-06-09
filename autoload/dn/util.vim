@@ -52,7 +52,7 @@ set cpoptions&vim
 "   * @function(dn#util#error)             display error message
 "   * @function(dn#util#warn)              display warning message
 "   * @function(dn#util#prompt)            display prompt message
-"   * @function(dn#util#wrap)              echoes text but wraps it sensibly
+"   * @function(dn#util#echoWrap)          echoes text but wraps it sensibly
 "   * @function(dn#util#menuSelect)        select item from menu
 "   * @function(dn#util#menuAddOption)     add option to menu
 "   * @function(dn#util#menuAddSubmenu)    add submenu to menu
@@ -103,6 +103,8 @@ set cpoptions&vim
 "   * @function(dn#util#padRight)          right pad string               
 "   * @function(dn#util#substitute)        perform global substitution in file
 "   * @function(dn#util#changeHeaderCaps)  changes capitalisation of selection
+"   * @function(dn#util#fmt)               wrap string(s) using fmt utilty
+"   * @function(dn#util#wrap)              wrap string sensibly
 " 
 " Numbers
 "   * @function(dn#util#validPosInt)       check whether input is valid positive int
@@ -807,6 +809,54 @@ function! dn#util#deentitise(string) abort
     return l:string
 endfunction
 
+" dn#util#echoWrap(message[, hang])    {{{1
+
+""
+" @public
+" Echoes text but wraps it sensibly. A hanging indent (which applies to all
+" output lines except the first) can be applied, in which case the size of the
+" indent is specified with [hang].
+" @default hang=0
+" @throws BadHang if the hanging indent size is not a number
+" @throws BadMsg if message is not a string
+" @throws BigHang if width is not at least 10 greater than hanging indent size
+function! dn#util#echoWrap(msg, ...) abort
+    " check message input
+    " - must be a string
+    let l:type = dn#util#varType(a:msg)
+    let l:err = 'ERROR(BadMsg): Need string, got ' . l:type
+    if type(a:msg) != type('') | throw l:err | endif
+    " - deal with simple case of no input
+    if empty(a:msg) | return a:msg | endif
+    let l:msg = a:msg
+
+    " check hanging indent
+    let l:width = winwidth(0) - 1
+    let l:hang_size = 0
+    if a:0 > 0
+        let l:type = dn#util#varType(a:1)
+        " check for number formatted as string
+        if type(a:1) == type('')
+            if str2nr(a:1) > 0 | let l:hang_size = str2nr(a:1)
+            else | throw 'ERROR(BadHang): Need numeric indent, got string'
+            endif
+        " handle non-numeric values
+        elseif !((type(a:1) == type(0)) || (type(a:1) == type(0.0)))
+            throw 'ERROR(BadHang): Need numeric indent, got ' . l:type
+        " handle numbers
+        else | let l:hang_size = float2nr(a:1)
+        endif
+    endif
+    let l:err = 'ERROR(BigHang): Need width at least 10 larger than indent' 
+    if (l:width - l:hang_size) < 10 | throw l:err | endif
+
+    " wrap message
+    let l:wrapped = dn#util#wrap(l:msg, l:width, l:hang_size)
+    for l:line in split(l:wrapped, "\n")
+        echomsg l:line
+    endfor
+endfunction
+
 " dn#util#entitise(string)    {{{1
 
 ""
@@ -933,6 +983,101 @@ function! dn#util#filetypes() abort
     endfor
     " remove duplicates
     return uniq(sort(l:filetypes))
+endfunction
+
+" dn#util#fmt(message[, width])    {{{1
+
+""
+" @public
+" Processes a message string or strings through "fmt". This is a utility which
+" is found on all *nix systems as a core utility, and there are versions
+" available for other operating systems. The "fmt" utility is primarily
+" intended for formatting C/C++ and has been extended to other languages. It
+" does a good job of wrapping plain text, hence its use in this function.
+"
+" The {message} string can be a single |string| or a |List| of strings. Any of
+" these strings may contain newline characters. The return value matches the
+" type of message variable provided: string or List.
+"
+" The maximum [width] of the wrapped string must be at least 10 (with one
+" exception covered in the next paragraph). Any lesser value is silently
+" converted to 10. Note that the standard "fmt" utilty on *nix systems strives
+" for a goal width of 93% of the maximum width provided.
+"
+" A special width value is 0, which is allowed. It means no wrapping is done
+" and the message is returned unchanged.
+" @default width=79
+" @throws BadMsg if message type is not a string or List
+" @throws BadWidth if width is not a number
+" @throws DeleteFail if unable to delete a temporary file
+" @throws FmtError if 'fmt' exits with an error code
+" @throws NoFmt if unable to locate the 'fmt' utility
+" @throws WriteFail if unable to write a temporary file
+function! dn#util#fmt(msg, ...) abort
+    " check message input
+    " - must be valid variable type
+    " - while checking standardise message to a List
+    let l:type = dn#util#varType(a:msg)
+    if     type(a:msg) == type('') | let l:msg = split(a:msg, "\n")
+    elseif type(a:msg) == type([]) | let l:msg = a:msg[:]
+    else | throw 'ERROR(BadMsg): Need string or List message, got ' . l:type
+    endif
+    " - deal with simple case of no input
+    if empty(l:msg) | return a:msg | endif
+
+    " check width
+    let l:width = 79
+    if a:0 > 0
+        let l:type = dn#util#varType(a:1)
+        " check for number formatted as string
+        if type(a:1) == type('')
+            if str2nr(a:1) > 0 | let l:width = str2nr(a:1)
+            else | throw 'ERROR(BadWidth): Need numeric width, got string'
+            endif
+        " handle non-numeric values
+        elseif !((type(a:1) == type(0)) || (type(a:1) == type(0.0)))
+            throw 'ERROR(BadWidth): Need numeric width, got ' . l:type
+        " handle numbers
+        else | let l:width = float2nr(a:1)
+        endif
+    endif
+    " - handle 0 value
+    if l:width == 0 | return a:msg | endif
+    " - minimum width of 10
+    if l:width < 10 | let l:width = 10 | endif
+
+    " write message to file
+    let l:msg_file = tempname()
+    let l:result = writefile(l:msg, l:msg_file)
+    let l:err = 'ERROR(WriteFail): Unable to write temp file: ' . l:msg_file
+    if l:result == -1 | throw l:err | endif
+
+    " process file with 'fmt' utility
+    let l:err = "ERROR(NoFmt): Unable to locate 'fmt' utility on system"
+    if !executable('fmt') | throw l:err | endif
+    let l:prefix = 'dn-util: '
+    let l:cmd = 'fmt --width=' . l:width . ' ' . l:msg_file
+    if exists('l:wrapped') | unlet l:wrapped | endif
+    let l:wrapped = systemlist(l:cmd)
+    if v:shell_error
+        echoerr l:prefix . "unable to use 'fmt' to format message string"
+        if len(l:wrapped) > 0
+            echoerr l:prefix . 'error message:'
+            for l:line in l:wrapped | echoerr '  ' . l:line | endfor
+        endif
+        throw "ERROR(FmtError): 'fmt' failed with errcode " . v:shell_error
+    endif  " v:shell_error
+
+    " clean up
+    let l:return = delete(l:msg_file)
+    let l:err = 'ERROR(DeleteFail): Unable to delete temp file: ' . l:msg_file
+    if l:return == -1 | throw l:err | endif
+
+    " return wrapped text
+    " - due to earlier checks a:msg can only be string or List
+    if   type(a:msg) == type('') | return join(l:wrapped, "\n")
+    else                         | return l:wrapped[:]
+    endif
 endfunction
 
 " dn#util#getFilePath()    {{{1
@@ -1255,11 +1400,11 @@ function! dn#util#help(...) abort
     set more
     let l:msg = ''
     for l:output in l:data
-        if l:output ==? '' | call dn#util#wrap(l:msg) | let l:msg = ''
+        if l:output ==? '' | call dn#util#echoWrap(l:msg) | let l:msg = ''
         else               | let l:msg .= l:output
         endif
     endfor
-    if l:msg !=? '' | call dn#util#wrap(l:msg) | endif
+    if l:msg !=? '' | call dn#util#echoWrap(l:msg) | endif
     if !l:more | set nomore | endif
     " return to calling mode
     if l:insert | call dn#util#insertMode(1) | endif
@@ -1397,7 +1542,7 @@ endfunction
 "
 " This function is intended for use with short strings. It does not break long
 " string elements. Even worse, it resets the maximum width to equal that of
-" the longest {list} item. Consider using @function(dn#util#wrap) if it is
+" the longest {list} item. Consider using @function(dn#util#echoWrap) if it is
 " important to limit the maximum text width as that function breaks a string
 " at sensible locations.
 "
@@ -1772,16 +1917,29 @@ function! dn#util#menuAddSubmenu(menu, header, submenu) abort
     endif
 endfunction
 
-" dn#util#menuSelect(menu, [prompt])    {{{1
+" dn#util#menuSelect(menu, [prompt[, preamble]])    {{{1
 
 ""
 " @public
-" Select an option from a multi-level |List| or |Dict| {menu}. An optional
-" [prompt] can be provided. The selected menu option (or its associated value)
-" is returned, with "" indicating no item was selected. This means it is
-" possible to provide an empty menu item which can be selected and returned,
-" and there is no way to distinguish this from a cancelled selection.
-" @default prompt='Select an option:'
+" Select an option from a multi-level |List| or |Dict| {menu}.
+"
+" If the list is shorter than the current window, it will be displayed in the
+" current window using an |inputlist()|. If it is too long to fit in the
+" current window, it will be displayed in a full-size buffer.
+"
+" An optional [prompt] string can be provided to this function. An optional
+" [preamble] can also be provided. This is a List of strings which are
+" displayed, one per line, before the menu. They are intended to be displayed
+" before long menus in the full-size buffer. It should be used for information
+" the user will need to make their selection from the menu.  Empty strings are
+" output as empty lines, except for empty strings at the end of the List which
+" are ignored.
+"
+" The selected menu option (or its associated value) is returned, with ""
+" indicating no item was selected. This means it is possible to provide an
+" empty menu item which can be selected and returned, and there is no way to
+" distinguish this from a cancelled selection.  @default prompt='Select an
+" option:'
 "
 " In the following discussion a "simple" menu is one without any submenus, and
 " "simple" variables are |String|, |Number|, |Float|, boolean (|v:true| or
@@ -1815,6 +1973,8 @@ endfunction
 " multi-level menus can become complex. The functions
 " @function(dn#util#menuAddSubmenu) and @function(dn#util#menuAddOption)
 " assist with "top-down" menu construction.
+" @default prompt='Select an option:'
+" @default preamble=[]
 function! dn#util#menuSelect(menu, ...) abort
     " set menu type
     if     type(a:menu) == type([]) | let l:menu_type = 'list'
@@ -2270,7 +2430,7 @@ function! dn#util#showRuntimepaths() abort
     let l:runtimepaths = dn#util#runtimepaths()
     " prepare for display
     for l:path in l:runtimepaths
-        call dn#util#wrap(l:path)
+        call dn#util#echoWrap(l:path)
     endfor
 endfunction
 
@@ -2629,8 +2789,8 @@ function! dn#util#updateUserHelpTags() abort
     endfor
     " give user feedback
     echo 'Generated help tags in directories:'
-    if exists('*dn#util#wrap')
-        echo dn#util#wrap(join(sort(l:doc_dirs), "\n"))
+    if exists('*dn#util#echoWrap')
+        echo dn#util#echoWrap(join(sort(l:doc_dirs), "\n"))
     else
         echo join(sort(l:doc_dirs), "\n")
     endif
@@ -2686,33 +2846,92 @@ function! dn#util#warn(msg) abort
     echohl Normal
 endfunction
 
-" dn#util#wrap(message[, hang])    {{{1
+" dn#util#wrap(message[, width[, hang]])    {{{1
 
 ""
 " @public
-" Echoes text but wraps it sensibly. A hanging indent (which applies to all
-" output lines except the first) can be applied, in which case the size of the
-" indent is specified with [hang].
+" Wraps a {message} string sensibly at [wrap] columns. A width of 0 means the
+" string is not wrapped and is returned unchanged. A hanging indent (which
+" applies to all output lines except the first) can be applied, in which case
+" the size of the indent is specified with [hang]. A hanging indent of 0 
+"
+" If no hang is specified, this function first attempts to wrap the message
+" string using the system utility "fmt". (This is a utility which is found on
+" all *nix systems as a core utility, and there are versions available for
+" other operating systems. Although primarily intended for formatting C/C++,
+" it does a good job of wrapping plain text.) If "fmt" is unavailable or
+" unable to wrap the message string, this function performs the wrapping
+" itself.
+" @default width=0
 " @default hang=0
+" @throws BadHang if the hanging indent size is not a number
+" @throws BadMsg if message is not a string
+" @throws BadWidth if width is not a number
+" @throws BigHang if width is not at least 10 greater than hanging indent size
 function! dn#util#wrap(msg, ...) abort
-    " variables
-    let l:width = winwidth(0) - 1
+    " check message input
+    " - must be a string
+    let l:type = dn#util#varType(a:msg)
+    let l:err = 'ERROR(BadMsg): Need string, got ' . l:type
+    if type(a:msg) != type('') | throw l:err | endif
+    " - deal with simple case of no input
+    if empty(a:msg) | return a:msg | endif
     let l:msg = a:msg
-    let l:hang_size = 0
-    if a:0 > 0 && dn#util#validPosInt(a:1) && (l:width - a:1) > 10
-        let l:hang_size = a:1
+
+    " check width
+    let l:width = 0
+    if a:0 > 0
+        let l:type = dn#util#varType(a:1)
+        " check for number formatted as string
+        if type(a:1) == type('')
+            if str2nr(a:1) > 0 | let l:width = str2nr(a:1)
+            else | throw 'ERROR(BadWidth): Need numeric width, got string'
+            endif
+        " handle non-numeric values
+        elseif !((type(a:1) == type(0)) || (type(a:1) == type(0.0)))
+            throw 'ERROR(BadWidth): Need numeric width, got ' . l:type
+        " handle numbers
+        else | let l:width = float2nr(a:1)
+        endif
     endif
+    " - handle 0 value
+    if l:width == 0 | return l:msg | endif
+    " - minimum width of 10
+    if l:width < 10 | let l:width = 10 | endif
+
+    " check hanging indent
+    let l:hang_size = 0
+    if a:0 > 1
+        let l:type = dn#util#varType(a:2)
+        " check for number formatted as string
+        if type(a:2) == type('')
+            if str2nr(a:2) > 0 | let l:hang_size = str2nr(a:2)
+            else | throw 'ERROR(BadHang): Need numeric indent, got string'
+            endif
+        " handle non-numeric values
+        elseif !((type(a:2) == type(0)) || (type(a:2) == type(0.0)))
+            throw 'ERROR(BadHang): Need numeric indent, got ' . l:type
+        " handle numbers
+        else | let l:hang_size = float2nr(a:2)
+        endif
+    endif
+    let l:err = 'ERROR(BigHang): Need width at least 10 larger than indent' 
+    if (l:width - l:hang_size) < 10 | throw l:err | endif
     let l:hang_indent = ''
     while l:hang_size > 0
         let l:hang_indent .= ' '
         let l:hang_size -= 1
     endwhile
-    " deal with simple case of no input
-    if a:msg ==? ''
-        echon "\n"
-        return
+
+    " try to wrap using fmt if no hanging indent
+    if empty(l:hang_indent)
+        try   | return dn#util#fmt(l:msg, l:width)
+        catch | " suppress error
+        endtry
     endif
-    " process for wrapping
+
+    " fall back to manual wrapping
+    let l:wrapped = []
     let l:first_line = v:true
     while l:msg !=? ''
         " exit on last output line
@@ -2720,7 +2939,7 @@ function! dn#util#wrap(msg, ...) abort
             if !l:first_line
                 let l:msg = l:hang_indent . l:msg
             endif
-            echomsg l:msg
+            call add(l:wrapped, l:msg)
             break
         endif
         " find wrap point
@@ -2734,14 +2953,14 @@ function! dn#util#wrap(msg, ...) abort
         endwhile
         " if no wrap point then have ugly situation where no breakpoint
         " exists so just output whole thing (ick!)
-        if l:break == -1 | echomsg l:msg | break | endif
+        if l:break == -1 | call add(l:wrapped, l:msg) | break | endif
         " let's wrap!
         let l:break += 1
         let l:output = strpart(l:msg, 0, l:break)
         if !l:first_line
             let l:output = l:hang_indent . l:output
         endif
-        echomsg l:output
+        call add(l:wrapped, l:output)
         let l:msg = strpart(l:msg, l:break)
         " - if broke line on punctuation mark may now have leading space
         if strpart(l:msg, 0, 1) ==? ' '
@@ -2749,6 +2968,7 @@ function! dn#util#wrap(msg, ...) abort
         endif
         let l:first_line = v:false
     endwhile
+    return join(l:wrapped, "\n")
 endfunction
 " }}}1
 

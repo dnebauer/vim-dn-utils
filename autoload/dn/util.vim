@@ -1093,9 +1093,12 @@ function! dn#util#echoWrap(msg, ...) abort
 
     " wrap message
     let l:wrapped = dn#util#wrap(l:msg, l:width, l:hang)
-    for l:line in split(l:wrapped, "\n")
-        echomsg l:line
-    endfor
+    let l:lines = split(l:wrapped, '\n', 1)
+    " - replace '' with ' ' otherwise echomsg discards value
+    call map(l:lines, {_, val -> empty(val) ? ' ' : val})
+
+    " display message
+    for l:line in l:lines | echomsg l:line | endfor
 endfunction
 
 " dn#util#entitise(string)    {{{1

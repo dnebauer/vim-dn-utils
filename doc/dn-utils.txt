@@ -271,7 +271,7 @@ String manipulation
   * |dn#util#padRight()|          right pad string
   * |dn#util#substitute()|        perform global substitution in file
   * |dn#util#changeHeaderCaps()|  changes capitalisation of selection
-  * |dn#util#fmt()|               wrap string(s) using fmt utilty
+  * |dn#util#wrap()|              wrap string sensibly
 
 Numbers
   * |dn#util#validPosInt()|       check whether input is valid positive int
@@ -359,13 +359,28 @@ dn#util#deentitise({string})                            *dn#util#deentitise()*
   characters: "&quot;" to """, "&apos;" to "'", "&lt;" to "<", "&gt;" to ">",
   and "&amp;" to "&". Returns the altered {string}.
 
-dn#util#echoWrap({msg}, [hang])                           *dn#util#echoWrap()*
+dn#util#echoWrap({msg}, [hang], [width])                  *dn#util#echoWrap()*
   Echoes text but wraps it sensibly. A hanging indent (which applies to all
   output lines except the first) can be applied, in which case the size of the
-  indent is specified with [hang].
+  indent is specified with [hang].  It must be a positive |Number|. If it is
+  set to zero there is no hanging indent. The window width must be greater
+  than than the hanging indent by at least ten. The window width can be
+  determined using:
+>
+<
+  windwidth(0) - 1 < If no hang is specified, this function first attempts to
+  wrap the message string using the system utility "fmt". (This is a utility
+  which is found on all *nix systems as a core utility, and there are versions
+  available for other operating systems. Although primarily intended for
+  formatting C/C++, it does a good job of wrapping plain text.)
+
+  If "fmt" is unavailable or unable to wrap the message string, this function
+  performs the wrapping itself.
+  [width] is 79 if omitted.
   [hang] is 0 if omitted.
-  Throws ERROR(BadHang) if the hanging indent size is not a number
+  Throws ERROR(BadHang) if the hanging indent size is not a positive number
   Throws ERROR(BadMsg) if message is not a string
+  Throws ERROR(BadWidth) if width is not a positive number
   Throws ERROR(BigHang) if width is not at least 10 greater than hanging
   indent size
 
@@ -414,32 +429,6 @@ dn#util#fileExists({filepath})                          *dn#util#fileExists()*
 
 dn#util#filetypes()                                      *dn#util#filetypes()*
   Get |List| of available |filetypes|.
-
-dn#util#fmt({message}, [width])                                *dn#util#fmt()*
-  Processes a message string or strings through "fmt". This is a utility which
-  is found on all *nix systems as a core utility, and there are versions
-  available for other operating systems. The "fmt" utility is primarily
-  intended for formatting C/C++ and has been extended to other languages. It
-  does a good job of wrapping plain text, hence its use in this function.
-
-  The {message} string can be a single |string| or a |List| of strings. Any of
-  these strings may contain newline characters. The return value matches the
-  type of message variable provided: string or List.
-
-  The maximum [width] of the wrapped string must be at least 10 (with one
-  exception covered in the next paragraph). Any lesser value is silently
-  converted to 10. Note that the standard "fmt" utilty on *nix systems strives
-  for a goal width of 93% of the maximum width provided.
-
-  A special width value is 0, which is allowed. It means no wrapping is done
-  and the message is returned unchanged.
-  [width] is 79 if omitted.
-  Throws ERROR(BadMsg) if message type is not a string or List
-  Throws ERROR(BadWidth) if width is not a number
-  Throws ERROR(DeleteFail) if unable to delete a temporary file
-  Throws ERROR(FmtError) if 'fmt' exits with an error code
-  Throws ERROR(NoFmt) if unable to locate the 'fmt' utility
-  Throws ERROR(WriteFail) if unable to write a temporary file
 
 dn#util#getFilePath()                                  *dn#util#getFilePath()*
   Get filepath of file being edited.
@@ -858,24 +847,36 @@ dn#util#warn({message})                                       *dn#util#warn()*
   are displayed sequentially using |echomsg|, to ensure they are saved in the
   |message-history|, using error highlighting (see |hl-ErrorMsg|).
 
-dn#util#wrap({message}, [wrap], [hang], [width])              *dn#util#wrap()*
-  Wraps a {message} string sensibly at [wrap] columns. A width of 0 means the
-  string is not wrapped and is returned unchanged. A hanging indent (which
-  applies to all output lines except the first) can be applied, in which case
-  the size of the indent is specified with [hang]. A hanging indent of 0
+dn#util#wrap({message}, [width], [hang])                      *dn#util#wrap()*
+  Wraps a {message} string sensibly at [width] columns.
+
+  The message must be of type |String| and can contain newlines. It can be
+  zero-length.
+
+  The width must be a positive |Number|. If it is set to zero the message
+  string is returned without alteration. If it is less than ten (and not
+  zero), it is set to ten. To set the wrap width of the wrapped string to the
+  width of the current window, set the width value to:
+>
+<
+  windwidth(0) - 1 < The hang parameter is the size of the hanging indent in
+  spaces. It must be a positive |Number|. If it is set to zero there is no
+  hanging indent. The wrap width must be greater than than the hanging indent
+  by at least ten.
 
   If no hang is specified, this function first attempts to wrap the message
   string using the system utility "fmt". (This is a utility which is found on
   all *nix systems as a core utility, and there are versions available for
   other operating systems. Although primarily intended for formatting C/C++,
-  it does a good job of wrapping plain text.) If "fmt" is unavailable or
-  unable to wrap the message string, this function performs the wrapping
-  itself.
-  [width] is 0 if omitted.
+  it does a good job of wrapping plain text.)
+
+  If "fmt" is unavailable or unable to wrap the message string, this function
+  performs the wrapping itself.
+  [width] is 79 if omitted.
   [hang] is 0 if omitted.
-  Throws ERROR(BadHang) if the hanging indent size is not a number
+  Throws ERROR(BadHang) if the hanging indent size is not a positive number
   Throws ERROR(BadMsg) if message is not a string
-  Throws ERROR(BadWidth) if width is not a number
+  Throws ERROR(BadWidth) if width is not a positive number
   Throws ERROR(BigHang) if width is not at least 10 greater than hanging
   indent size
 

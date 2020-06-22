@@ -103,7 +103,6 @@ set cpoptions&vim
 "   * @function(dn#util#padRight)          right pad string               
 "   * @function(dn#util#substitute)        perform global substitution in file
 "   * @function(dn#util#changeHeaderCaps)  changes capitalisation of selection
-"   * @function(dn#util#fmt)               wrap string(s) using fmt utilty
 "   * @function(dn#util#wrap)              wrap string sensibly
 " 
 " Numbers
@@ -543,6 +542,252 @@ function! s:yearDoomsday(year) abort
     let l:century_doomsday = s:centuryDoomsday(a:year)
     return (l:P + l:Q + l:R + l:century_doomsday) % 7
 endfunction
+
+" s:wrapFmt(message[, width])    {{{1
+
+""
+" @private
+" Processes a message string through "fmt". This is a utility which is found
+" on all *nix systems as a core utility, and there are versions available for
+" other operating systems. The "fmt" utility is primarily intended for
+" formatting C/C++ and has been extended to other languages. It does a good
+" job of wrapping plain text, hence its use in this function.
+"
+" The {message} may contain newline characters.
+"
+" The maximum [width] of the wrapped string must be at least 10 (with one
+" exception covered in the next paragraph). Any lesser value is silently
+" converted to 10. Note that the standard "fmt" utilty on *nix systems strives
+" for a goal width of 93% of the maximum width provided.
+"
+" A special width value is 0, which is allowed. It means no wrapping is done
+" and the message is returned unchanged.
+" @default width=79
+" @throws BadMsg if message type is not a string or List
+" @throws BadWidth if width is not a positive number
+" @throws DeleteFail if unable to delete a temporary file
+" @throws FmtError if 'fmt' exits with an error code
+" @throws NoFmt if unable to locate the 'fmt' utility
+" @throws WriteFail if unable to write a temporary file
+function! s:wrapFmt(msg, ...) abort
+    " check parameters
+    let l:params = extend([a:msg], a:000)
+    try   | let [l:msg, l:width, l:hang] = s:wrapParams(l:params)
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
+    if empty(l:msg) || l:width == 0 | return a:msg | endif
+    " - convert to List
+    unlet l:msg
+    let l:msg = split(a:msg, "\n")
+
+    " write message to file
+    let l:msg_file = tempname()
+    let l:result = writefile(l:msg, l:msg_file)
+    let l:err = 'ERROR(WriteFail): Unable to write temp file: ' . l:msg_file
+    if l:result == -1 | throw l:err | endif
+
+    " process file with 'fmt' utility
+    let l:err = "ERROR(NoFmt): Unable to locate 'fmt' utility on system"
+    if !executable('fmt') | throw l:err | endif
+    let l:prefix = 'dn-util: '
+    let l:cmd = 'fmt --width=' . l:width . ' ' . l:msg_file
+    if exists('l:wrapped') | unlet l:wrapped | endif
+    let l:wrapped = systemlist(l:cmd)
+    if v:shell_error
+        echoerr l:prefix . "unable to use 'fmt' to format message string"
+        if len(l:wrapped) > 0
+            echoerr l:prefix . 'error message:'
+            for l:line in l:wrapped | echoerr '  ' . l:line | endfor
+        endif
+        throw "ERROR(FmtError): 'fmt' failed with errcode " . v:shell_error
+    endif  " v:shell_error
+
+    " clean up
+    let l:return = delete(l:msg_file)
+    let l:err = 'ERROR(DeleteFail): Unable to delete temp file: ' . l:msg_file
+    if l:return == -1 | throw l:err | endif
+
+    " return wrapped text
+    return join(l:wrapped, "\n")
+endfunction
+
+" s:wrapManual(message[, width[, hang]])    {{{1
+
+""
+" @private
+" Wraps a {message} string sensibly at [width] columns.
+"
+" The message must be of type |String| and can contain newlines. It can be
+" zero-length.
+"
+" The width must be a positive |Number|. If it is set to zero the message
+" string is returned without alteration. If it is less than ten (and not
+" zero), it is set to ten.
+"
+" The hang parameter is the size of the hanging indent in spaces. It must be a
+" positive |Number|. If it is set to zero there is no hanging indent. The wrap
+" width must be greater than than the hanging indent by at least ten.
+" @default width=79
+" @default hang=0
+" @throws BadHang if the hanging indent size is not a positive number
+" @throws BadMsg if message is not a string
+" @throws BadWidth if width is not a positive number
+" @throws BigHang if width is not at least 10 greater than hanging indent size
+function! s:wrapManual(msg, ...) abort
+    " check parameters
+    let l:params = extend([a:msg], a:000)
+    try   | let [l:msg, l:width, l:hang] = s:wrapParams(l:params)
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
+    if empty(l:msg) || l:width == 0 | return a:msg | endif
+    let l:hanging_indent = repeat(' ', l:hang)
+
+    " respect multiple newlines, but not single newlines
+    let l:msg = substitute(l:msg, ' \+\n', '\n', 'g')
+    let l:msg = substitute(l:msg, '\n', '', 'g')
+    let l:msg = substitute(l:msg, '\([^]\)\([^]\)', '\1 \2', 'g')
+    let l:msg = substitute(l:msg, '', '\n', 'g')
+
+    " wrap string manually
+    let l:wrapped = []
+    let l:lines = split(l:msg, '\n', 1)
+    for l:line in l:lines
+        " cater for empty lines
+        if empty(l:line) | call add(l:wrapped, '') | continue | endif
+        " process line
+        while l:line !=? ''
+            " exit on last output line
+            if len(l:line) <= l:width
+                call add(l:wrapped, l:line)
+                break
+            endif
+            " find wrap point
+            let l:break = -1 | let l:count = 1 | let l:done = v:false
+            while !l:done
+                let l:index = match(l:line, '[!@*\-+;:,./?\\ \t]', '', l:count)
+                if     l:index == -1     | let l:done = v:true
+                elseif l:index < l:width | let l:break = l:index
+                endif
+                let l:count += 1
+            endwhile
+            " if no wrap point then have ugly situation where no breakpoint
+            " exists so just output whole thing (ick!)
+            if l:break == -1 | call add(l:wrapped, l:line) | break | endif
+            " let's wrap!
+            let l:break += 1
+            let l:output = strpart(l:line, 0, l:break)
+            call add(l:wrapped, l:output)
+            let l:line = strpart(l:line, l:break)
+            " - if broke line on punctuation mark may now have leading space
+            if strpart(l:line, 0, 1) ==? ' '
+                let l:line = strpart(l:line, 1)
+            endif
+            " - add hanging indent to all subsequent lines
+            let l:line = l:hanging_indent . l:line
+        endwhile
+    endfor
+    return join(l:wrapped, "\n")
+endfunction
+
+" s:wrapParams(parameters)    {{{1
+
+""
+" @private
+" Processes {parameters} |List| for the wrap-related functions
+" @function(s:wrapFmt), @function(s:wrapManual), and @function(dn#util#wrap).
+" There may be one, two, or three parameters provided. They are, in order:
+" * message - message string (required, but can be zero-length)
+" * width - wrap width (optional, default=79)
+" * hang - size/length of hanging indent (optional, default=0).
+"
+" The parameter value(s) are checked and altered if necessary. If an optional
+" parameter value is not provided, the default value is used.
+"
+" This function always returns a three-element |List|:
+" * message - the input string, unaltered
+" * width - integer, adjusted from the input value if necessary
+" * hang - size/length of the hanging indent.
+"
+" The message must be of type |String| and can contain newlines. It can be
+" zero-length.
+"
+" The width is the column at which to wrap text. It must be a positive
+" |Number|. If it is set to zero the message string is returned without
+" alteration. If it is less than ten (and not zero), it is set to ten.
+"
+" The hang parameter is the size of the hanging indent in spaces. It must be a
+" positive |Number|. If it is set to zero there is no hanging indent. If the
+" wrap width must be at least ten greater than the hanging indent.
+" @default width=79
+" @default hang=0
+" @throws BadHang if the hanging indent size is not a positive number
+" @throws BadMsg if message is not a string
+" @throws BadWidth if width is not a positive number
+" @throws BigHang if width is not at least 10 greater than hanging indent size
+function! s:wrapParams(params) abort
+    let l:ret_val = ''
+
+    " message
+    " - must have value
+    let l:err = 'ERROR(BadMsg): No message provided'
+    if empty(a:params) | throw l:err | endif
+    " - must be a string
+    let l:var = a:params[0]
+    let l:type = dn#util#varType(l:var)
+    let l:err = 'ERROR(BadMsg): Need string, got ' . l:type
+    if type(l:var) != type('') | throw l:err | endif
+    let l:msg = l:var
+
+    " width
+    let l:width = 79
+    if len(a:params) > 1
+        let l:var = a:params[1]
+        let l:type = dn#util#varType(l:var)
+        " check for number formatted as string
+        if type(l:var) == type('')
+            if str2nr(l:var) > 0 | let l:width = str2nr(l:var)
+            else | throw 'ERROR(BadWidth): Need numeric width, got string'
+            endif
+        " handle non-numeric values
+        elseif !((type(l:var) == type(0)) || (type(l:var) == type(0.0)))
+            throw 'ERROR(BadWidth): Need numeric width, got ' . l:type
+        " handle numbers
+        else | let l:width = float2nr(l:var)
+        endif
+    endif
+    " - cannot be negative
+    let l:err = 'ERROR(BadWidth): Wrap width cannot be negative'
+    if l:width < 0 | throw l:err | endif
+    " - minimum width of 10
+    if l:width < 10 && l:width != 0 | let l:width = 10 | endif
+
+    " hang parameter
+    let l:hang = 0
+    if len(a:params) > 2
+        let l:var = a:params[2]
+        let l:type = dn#util#varType(l:var)
+        " check for number formatted as string
+        if type(l:var) == type('')
+            if str2nr(l:var) > 0 | let l:hang = str2nr(l:var)
+            else | throw 'ERROR(BadHang): Need numeric indent, got string'
+            endif
+        " handle non-numeric values
+        elseif !((type(l:var) == type(0)) || (type(l:var) == type(0.0)))
+            throw 'ERROR(BadHang): Need numeric indent, got ' . l:type
+        " handle numbers
+        else | let l:hang = float2nr(l:var)
+        endif
+    endif
+    " - cannot be negative
+    let l:err = 'ERROR(BadHang): Hanging indent cannot be negative'
+    if l:hang < 0 | throw l:err | endif
+    " - width must be at least 10 greater than hang
+    let l:err = 'ERROR(BigHang): Need width at least 10 larger than indent' 
+    if (l:width - l:hang) < 10 | throw l:err | endif
+
+    " return parameter values
+    return [l:msg, l:width, l:hang]
+endfunction
 " }}}1
 
 " Private functions
@@ -815,43 +1060,39 @@ endfunction
 " @public
 " Echoes text but wraps it sensibly. A hanging indent (which applies to all
 " output lines except the first) can be applied, in which case the size of the
-" indent is specified with [hang].
+" indent is specified with [hang].  It must be a positive |Number|. If it is
+" set to zero there is no hanging indent. The window width must be greater
+" than than the hanging indent by at least ten. The window width can be
+" determined using:
+" >
+" windwidth(0) - 1
+" <
+" If no hang is specified, this function first attempts to wrap the message
+" string using the system utility "fmt". (This is a utility which is found on
+" all *nix systems as a core utility, and there are versions available for
+" other operating systems. Although primarily intended for formatting C/C++,
+" it does a good job of wrapping plain text.)
+"
+" If "fmt" is unavailable or unable to wrap the message string, this function
+" performs the wrapping itself.
+" @default width=79
 " @default hang=0
-" @throws BadHang if the hanging indent size is not a number
+" @throws BadHang if the hanging indent size is not a positive number
 " @throws BadMsg if message is not a string
+" @throws BadWidth if width is not a positive number
 " @throws BigHang if width is not at least 10 greater than hanging indent size
 function! dn#util#echoWrap(msg, ...) abort
-    " check message input
-    " - must be a string
-    let l:type = dn#util#varType(a:msg)
-    let l:err = 'ERROR(BadMsg): Need string, got ' . l:type
-    if type(a:msg) != type('') | throw l:err | endif
-    " - deal with simple case of no input
-    if empty(a:msg) | return a:msg | endif
-    let l:msg = a:msg
-
-    " check hanging indent
+    " check parameters
     let l:width = winwidth(0) - 1
-    let l:hang_size = 0
-    if a:0 > 0
-        let l:type = dn#util#varType(a:1)
-        " check for number formatted as string
-        if type(a:1) == type('')
-            if str2nr(a:1) > 0 | let l:hang_size = str2nr(a:1)
-            else | throw 'ERROR(BadHang): Need numeric indent, got string'
-            endif
-        " handle non-numeric values
-        elseif !((type(a:1) == type(0)) || (type(a:1) == type(0.0)))
-            throw 'ERROR(BadHang): Need numeric indent, got ' . l:type
-        " handle numbers
-        else | let l:hang_size = float2nr(a:1)
-        endif
-    endif
-    let l:err = 'ERROR(BigHang): Need width at least 10 larger than indent' 
-    if (l:width - l:hang_size) < 10 | throw l:err | endif
+    let l:params = extend([a:msg, l:width], a:000)
+    try   | let [l:msg, l:width, l:hang] = s:wrapParams(l:params)
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
+    if empty(l:msg) | return a:msg | endif
+    let l:width = winwidth(0) - 1
 
     " wrap message
-    let l:wrapped = dn#util#wrap(l:msg, l:width, l:hang_size)
+    let l:wrapped = dn#util#wrap(l:msg, l:width, l:hang)
     for l:line in split(l:wrapped, "\n")
         echomsg l:line
     endfor
@@ -983,101 +1224,6 @@ function! dn#util#filetypes() abort
     endfor
     " remove duplicates
     return uniq(sort(l:filetypes))
-endfunction
-
-" dn#util#fmt(message[, width])    {{{1
-
-""
-" @public
-" Processes a message string or strings through "fmt". This is a utility which
-" is found on all *nix systems as a core utility, and there are versions
-" available for other operating systems. The "fmt" utility is primarily
-" intended for formatting C/C++ and has been extended to other languages. It
-" does a good job of wrapping plain text, hence its use in this function.
-"
-" The {message} string can be a single |string| or a |List| of strings. Any of
-" these strings may contain newline characters. The return value matches the
-" type of message variable provided: string or List.
-"
-" The maximum [width] of the wrapped string must be at least 10 (with one
-" exception covered in the next paragraph). Any lesser value is silently
-" converted to 10. Note that the standard "fmt" utilty on *nix systems strives
-" for a goal width of 93% of the maximum width provided.
-"
-" A special width value is 0, which is allowed. It means no wrapping is done
-" and the message is returned unchanged.
-" @default width=79
-" @throws BadMsg if message type is not a string or List
-" @throws BadWidth if width is not a number
-" @throws DeleteFail if unable to delete a temporary file
-" @throws FmtError if 'fmt' exits with an error code
-" @throws NoFmt if unable to locate the 'fmt' utility
-" @throws WriteFail if unable to write a temporary file
-function! dn#util#fmt(msg, ...) abort
-    " check message input
-    " - must be valid variable type
-    " - while checking standardise message to a List
-    let l:type = dn#util#varType(a:msg)
-    if     type(a:msg) == type('') | let l:msg = split(a:msg, "\n")
-    elseif type(a:msg) == type([]) | let l:msg = a:msg[:]
-    else | throw 'ERROR(BadMsg): Need string or List message, got ' . l:type
-    endif
-    " - deal with simple case of no input
-    if empty(l:msg) | return a:msg | endif
-
-    " check width
-    let l:width = 79
-    if a:0 > 0
-        let l:type = dn#util#varType(a:1)
-        " check for number formatted as string
-        if type(a:1) == type('')
-            if str2nr(a:1) > 0 | let l:width = str2nr(a:1)
-            else | throw 'ERROR(BadWidth): Need numeric width, got string'
-            endif
-        " handle non-numeric values
-        elseif !((type(a:1) == type(0)) || (type(a:1) == type(0.0)))
-            throw 'ERROR(BadWidth): Need numeric width, got ' . l:type
-        " handle numbers
-        else | let l:width = float2nr(a:1)
-        endif
-    endif
-    " - handle 0 value
-    if l:width == 0 | return a:msg | endif
-    " - minimum width of 10
-    if l:width < 10 | let l:width = 10 | endif
-
-    " write message to file
-    let l:msg_file = tempname()
-    let l:result = writefile(l:msg, l:msg_file)
-    let l:err = 'ERROR(WriteFail): Unable to write temp file: ' . l:msg_file
-    if l:result == -1 | throw l:err | endif
-
-    " process file with 'fmt' utility
-    let l:err = "ERROR(NoFmt): Unable to locate 'fmt' utility on system"
-    if !executable('fmt') | throw l:err | endif
-    let l:prefix = 'dn-util: '
-    let l:cmd = 'fmt --width=' . l:width . ' ' . l:msg_file
-    if exists('l:wrapped') | unlet l:wrapped | endif
-    let l:wrapped = systemlist(l:cmd)
-    if v:shell_error
-        echoerr l:prefix . "unable to use 'fmt' to format message string"
-        if len(l:wrapped) > 0
-            echoerr l:prefix . 'error message:'
-            for l:line in l:wrapped | echoerr '  ' . l:line | endfor
-        endif
-        throw "ERROR(FmtError): 'fmt' failed with errcode " . v:shell_error
-    endif  " v:shell_error
-
-    " clean up
-    let l:return = delete(l:msg_file)
-    let l:err = 'ERROR(DeleteFail): Unable to delete temp file: ' . l:msg_file
-    if l:return == -1 | throw l:err | endif
-
-    " return wrapped text
-    " - due to earlier checks a:msg can only be string or List
-    if   type(a:msg) == type('') | return join(l:wrapped, "\n")
-    else                         | return l:wrapped[:]
-    endif
 endfunction
 
 " dn#util#getFilePath()    {{{1
@@ -2850,125 +2996,55 @@ endfunction
 
 ""
 " @public
-" Wraps a {message} string sensibly at [wrap] columns. A width of 0 means the
-" string is not wrapped and is returned unchanged. A hanging indent (which
-" applies to all output lines except the first) can be applied, in which case
-" the size of the indent is specified with [hang]. A hanging indent of 0 
+" Wraps a {message} string sensibly at [width] columns.
+"
+" The message must be of type |String| and can contain newlines. It can be
+" zero-length.
+"
+" The width must be a positive |Number|. If it is set to zero the message
+" string is returned without alteration. If it is less than ten (and not
+" zero), it is set to ten. To set the wrap width of the wrapped
+" string to the width of the current window, set the width value to:
+" >
+" windwidth(0) - 1
+" <
+" The hang parameter is the size of the hanging indent in spaces. It must be a
+" positive |Number|. If it is set to zero there is no hanging indent. The wrap
+" width must be greater than than the hanging indent by at least ten.
 "
 " If no hang is specified, this function first attempts to wrap the message
 " string using the system utility "fmt". (This is a utility which is found on
 " all *nix systems as a core utility, and there are versions available for
 " other operating systems. Although primarily intended for formatting C/C++,
-" it does a good job of wrapping plain text.) If "fmt" is unavailable or
-" unable to wrap the message string, this function performs the wrapping
-" itself.
-" @default width=0
+" it does a good job of wrapping plain text.)
+"
+" If "fmt" is unavailable or unable to wrap the message string, this function
+" performs the wrapping itself.
+" @default width=79
 " @default hang=0
-" @throws BadHang if the hanging indent size is not a number
+" @throws BadHang if the hanging indent size is not a positive number
 " @throws BadMsg if message is not a string
-" @throws BadWidth if width is not a number
+" @throws BadWidth if width is not a positive number
 " @throws BigHang if width is not at least 10 greater than hanging indent size
 function! dn#util#wrap(msg, ...) abort
-    " check message input
-    " - must be a string
-    let l:type = dn#util#varType(a:msg)
-    let l:err = 'ERROR(BadMsg): Need string, got ' . l:type
-    if type(a:msg) != type('') | throw l:err | endif
-    " - deal with simple case of no input
-    if empty(a:msg) | return a:msg | endif
-    let l:msg = a:msg
-
-    " check width
-    let l:width = 0
-    if a:0 > 0
-        let l:type = dn#util#varType(a:1)
-        " check for number formatted as string
-        if type(a:1) == type('')
-            if str2nr(a:1) > 0 | let l:width = str2nr(a:1)
-            else | throw 'ERROR(BadWidth): Need numeric width, got string'
-            endif
-        " handle non-numeric values
-        elseif !((type(a:1) == type(0)) || (type(a:1) == type(0.0)))
-            throw 'ERROR(BadWidth): Need numeric width, got ' . l:type
-        " handle numbers
-        else | let l:width = float2nr(a:1)
-        endif
-    endif
-    " - handle 0 value
-    if l:width == 0 | return l:msg | endif
-    " - minimum width of 10
-    if l:width < 10 | let l:width = 10 | endif
-
-    " check hanging indent
-    let l:hang_size = 0
-    if a:0 > 1
-        let l:type = dn#util#varType(a:2)
-        " check for number formatted as string
-        if type(a:2) == type('')
-            if str2nr(a:2) > 0 | let l:hang_size = str2nr(a:2)
-            else | throw 'ERROR(BadHang): Need numeric indent, got string'
-            endif
-        " handle non-numeric values
-        elseif !((type(a:2) == type(0)) || (type(a:2) == type(0.0)))
-            throw 'ERROR(BadHang): Need numeric indent, got ' . l:type
-        " handle numbers
-        else | let l:hang_size = float2nr(a:2)
-        endif
-    endif
-    let l:err = 'ERROR(BigHang): Need width at least 10 larger than indent' 
-    if (l:width - l:hang_size) < 10 | throw l:err | endif
-    let l:hang_indent = ''
-    while l:hang_size > 0
-        let l:hang_indent .= ' '
-        let l:hang_size -= 1
-    endwhile
+    " check parameters
+    let l:params = extend([a:msg], a:000)
+    try   | let [l:msg, l:width, l:hang] = s:wrapParams(l:params)
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
+    if empty(l:msg) || l:width == 0 | return a:msg | endif
 
     " try to wrap using fmt if no hanging indent
-    if empty(l:hang_indent)
-        try   | return dn#util#fmt(l:msg, l:width)
+    if l:hang == 0
+        try   | return s:wrapFmt(l:msg, l:width)
         catch | " suppress error
         endtry
     endif
 
     " fall back to manual wrapping
-    let l:wrapped = []
-    let l:first_line = v:true
-    while l:msg !=? ''
-        " exit on last output line
-        if len(l:msg) <= l:width
-            if !l:first_line
-                let l:msg = l:hang_indent . l:msg
-            endif
-            call add(l:wrapped, l:msg)
-            break
-        endif
-        " find wrap point
-        let l:break = -1 | let l:count = 1 | let l:done = v:false
-        while !l:done
-            let l:index = match(l:msg, '[!@*\-+;:,./?\\ \t]', '', l:count)
-            if     l:index == -1     | let l:done = v:true
-            elseif l:index < l:width | let l:break = l:index
-            endif
-            let l:count += 1
-        endwhile
-        " if no wrap point then have ugly situation where no breakpoint
-        " exists so just output whole thing (ick!)
-        if l:break == -1 | call add(l:wrapped, l:msg) | break | endif
-        " let's wrap!
-        let l:break += 1
-        let l:output = strpart(l:msg, 0, l:break)
-        if !l:first_line
-            let l:output = l:hang_indent . l:output
-        endif
-        call add(l:wrapped, l:output)
-        let l:msg = strpart(l:msg, l:break)
-        " - if broke line on punctuation mark may now have leading space
-        if strpart(l:msg, 0, 1) ==? ' '
-            let l:msg = strpart(l:msg, 1)
-        endif
-        let l:first_line = v:false
-    endwhile
-    return join(l:wrapped, "\n")
+    try   | return s:wrapManual(l:msg, l:width, l:hang)
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
 endfunction
 " }}}1
 

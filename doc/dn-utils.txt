@@ -368,7 +368,7 @@ dn#util#echoWrap({msg}, [hang], [width])                  *dn#util#echoWrap()*
   determined using:
 >
 <
-  windwidth(0) - 1 < If no hang is specified, this function first attempts to
+  winwidth(0) - 1 < If no hang is specified, this function first attempts to
   wrap the message string using the system utility "fmt". (This is a utility
   which is found on all *nix systems as a core utility, and there are versions
   available for other operating systems. Although primarily intended for
@@ -603,6 +603,12 @@ dn#util#menuAddOption({menu}, {option}, [return_value])
 
   The {menu} variable is edited in place. The function does not return any
   value. Error messages are displayed if invalid arguments are provided.
+  Throws ERROR(SimpleTypeBadArgs) if other than a single argument provided
+  Throws ERROR(SubmenuBadArgs) if other than a single argument is provided
+  Throws ERROR(BadArgCount) if other than 2 or 3 arguments are provided
+  Throws ERROR(BadMenuVar) if the menu variable is of the wrong type
+  Throws ERROR(BadMenuOpt) if the menu option is of the wrong type
+  Throws ERROR(BadMenuRetVal) if the return value is of the wrong type
 
 dn#util#menuAddSubmenu({menu}, {header}, {submenu}) *dn#util#menuAddSubmenu()*
   Add {submenu} to a {menu} intended for use with |dn#util#menuSelect()|. The
@@ -612,6 +618,14 @@ dn#util#menuAddSubmenu({menu}, {header}, {submenu}) *dn#util#menuAddSubmenu()*
 
   The {menu} variable is edited in place. The function does not return any
   value. Error messages are displayed if invalid arguments are provided.
+  Throws ERROR(SimpleTypeBadArgs) if other than a single argument provided
+  Throws ERROR(SubmenuBadArgs) if other than a single argument is provided
+  Throws ERROR(AddSubmenuNoSubmenu) if no submenu provided
+  Throws ERROR(AddSubmenuNoHeader) if no header provided
+  Throws ERROR(AddSubmenuNoMenu) if no menu provided
+  Throws ERROR(AddSubmenuBadSubmenu) if an invalid submenu is provided
+  Throws ERROR(AddSubmenuBadHeader) if an invalid header is provided
+  Throws ERROR(AddSubmenuBadMenu) if an invalid menu is provided
 
 dn#util#menuSelect({menu}, [prompt], [preamble])        *dn#util#menuSelect()*
   Select an option from a multi-level |List| or |Dict| {menu}.
@@ -631,8 +645,7 @@ dn#util#menuSelect({menu}, [prompt], [preamble])        *dn#util#menuSelect()*
   The selected menu option (or its associated value) is returned, with ""
   indicating no item was selected. This means it is possible to provide an
   empty menu item which can be selected and returned, and there is no way to
-  distinguish this from a cancelled selection.  @default prompt='Select an
-  option:'
+  distinguish this from a cancelled selection.
 
   In the following discussion a "simple" menu is one without any submenus, and
   "simple" variables are |String|, |Number|, |Float|, boolean (|v:true| or
@@ -668,6 +681,13 @@ dn#util#menuSelect({menu}, [prompt], [preamble])        *dn#util#menuSelect()*
   "top-down" menu construction.
   [prompt] is 'Select an option:' if omitted.
   [preamble] is [] if omitted.
+  Throws ERROR(BadItem) if the menu item is not a valid data type
+  Throws ERROR(BadMenu) if menu is neither List nor Dict
+  Throws ERROR(MenuTypeBadArgs) if other than a single argument is provided
+  Throws ERROR(MultiDictEntries) if multiple entries in dict menu option
+  Throws ERROR(NoItems) if menu has no items
+  Throws ERROR(SimpleTypeBadArgs) if other than a single argument provided
+  Throws ERROR(SubmenuBadArgs) if other than a single argument is provided
 
 dn#util#nowDay()                                            *dn#util#nowDay()*
   Get integer number of current day in the current month. There is no leading
@@ -859,7 +879,7 @@ dn#util#wrap({message}, [width], [hang])                      *dn#util#wrap()*
   width of the current window, set the width value to:
 >
 <
-  windwidth(0) - 1 < The hang parameter is the size of the hanging indent in
+  winwidth(0) - 1 < The hang parameter is the size of the hanging indent in
   spaces. It must be a positive |Number|. If it is set to zero there is no
   hanging indent. The wrap width must be greater than than the hanging indent
   by at least ten.

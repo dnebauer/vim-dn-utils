@@ -330,6 +330,183 @@ function! s:listifyMsg(var) abort
     return l:items
 endfunction
 
+" s:menuNormalise(menu)    {{{1
+
+""
+" @private
+" This is a helper function for @function(dn#util#menuSelect). That function
+" receives a multi-level |List| or |Dict| {menu} variable.
+"
+" In the following discussion a "simple" menu is one without any submenus, and
+" "simple" variables are |String|, |Number|, |Float|, boolean (|v:true| or
+" |v:false|), and null (|v:null|). A "simple" List has elements which are all
+" either simple variables or single key-value Dicts whose values are also
+" simple variables. A "simple" Dict has values which are all simple variables.
+"
+" Both List and Dict menus can contain submenus. In a Dict a submenu is a new
+" key-value pair in the parent menu where the key is a submenu header and the
+" value is a List or Dict defining the new submenu options. The situation is
+" more complicated for a List menu: the submenu is defined by three elements:
+" * a submenu token "__!_SUBMENU_!_TOKEN_!__" (String)
+" * the submenu header (String)
+" * the submenu itself (List or Dict).
+"
+" A single menu can contain a mixture of List and Dict elements.
+"
+" This function normalises the menu structure so that the menu variable is a
+" List and all menu, i.e., List, elements are a single key-pair Dict. In this
+" schema all submenus are a Dict value (with the corresponding Dict key being
+" the submenu header). The submenu itself is a List, each of whose elements
+" contains a single key-pair Dict, and so on.
+"
+" Dict (sub)menus have an undefined order. This function uses vim's standard
+" |sort()| function to order them by the Dict keys. List menus retain their
+" order.
+" @throws BadItem if the menu item is not a valid data type
+" @throws BadMenu if menu is neither List nor Dict
+" @throws MenuTypeBadArgs if other than a single argument is provided
+" @throws NoItems if menu has no items
+" @throws SimpleTypeBadArgs if other than a single argument provided
+" @throws SubmenuBadArgs if other than a single argument is provided
+function! s:menuNormalise(menu) abort
+    let l:menu = []
+    " set menu type
+    if     type(a:menu) == type([]) | let l:menu_type = 'list'
+    elseif type(a:menu) == type({}) | let l:menu_type = 'dict'
+    else | throw 'ERROR(BadMenu): Parent menu must be List or Dict'
+    endif
+    " - check that menu items are provided
+    let l:err = 'ERROR(NoItems): Menu has no items'
+    if len(a:menu) == 0 | throw l:err | endif
+    " process items
+    let l:state = (l:menu_type ==# 'list') ? 'list_expecting-option'
+                \                          : 'dict_expecting-option'
+    let l:items = (l:menu_type ==# 'list') ? deepcopy(a:menu)
+                \                          : sort(keys(a:menu))
+    let l:submenu_header = ''
+    for l:Item in l:items
+        " what kind of item do we have?
+        let l:err = 'ERROR(BadItem): Invalid data type ' . type(l:Item)
+                    \ . ' for menu item: ' . dn#util#stringify(l:Item)
+        try
+            if     s:menuSimpleType(l:Item)  | let l:item_type = 'simple'
+            elseif s:menuSubmenuType(l:Item) | let l:item_type = 'submenu'
+            else | throw l:err
+            endif
+        catch | throw dn#util#exceptionError(v:exception)
+        endtry
+        " list menu item might be:
+        " - simple data item, which includes submenu flag
+        " - list (must be an expected submenu)
+        " - dict (might be an expected submenu)
+        " - dict (might be an option:return-value pair)
+        " - dict (might be an header:submenu pair)
+        if     l:state ==# 'list_expecting-submenu-header'
+            " - must be simple value
+            let l:err = 'ERROR(BadItem): Expecting submenu header but '
+                        \ . 'got submenu: ' . dn#util#stringify(l:Item)
+            if l:item_type !=# 'simple' | throw l:err | endif
+            let l:submenu_header = dn#util#stringify(l:Item)
+            let l:state = 'list_expecting-submenu'
+            unlet l:Item  " in case a:menu elements are of different types
+            continue
+        elseif l:state ==# 'list_expecting-submenu'
+            " - need list or dict
+            let l:err = 'ERROR(BadItem): Expecting submenu but got: '
+                        \ . dn#util#stringify(l:Item)
+            if l:item_type !=# 'submenu' | throw l:err | endif
+            try   | let l:submenu = s:menuNormalise(l:Item)
+            catch | throw dn#util#exceptionError(v:exception)
+            endtry
+            call add(l:menu, {l:submenu_header : l:submenu})
+            let l:state = 'list_expecting-option'
+            unlet l:Item  " a:menu elements may be of different types
+            continue
+        elseif l:state ==# 'list_expecting-option'
+            " can be a simple data type
+            if l:item_type ==# 'simple'
+                if l:Item ==# s:submenu_token  " submenu coming
+                    let l:state = 'list_expecting-submenu-header'
+                else  " simple menu option
+                    let l:option = dn#util#stringify(l:Item)
+                    call add(l:menu, {l:option : l:option})
+                endif
+                unlet l:Item  " a:menu elements may be of different types
+                continue
+            endif
+            " can be a single-pair dict
+            if type(l:Item) == type({})
+                " cannot be empty dict
+                let l:err = 'ERROR(BadItem): Empty dictionary item'
+                if len(l:Item) == 0 | throw l:err | endif
+                " cannot have multiple entries in dict
+                let l:count = len(l:Item)
+                let l:err = 'ERROR(BadItem): For Dict menu option expect 1 '
+                            \ . 'entry, got ' . l:count
+                if l:count > 1 | throw l:err | endif
+                " get key (option or header) and value (retval or submenu)
+                let [l:key, l:value] = items(l:Item)[0]
+                let l:option = dn#util#stringify(l:key)
+                " make sure value is a valid menu type
+                let l:err = 'ERROR(BadItem): Menu dict value is wrong type ('
+                            \ . dn#util#varType(l:value) . '): '
+                            \ . dn#util#stringify(l:value)
+                try   | if !s:menuType(l:value) | throw l:err | endif
+                catch | throw dn#util#exceptionError(v:exception)
+                endtry
+                " process submenu if necessary
+                try
+                    if s:menuSubmenuType(l:value)
+                        try   | let l:retval = s:menuNormalise(l:value)
+                        catch | throw dn#util#exceptionError(v:exception)
+                        endtry
+                    else
+                        let l:retval = dn#util#stringify(l:value)
+                    endif
+                catch | throw dn#util#exceptionError(v:exception)
+                endtry
+                " add option and return value
+                call add(l:menu, {l:option : l:retval})
+                unlet l:Item  " a:menu elements may be of different types
+                continue
+            endif
+            " if reached here then invalid menu option
+            let l:err = 'ERROR(BadItem): Invalid list menu option: '
+                        \ . dn#util#stringify(l:Item)
+            throw l:err
+        elseif l:state ==# 'dict_expecting-option'
+            " dict menu item can only be simple (it comes from a Dict key and
+            " vim won't permit otherwise) but dict return value, i.e., Dict
+            " value, can be anything, so check return value is valid
+            let l:value = a:menu[l:Item]
+            let l:err = 'ERROR(BadItem): Invalid menu dict value: '
+                        \ . dn#util#stringify(l:value)
+            try   | if !s:menuType(l:value) | throw l:err | endif
+            catch | throw dn#util#exceptionError(v:exception)
+            endtry
+            let l:option = l:Item
+            " process submenu if necessary
+            try
+                if s:menuSubmenuType(l:value)
+                    try   | let l:retval = s:menuNormalise(l:value)
+                    catch | throw dn#util#exceptionError(v:exception)
+                    endtry
+                else
+                    let l:retval = dn#util#stringify(l:value)
+                endif
+            catch | throw dn#util#exceptionError(v:exception)
+            endtry
+            " add option and return value
+            call add(l:menu, {l:option : l:retval})
+            unlet l:Item  " a:menu elements may be of different types
+            continue
+        else  " unexpected state reached (programmer error!)
+            throw 'ERROR(BadLogic): Menu reached unexpected state: ' . l:state
+        endif
+    endfor
+    return l:menu
+endfunction
+
 " s:menuSimpleType(var)    {{{1
 
 ""
@@ -338,16 +515,12 @@ endfunction
 " |Float|, |String|, boolean or null (see |type()|). Used in menu generation
 " by @function(dn#util#menuSelect) and @function(dn#util#menuAddOption).
 " Returns a bool.
+" @throws SimpleTypeBadArgs if other than a single argument provided
 function! s:menuSimpleType(...) abort
     " process parameters
-    if a:0 == 0
-        call dn#util#error('Simple type test got no variable')
-        return
-    endif
-    if a:0 > 1
-        call dn#util#error('Simple type test got multiple variables')
-        return
-    endif
+    let l:err = 'ERROR(SimpleTypeBadArgs): Simple type test '
+                \ . 'expected 1 argument, got ' . a:0
+    if a:0 == 0 || a:0 > 1 | throw l:err | endif
     let l:var = a:1
     " test var
     let l:valid_types = [type(''), type(0), type(0.0),
@@ -364,16 +537,12 @@ endfunction
 " generation by @function(dn#util#menuSelect),
 " @function(dn#util#menuAddOption) and @function(dn#util#menuAddSubmenu).
 " Returns a bool.
+" @throws SubmenuBadArgs if other than a single argument is provided
 function! s:menuSubmenuType(...) abort
     " process parameters
-    if a:0 == 0
-        call dn#util#error('Submenu type test got no variable')
-        return
-    endif
-    if a:0 > 1
-        call dn#util#error('Submenu type test got multiple variables')
-        return
-    endif
+    let l:err = 'ERROR(SubmenuBadArgs): Submenu type test '
+                \ . 'expected 1 argument, got ' . a:0
+    if a:0 == 0 || a:0 > 1 | throw l:err | endif
     let l:var = a:1
     " test var
     let l:valid_types = [type([]), type({})]
@@ -388,16 +557,12 @@ endfunction
 " Checks whether variable {var} is a simple or submenu option, i.e., number,
 " float, string, List or Dict. Used in menu generation by
 " @function(dn#util#menuSelect). Returns a bool.
+" @throws MenuTypeBadArgs if other than a single argument is provided
 function! s:menuType(...) abort
     " process parameters
-    if a:0 == 0
-        call dn#util#error('Menu type test got no variable')
-        return
-    endif
-    if a:0 > 1
-        call dn#util#error('Menu type test got multiple variables')
-        return
-    endif
+    let l:err = 'ERROR(MenuTypeBadArgs): Menu type test '
+                \ . 'expected 1 arg, got ' . a:0
+    if a:0 == 0 || a:0 > 1 | throw l:err | endif
     let l:var = a:1
     " test var
     let l:valid_types = [type(''), type(0), type(0.0), type([]), type({})]
@@ -1065,7 +1230,7 @@ endfunction
 " than than the hanging indent by at least ten. The window width can be
 " determined using:
 " >
-" windwidth(0) - 1
+" winwidth(0) - 1
 " <
 " If no hang is specified, this function first attempts to wrap the message
 " string using the system utility "fmt". (This is a utility which is found on
@@ -1985,37 +2150,36 @@ endfunction
 "
 " The {menu} variable is edited in place. The function does not return any
 " value. Error messages are displayed if invalid arguments are provided.
+" @throws SimpleTypeBadArgs if other than a single argument provided
+" @throws SubmenuBadArgs if other than a single argument is provided
+" @throws BadArgCount if other than 2 or 3 arguments are provided
+" @throws BadMenuVar if the menu variable is of the wrong type
+" @throws BadMenuOpt if the menu option is of the wrong type
+" @throws BadMenuRetVal if the return value is of the wrong type
 function! dn#util#menuAddOption(menu, option, ...) abort
     " process parameters
     " - must have 2 or 3 items (menu + option +/- retval)
-    if a:0 == 0
-        call dn#util#error('No menu to add option to')
-        return
-    endif
-    if a:0 > 3
-        call dn#util#error('Too many options to add to menu')
-        return
-    endif
-    if !s:menuSubmenuType(a:menu)
-        let l:msg = "Invalid menu variable:\n\n"
-        call dn#util#error(l:msg . dn#util#stringify(a:menu))
-        return
-    endif
-    if !s:menuSimpleType(a:option)
-        let l:msg = 'Invalid option (data type ' . type(a:option) . "):\n\n"
-        call dn#util#error(l:msg . dn#util#stringify(a:option))
-        return
-    endif
+    let l:err = 'ERROR(BadArgCount): Menu add option '
+                \ . 'expected 2 or 3 args, got ' . a:0
+    if a:0 < 2 || a:0 > 3 | throw l:err | endif
+    let l:err = "ERROR(BadMenuVar): Invalid menu variable:\n\n"
+                \ . dn#util#stringify(a:menu)
+    try   | if !s:menuSubmenuType(a:menu) | throw l:err | endif
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
+    let l:err = 'ERROR(BadMenuOpt): Option is type ' . type(a:option)
+                \ . ":\n\n" . dn#util#stringify(a:option)
+    try   | if !s:menuSimpleType(a:option) | throw l:err | endif
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
     let l:retval = (a:0 == 3) ? a:3 : a:option
-    if !s:menuSimpleType(l:retval)
-        let l:msg = 'Invalid return value (data type ' . type(l:retval)
-                    \ . "):\n\n"
-        call dn#util#error(l:msg . dn#util#stringify(l:retval))
-        return
-    endif
+    let l:err = 'ERROR(BadMenuRetVal): RetVal is type ' . type(l:retval)
+                \ . ":\n\n" . dn#util#stringify(l:retval)
+    try   | if !s:menuSimpleType(l:retval) | throw l:err | endif
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
     " add option
-    let l:item =    {}
-    let l:item[a:option] = l:retval
+    let l:item = {a:option : l:retval}
     if   type(a:menu) == type([]) | call add(a:menu, l:item)     " list
     else                          | call extend(a:menu, l:item)  " dict
     endif
@@ -2032,29 +2196,40 @@ endfunction
 "
 " The {menu} variable is edited in place. The function does not return any
 " value. Error messages are displayed if invalid arguments are provided.
+" @throws SimpleTypeBadArgs if other than a single argument provided
+" @throws SubmenuBadArgs if other than a single argument is provided
+" @throws AddSubmenuNoSubmenu if no submenu provided
+" @throws AddSubmenuNoHeader if no header provided
+" @throws AddSubmenuNoMenu if no menu provided
+" @throws AddSubmenuBadSubmenu if an invalid submenu is provided
+" @throws AddSubmenuBadHeader if an invalid header is provided
+" @throws AddSubmenuBadMenu if an invalid menu is provided
 function! dn#util#menuAddSubmenu(menu, header, submenu) abort
     " process parameters
-    if empty(a:submenu) | call dn#util#error('No submenu provided') | endif
-    if empty(a:header)  | call dn#util#error('No header provided')  | endif
-    if empty(a:submenu) | call dn#util#error('No menu provided')    | endif
-    if !s:menuSubmenuType(a:submenu)
-        let l:msg = "Invalid submenu variable:\n\n"
-        call dn#util#error(l:msg . dn#util#stringify(a:submenu))
-        return
-    endif
-    if !s:menuSimpleType(a:header)
-        let l:msg = 'Invalid header variable:' . dn#util#stringify(a:header)
-        call dn#util#error(l:msg)
-        return
-    endif
-    if !s:menuSubmenuType(a:menu)
-        let l:msg = "Invalid menu variable:\n\n"
-        call dn#util#error(l:msg . dn#util#stringify(a:menu))
-        return
-    endif
+    let l:err = 'ERROR(AddSubmenuNoSubmenu): No submenu provided'
+    if empty(a:submenu) | throw l:err | endif
+    let l:err = 'ERROR(AddSubmenuNoHeader): No header provided'
+    if empty(a:header)  | throw l:err | endif
+    let l:err = 'ERROR(AddSubmenuNoMenu): No menu provided'
+    if empty(a:submenu) | throw l:err | endif
+    let l:err = "ERROR(AddSubmenuBadSubmenu): Invalid submenu:\n\n"
+                \ . dn#util#stringify(a:submenu)
+    try   | if !s:menuSubmenuType(a:submenu) | throw l:err | endif
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
+    let l:err = "ERROR(AddSubmenuBadHeader): Invalid header:\n\n"
+                \ . dn#util#stringify(a:header)
+    try   | if !s:menuSimpleType(a:header) | throw l:err | endif
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
+    let l:err = "ERROR(AddSubmenuBadMenu): Invalid menu:\n\n"
+                \ . dn#util#stringify(a:menu)
+    try   | if !s:menuSubmenuType(a:menu) | throw l:err | endif
+    catch | throw dn#util#exceptionError(v:exception)
+    endtry
     " add submenu
     if   type(a:menu) == type([])  " list
-        let l:item = [s:submenu_token, a:header, a:submenu]
+        let l:item = [{a:header : a:submenu}]
         call extend(a:menu, l:item)
     else  " dict
         if has_key(a:menu, a:header)
@@ -2067,6 +2242,11 @@ function! dn#util#menuAddSubmenu(menu, header, submenu) abort
 endfunction
 
 " dn#util#menuSelect(menu, [prompt[, preamble]])    {{{1
+
+" note there is an optional, private fourth parameter called "recursive"
+" that is not part of this function's public interface - it is set to true on
+" recursive calls to this function and causes it to skip the normalisation
+" step
 
 ""
 " @public
@@ -2087,8 +2267,7 @@ endfunction
 " The selected menu option (or its associated value) is returned, with ""
 " indicating no item was selected. This means it is possible to provide an
 " empty menu item which can be selected and returned, and there is no way to
-" distinguish this from a cancelled selection.  @default prompt='Select an
-" option:'
+" distinguish this from a cancelled selection.
 "
 " In the following discussion a "simple" menu is one without any submenus, and
 " "simple" variables are |String|, |Number|, |Float|, boolean (|v:true| or
@@ -2124,127 +2303,82 @@ endfunction
 " assist with "top-down" menu construction.
 " @default prompt='Select an option:'
 " @default preamble=[]
+" @throws BadItem if the menu item is not a valid data type
+" @throws BadMenu if menu is neither List nor Dict
+" @throws MenuTypeBadArgs if other than a single argument is provided
+" @throws MultiDictEntries if multiple entries in dict menu option
+" @throws NoItems if menu has no items
+" @throws SimpleTypeBadArgs if other than a single argument provided
+" @throws SubmenuBadArgs if other than a single argument is provided
 function! dn#util#menuSelect(menu, ...) abort
-    " set menu type
-    if     type(a:menu) == type([]) | let l:menu_type = 'list'
-    elseif type(a:menu) == type({}) | let l:menu_type = 'dict'
-    else
-        call dn#util#error('Parent menu must be List or Dict')
-        return ''
-    endif
-    " - check supplied menu items
-    if len(a:menu) == 0 | return '' | endif |    " must have menu items
+
+    " TODO: wrap each preamble line to enable height calculation
+    "       (assume prompt fits on one line)
+    " TODO: create s:menuInputlist() and s:menuBuffer() functions
+    " TODO: calculate which menu display to use based on menu/preamble/prompt
+    " TODO: display preamble before each menu type
+
+    " process parameters
     " - prompt
     let l:prompt = 'Select an option:'    " default used if none provided
-    if a:0 > 0 && a:1 !=? '' | let l:prompt = dn#util#stringify(a:1) | endif
+    if a:0 > 0 && !empty(a:1) | let l:prompt = dn#util#stringify(a:1) | endif
+    " - preamble
+    let l:preamble_arg = []
+    if a:0 > 1 && !empty(a:2)
+        if type(l:preamble_arg) == type([])
+            call extend(l:preamble_arg, a:2)
+        else
+            call add(l:preamble_arg, dn#util#stringify(a:2))
+        endif
+    endif
+    let l:preamble = []
+    let l:width = winwidth(0) - 1
+    for l:line in l:preamble_arg
+        let l:wrapped = dn#util#wrap(l:line, l:width)
+        let l:lines = split(l:wrapped, "\n")
+        call extend(l:preamble, l:lines)
+    endfor
+    " - recursive
+    let l:recursive = v:false
+    if a:0 > 2 && a:3 | let l:recursive = v:true | endif
+    " - menu
+    "   . normalise menu to 'List of Dicts'
+    "   . this includes checking menu validity
+    if l:recursive
+        let l:items = deepcopy(a:menu)
+    else  " first call
+        try   | let l:items = s:menuNormalise(a:menu)
+        catch | throw dn#util#exceptionError(v:exception)
+        endtry
+    endif
+
     " process items to build parallel lists of options and return values
-    let l:state = (l:menu_type ==# 'list') ? 'list_expecting-option'
-                \                          : 'dict_expecting-option'
-    let l:items = (l:menu_type ==# 'list') ? deepcopy(a:menu)
-                \                          : keys(a:menu)
-    let l:submenu_header = ''
     let l:options = [l:prompt] | let l:return_values = []
     for l:Item in l:items
-        " what kind of item do we have?
-        if     s:menuSimpleType(l:Item)  | let l:item_type = 'simple'
-        elseif s:menuSubmenuType(l:Item) | let l:item_type = 'submenu'
-        else
-            let l:msg = 'Invalid data type ' . type(l:Item)
-                        \ . " for menu item:\n\n"
-            call dn#util#error(l:msg . dn#util#stringify(l:Item))
-            return ''
+        " list menu items are single-pair Dicts whose values are either:
+        " - simple data types (for plain menu options)
+        " - Lists (for submenus)
+        " ignore empty dict
+        if len(l:Item) == 0 | continue | endif
+        " cannot have multiple entries
+        let l:err = 'ERROR(MultiDictEntries): Multiple entries in dict '
+                    \ . "menu option:\n\n" . dn#util#stringify(l:Item)
+        if len(l:Item) > 1 | throw l:err | endif
+        " get key (option) and value (retval or submenu)
+        let [l:key, l:value] = items(l:Item)[0]
+        let l:option = dn#util#stringify(l:key)
+        " process depending on whether submenu or simple option
+        if type(l:value) == type([])  " List (submenu)
+            let l:option .= ' ->'
+            let l:retval = deepcopy(l:value)
+        else  " simple data type (plain option)
+            let l:retval = dn#util#stringify(l:value)
         endif
-        " list menu item might be:
-        " - simple data item, which includes submenu flag
-        " - list (must be an expected submenu)
-        " - dict (might be an expected submenu)
-        " - dict (might be an option:return-value pair,
-        "         but if so can only be a single key:value pair)
-        if     l:state ==# 'list_expecting-submenu-header'
-            if l:item_type !=# 'simple'  " need simple value
-                let l:msg = "Expecting submenu header but got submenu:\n\n"
-                call dn#util#error(l:msg . dn#util#stringify(l:Item))
-                return ''
-            endif
-            let l:submenu_header = l:Item . ' ->'
-            let l:state = 'list_expecting-submenu'
-            unlet l:Item  " in case a:menu elements are of different types
-            continue
-        elseif l:state ==# 'list_expecting-submenu'
-            if l:item_type !=# 'submenu'  " need list or dict
-                let l:msg = 'Expecting submenu but got: ' . l:Item
-                call dn#util#error(l:msg)
-                return ''
-            endif
-            call add(l:options, dn#util#stringify(l:submenu_header))
-            call add(l:return_values, l:Item)
-            let l:state = 'list_expecting-option'
-            unlet l:Item  " a:menu elements may be of different types
-            continue
-        elseif l:state ==# 'list_expecting-option'
-            " can be a simple data type
-            if l:item_type ==# 'simple'
-                if l:Item ==# s:submenu_token  " submenu coming
-                    let l:state = 'list_expecting-submenu-header'
-                else  " simple menu option
-                    call add(l:options, dn#util#stringify(l:Item))
-                    call add(l:return_values, l:Item)
-                endif
-                unlet l:Item  " a:menu elements may be of different types
-                continue
-            endif
-            " can be a simple single-pair dict
-            if type(l:Item) == type({})
-                " ignore empty dict
-                if len(l:Item) == 0 | continue | endif
-                " cannot have multiple entries
-                if len(l:Item) > 1
-                    let l:msg = "Multiple entries in dict menu option:\n\n"
-                    call dn#util#error(l:msg . dn#util#stringify(l:Item))
-                    return ''
-                endif
-                " value must be a simple data type
-                let l:option = items(l:Item)[0][0]
-                let l:retval = items(l:Item)[0][1]
-                if !s:menuSimpleType(l:retval)
-                    let l:msg = "Menu item return value is not simple:\n\n"
-                    call dn#util#error(l:msg . dn#util#stringify(l:retval))
-                    return ''
-                endif
-                " okay, looks good
-                call add(l:options, dn#util#stringify(l:option))
-                call add(l:return_values, l:retval)
-                unlet l:Item  " a:menu elements may be of different types
-                continue
-            endif
-            " if reached here then invalid menu option
-            let l:msg = "Invalid list menu option:\n\n"
-            call dn#util#error(l:msg . dn#util#stringify(l:Item))
-            return ''
-        elseif l:state ==# 'dict_expecting-option'
-            " dict menu item can only be simple
-            " - it comes from a Dict key and vim won't permit otherwise
-            " but dict return value, i.e., Dict value, can be anything
-            " so, check return value is valid
-            let l:retval = a:menu[l:Item]
-            if !s:menuType(l:retval)
-                let l:msg = "Invalid menu dict value:\n\n"
-                call dn#util#error(l:msg . dn#util#stringify(l:retval))
-                return ''
-            endif
-            " modify menu option if it is a submenu header
-            let l:option = l:Item
-            if s:menuSubmenuType(l:retval) | let l:option .= ' ->' | endif
-            " add option and return value
-            call add(l:options, dn#util#stringify(l:option))
-            call add(l:return_values, l:retval)
-            unlet l:Item  " a:menu elements may be of different types
-            continue
-        else  " unexpected state reached (programmer error!)
-            call dn#util#error('Menu reached unexpected state: ' . l:state)
-            return ''
-        endif
+        call add(l:options, l:option)
+        call add(l:return_values, l:retval)
+        unlet l:Item  " a:menu elements may be of different types
     endfor
+
     " prepend index to menu options
     let l:len = len(len(l:options))  " gives width of largest item index
     let l:index = 1  " no item number for prompt (in index 0)
@@ -2257,7 +2391,9 @@ function! dn#util#menuSelect(menu, ...) abort
         let l:options[l:index] = l:display_index . ') ' . l:options[l:index]
         let l:index += 1
     endwhile
+
     " make choice
+    for l:line in l:preamble | echo l:line | endfor
     let l:choice = inputlist(l:options)
     echo ' ' |    " needed to force next output to new line
     " process choice
@@ -2270,8 +2406,9 @@ function! dn#util#menuSelect(menu, ...) abort
     "     so is 'off by one' compared to l:options
     let l:Selection = l:return_values[l:choice - 1]
     " - recurse if selected a submenu, otherwise return selection
-    if s:menuSubmenuType(l:Selection)
-        return dn#util#menuSelect(l:Selection, l:prompt)  " recurse
+    if type(l:Selection) == type([])
+        return dn#util#menuSelect(l:Selection, l:prompt,
+                    \             l:preamble, l:recursive)  " recurse
     else
         return l:Selection
     endif
@@ -3009,7 +3146,7 @@ endfunction
 " zero), it is set to ten. To set the wrap width of the wrapped
 " string to the width of the current window, set the width value to:
 " >
-" windwidth(0) - 1
+" winwidth(0) - 1
 " <
 " The hang parameter is the size of the hanging indent in spaces. It must be a
 " positive |Number|. If it is set to zero there is no hanging indent. The wrap

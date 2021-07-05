@@ -330,6 +330,39 @@ function! s:listifyMsg(var) abort
     return l:items
 endfunction
 
+" s:menuInputlist(options, return_values, preamble)    {{{1
+
+""
+" @private
+" This is a helper function for @function(dn#util#menuSelect). That function
+" receives a multi-level |List| or |Dict| menu variable, normalises the menu
+" (using @function(s:menuNormalise)), builds parallel lists of {options}
+" (which includes the menu prompt as the first element) and {return_values},
+" and then calls on a subsidiary function to get the user to select a value.
+" If the menu is short enough to fit in the current window then
+" @function(dn#util#menuSelect) calls this function for that purpose.
+"
+" If the {preamble} |List| contains any items they are echoed to the screen
+" before the menu is displayed.
+"
+" Returns the selected item's return value.
+function! s:menuInputlist(options, return_values, preamble) abort
+    for l:line in a:preamble | echo l:line | endfor
+    let l:choice = inputlist(a:options)
+    echo ' ' |    " needed to force next output to new line
+    " process choice
+    " - must be valid selection
+    if l:choice <= 0 || l:choice >= len(a:options)
+        return ''
+    endif
+    " - get selected value
+    "   . no prompt added to l:return_values,
+    "     so is 'off by one' compared to l:options
+    let l:selection = a:return_values[l:choice - 1]
+    " return selection's return value
+    return l:selection
+endfunction
+
 " s:menuNormalise(menu)    {{{1
 
 ""
@@ -2392,19 +2425,27 @@ function! dn#util#menuSelect(menu, ...) abort
         let l:index += 1
     endwhile
 
+    " decide whether to use inputlist() or new buffer
+    let l:available_height = &lines       " number of lines in vim window
+    let l:available_height -= &cmdheight  " height of command line
+    let l:available_height -= 1           " allow for status line at bottom
+    let l:available_height -= 1           " allow for tab pages line at top
+    let l:menu_height = len(l:options) + len(l:preamble)
+    let l:inputlist_needs = l:menu_height + 2  " allow for number entry line
+    let l:use_inputlist = eval(l:inputlist_needs . ' <= ' . l:available_height)
+
     " make choice
-    for l:line in l:preamble | echo l:line | endfor
-    let l:choice = inputlist(l:options)
-    echo ' ' |    " needed to force next output to new line
-    " process choice
-    " - must be valid selection
-    if l:choice <= 0 || l:choice >= len(l:options)
-        return ''
+    if l:use_inputlist
+        let l:Selection = s:menuInputlist(
+                    \ l:options, l:return_values, l:preamble
+                    \ )
+    else
+        call dn#util#warn('Buffer selection not yet implemented')
+        call dn#util#prompt()
+        let l:Selection = s:menuInputlist(
+                    \ l:options, l:return_values, l:preamble
+                    \ )
     endif
-    " - get selected value
-    "   . no prompt added to l:return_values,
-    "     so is 'off by one' compared to l:options
-    let l:Selection = l:return_values[l:choice - 1]
     " - recurse if selected a submenu, otherwise return selection
     if type(l:Selection) == type([])
         return dn#util#menuSelect(l:Selection, l:prompt,

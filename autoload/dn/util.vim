@@ -330,6 +330,107 @@ function! s:listifyMsg(var) abort
     return l:items
 endfunction
 
+" s:menuBufferSelect(options, return_values, preamble)    {{{1
+
+""
+" @private
+" This is a helper function for @function(dn#util#menuSelect). That function
+" receives a multi-level |List| or |Dict| menu variable, normalises the menu
+" (using @function(s:menuNormalise)), builds parallel lists of {options}
+" (which includes the menu prompt as the first element) and {return_values},
+" and then calls on a subsidiary function to get the user to select a value.
+" If the menu is not short enough to fit in the current window then
+" @function(dn#util#menuSelect) calls this function for that purpose.
+"
+" If the {preamble} |List| contains any items they are displayed above the
+" menu.
+"
+" Returns the selected item's return value.
+" @throws NoFileName if current buffer has no file name
+" @throws UnsavedChanges if opening new bfr while current bfr unsaved
+function! s:menuBufferSelect(options, return_values, preamble) abort
+    " construct buffer content
+    let l:width = winwidth(0) - 1
+    let l:content = []
+    let l:rule = repeat('-', l:width)
+    let l:instructions = split(dn#util#wrap(
+                \ "Quit with [Esc] or 'q' :: Select option with [Enter]",
+                \ l:width), "\n")
+    call extend(l:content, l:instructions) | call add(l:content, l:rule)
+    if !empty(a:preamble)
+        call extend(l:content, a:preamble) | call add(l:content, l:rule)
+    endif
+    let l:header_height = len(l:content)
+    call extend(l:content, a:options)
+
+    " open new buffer
+    let l:original_buffer = winbufnr(0)
+    try
+        " - save otherwise vim errors on opening new buffer
+        update
+        execute 'enew'
+    catch /^Vim\%((\a\+)\)\=:E32/
+        " E32: No file name
+        " tried to update buffer that has no file name
+        throw "Error(NoFileName): can't save unnamed buffer (E32)"
+    catch /^Vim\%((\a\+)\)\=:E37/
+        " E37: No write since last change (add ! to override)
+        " tried to create new buffer when current one has unsaved changes
+        throw 'Error(UnsavedChanges): save before opening new buffer'
+        return
+    catch /^Vim\%((\a\+)\)\=:E/
+        " all other errors
+        echoerr v:exception
+    endtry
+    let menu_buffer = winbufnr(0)
+
+    " set buffer-specific settings
+    "   - cursorline:       highlight cursor line
+    "   - nomodifiable:     don't allow to edit this buffer
+    "   - noswapfile:       we don't need a swapfile
+    "   - buftype=nowrite:  buffer will not be written
+    "   - bufhidden=delete: delete this buffer if it will be hidden
+    "   - nowrap:           don't wrap around long lines
+    "   - iabclear:         no abbreviations in insert mode
+    "   - syntax clear:     switch off syntax highlighting in current buffer
+    setlocal cursorline
+    setlocal nomodifiable
+    setlocal noswapfile
+    setlocal buftype=nowrite
+    setlocal bufhidden=delete
+    "setlocal nowrap
+    iabclear <buffer>
+    syntax clear
+
+    " write content to buffer
+    setlocal modifiable
+    call append(0, l:content)
+    setlocal nomodifiable
+
+    " move cursor to first menu option
+    let l:first_option_line = l:header_height + 2
+    let l:option_start = 4  " assume line starts '1) '
+    call setpos('.', [0, 1, 1, 0])
+    call setpos('.', [0, l:first_option_line, l:option_start, 0])
+
+    " set local key mappings
+
+    for l:line in a:preamble | echo l:line | endfor
+    let l:choice = inputlist(a:options)
+    echo ' ' |    " needed to force next output to new line
+    " process choice
+    " - must be valid selection
+    if l:choice <= 0 || l:choice >= len(a:options)
+        return ''
+    endif
+    " - get selected value
+    "   . no prompt added to l:return_values,
+    "     so is 'off by one' compared to l:options
+    let l:selection = a:return_values[l:choice - 1]
+    " return selection's return value
+    return l:selection
+endfunction
+
 " s:menuInputlist(options, return_values, preamble)    {{{1
 
 ""
@@ -587,9 +688,9 @@ endfunction
 
 ""
 " @private
-" Checks whether variable {var} is a simple or submenu option, i.e., number,
-" float, string, List or Dict. Used in menu generation by
-" @function(dn#util#menuSelect). Returns a bool.
+" Checks whether variable {var} is a simple or submenu option, i.e., |Number|,
+" |Float|, |String|, boolean, null, List, or Dict (see |type()|). Used in
+" menu generation by @function(dn#util#menuSelect). Returns a bool.
 " @throws MenuTypeBadArgs if other than a single argument is provided
 function! s:menuType(...) abort
     " process parameters
@@ -598,7 +699,8 @@ function! s:menuType(...) abort
     if a:0 == 0 || a:0 > 1 | throw l:err | endif
     let l:var = a:1
     " test var
-    let l:valid_types = [type(''), type(0), type(0.0), type([]), type({})]
+    let l:valid_types = [type(''), type(0), type(0.0), type(v:true),
+                \        type(v:null), type([]), type({})]
     let l:type = type(l:var)
     return count(l:valid_types, l:type)
 endfunction
@@ -2440,9 +2542,8 @@ function! dn#util#menuSelect(menu, ...) abort
                     \ l:options, l:return_values, l:preamble
                     \ )
     else
-        call dn#util#warn('Buffer selection not yet implemented')
         call dn#util#prompt()
-        let l:Selection = s:menuInputlist(
+        let l:Selection = s:menuBufferSelect(
                     \ l:options, l:return_values, l:preamble
                     \ )
     endif

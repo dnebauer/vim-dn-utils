@@ -39,10 +39,10 @@ while ( my $opt = shift @ARGV ) {
 
     # --help
     if ( grep { $opt eq $_ } @opts_help ) {
-        say "USAGE: $SELF [-npoim] [long options...]";
+        say "USAGE: $SELF [-spoim] [long options...]";
         say '';
         say 'Options requiring a string value:';
-        say '    -n --name-single    Noun for single item';
+        say '    -s --name-single    Noun for single item';
         say '    -p --name-plural    Collective noun for items';
         say '    -o --output-file    Path of output file to hold result';
         say '    -i --items          Tab-separated list of items';
@@ -190,7 +190,7 @@ B<vim-dn-utils-console-select -h>
 
 =item B<-s>  B<--single-name>
 
-Noun used for a sinle list item. Example: 'element name'.
+Noun used for a single list item. Example: 'element name'.
 
 Scalar string. Required.
 

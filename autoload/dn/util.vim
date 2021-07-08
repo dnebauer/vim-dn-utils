@@ -454,11 +454,11 @@ function! s:menuInputlist(prompt, options, return_values, preamble) abort
     " display preamble
     for l:line in a:preamble | echo l:line | endfor
     " make selection
-    let l:choice = inputlist(a:options)
+    let l:choice = inputlist(l:options)
     echo ' ' |    " needed to force next output to new line
     " process choice
     " - must be valid selection
-    if l:choice <= 0 || l:choice >= len(a:options)
+    if l:choice <= 0 || l:choice > len(a:options)
         return ''
     endif
     " - get selected value
@@ -2524,7 +2524,7 @@ function! dn#util#menuSelect(menu, ...) abort
     let l:index = 0
     while l:index < len(l:options)
         " - left pad index with spaces to ensure all right justified
-        let l:display_index = l:index
+        let l:display_index = l:index + 1
         while len(l:display_index) < l:len
             let l:display_index = ' ' . l:display_index
         endwhile

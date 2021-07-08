@@ -330,125 +330,130 @@ function! s:listifyMsg(var) abort
     return l:items
 endfunction
 
-" s:menuBufferSelect(options, return_values, preamble)    {{{1
+" s:menuConsoleSelect(prompt, options, return_values, preamble)    {{{1
 
 ""
 " @private
 " This is a helper function for @function(dn#util#menuSelect). That function
-" receives a multi-level |List| or |Dict| menu variable, normalises the menu
-" (using @function(s:menuNormalise)), builds parallel lists of {options}
-" (which includes the menu prompt as the first element) and {return_values},
-" and then calls on a subsidiary function to get the user to select a value.
-" If the menu is not short enough to fit in the current window then
-" @function(dn#util#menuSelect) calls this function for that purpose.
+" receives a user {prompt}. It also receives a multi-level |List| or |Dict|
+" menu variable, normalises the menu (using @function(s:menuNormalise)),
+" builds parallel lists of {options} and {return_values}, and then calls on a
+" subsidiary function to get the user to select a value.  If the menu is not
+" short enough to fit in the current window then @function(dn#util#menuSelect)
+" calls this function for that purpose.
 "
 " If the {preamble} |List| contains any items they are displayed above the
 " menu.
 "
 " Returns the selected item's return value.
+" @throws BadChoice if unable to find choice in option list
 " @throws NoFileName if current buffer has no file name
 " @throws UnsavedChanges if opening new bfr while current bfr unsaved
-function! s:menuBufferSelect(options, return_values, preamble) abort
-    " construct buffer content
-    let l:width = winwidth(0) - 1
-    let l:content = []
-    let l:rule = repeat('-', l:width)
-    let l:instructions = split(dn#util#wrap(
-                \ "Quit with [Esc] or 'q' :: Select option with [Enter]",
-                \ l:width), "\n")
-    call extend(l:content, l:instructions) | call add(l:content, l:rule)
-    if !empty(a:preamble)
-        call extend(l:content, a:preamble) | call add(l:content, l:rule)
-    endif
-    let l:header_height = len(l:content)
-    call extend(l:content, a:options)
+function! s:menuConsoleSelect(prompt, options, return_values, preamble) abort
+    "" construct buffer content
+    "let l:width = winwidth(0) - 1
+    "let l:content = []
+    "let l:rule = repeat('-', l:width)
+    "let l:instructions = split(dn#util#wrap(
+    "            \ "Quit with [Esc] or 'q' :: Select option with [Enter]",
+    "            \ l:width), "\n")
+    "call extend(l:content, l:instructions) | call add(l:content, l:rule)
+    "if !empty(a:preamble)
+    "    call extend(l:content, a:preamble) | call add(l:content, l:rule)
+    "endif
+    "let l:header_height = len(l:content)
+    "call extend(l:content, a:options)
 
-    " open new buffer
-    let l:original_buffer = winbufnr(0)
-    try
-        " - save otherwise vim errors on opening new buffer
-        update
-        execute 'enew'
-    catch /^Vim\%((\a\+)\)\=:E32/
-        " E32: No file name
-        " tried to update buffer that has no file name
-        throw "Error(NoFileName): can't save unnamed buffer (E32)"
-    catch /^Vim\%((\a\+)\)\=:E37/
-        " E37: No write since last change (add ! to override)
-        " tried to create new buffer when current one has unsaved changes
-        throw 'Error(UnsavedChanges): save before opening new buffer'
-        return
-    catch /^Vim\%((\a\+)\)\=:E/
-        " all other errors
-        echoerr v:exception
-    endtry
-    let menu_buffer = winbufnr(0)
+    "" open new buffer
+    "let l:original_buffer = winbufnr(0)
+    "try
+    "    " - save otherwise vim errors on opening new buffer
+    "    update
+    "    execute 'enew'
+    "catch /^Vim\%((\a\+)\)\=:E32/
+    "    " E32: No file name
+    "    " tried to update buffer that has no file name
+    "    throw "Error(NoFileName): can't save unnamed buffer (E32)"
+    "catch /^Vim\%((\a\+)\)\=:E37/
+    "    " E37: No write since last change (add ! to override)
+    "    " tried to create new buffer when current one has unsaved changes
+    "    throw 'Error(UnsavedChanges): save before opening new buffer'
+    "    return
+    "catch /^Vim\%((\a\+)\)\=:E/
+    "    " all other errors
+    "    echoerr v:exception
+    "endtry
+    "let menu_buffer = winbufnr(0)
 
-    " set buffer-specific settings
-    "   - cursorline:       highlight cursor line
-    "   - nomodifiable:     don't allow to edit this buffer
-    "   - noswapfile:       we don't need a swapfile
-    "   - buftype=nowrite:  buffer will not be written
-    "   - bufhidden=delete: delete this buffer if it will be hidden
-    "   - nowrap:           don't wrap around long lines
-    "   - iabclear:         no abbreviations in insert mode
-    "   - syntax clear:     switch off syntax highlighting in current buffer
-    setlocal cursorline
-    setlocal nomodifiable
-    setlocal noswapfile
-    setlocal buftype=nowrite
-    setlocal bufhidden=delete
-    "setlocal nowrap
-    iabclear <buffer>
-    syntax clear
+    "" set buffer-specific settings
+    ""   - cursorline:       highlight cursor line
+    ""   - nomodifiable:     don't allow to edit this buffer
+    ""   - noswapfile:       we don't need a swapfile
+    ""   - buftype=nowrite:  buffer will not be written
+    ""   - bufhidden=delete: delete this buffer if it will be hidden
+    ""   - nowrap:           don't wrap around long lines
+    ""   - iabclear:         no abbreviations in insert mode
+    ""   - syntax clear:     switch off syntax highlighting in current buffer
+    "setlocal cursorline
+    "setlocal nomodifiable
+    "setlocal noswapfile
+    "setlocal buftype=nowrite
+    "setlocal bufhidden=delete
+    ""setlocal nowrap
+    "iabclear <buffer>
+    "syntax clear
 
-    " write content to buffer
-    setlocal modifiable
-    call append(0, l:content)
-    setlocal nomodifiable
+    "" write content to buffer
+    "setlocal modifiable
+    "call append(0, l:content)
+    "setlocal nomodifiable
 
-    " move cursor to first menu option
-    let l:first_option_line = l:header_height + 2
-    let l:option_start = 4  " assume line starts '1) '
-    call setpos('.', [0, 1, 1, 0])
-    call setpos('.', [0, l:first_option_line, l:option_start, 0])
+    "" move cursor to first menu option
+    "let l:first_option_line = l:header_height + 2
+    "let l:option_start = 4  " assume line starts '1) '
+    "call setpos('.', [0, 1, 1, 0])
+    "call setpos('.', [0, l:first_option_line, l:option_start, 0])
 
-    " set local key mappings
+    "" set local key mappings
 
     for l:line in a:preamble | echo l:line | endfor
-    let l:choice = inputlist(a:options)
-    echo ' ' |    " needed to force next output to new line
+    let l:choice = dn#util#consoleSelect(a:prompt, a:options, 'choose')
     " process choice
     " - must be valid selection
-    if l:choice <= 0 || l:choice >= len(a:options)
-        return ''
-    endif
+    if empty(l:choice) | return '' | endif
     " - get selected value
-    "   . no prompt added to l:return_values,
-    "     so is 'off by one' compared to l:options
-    let l:selection = a:return_values[l:choice - 1]
+    let l:index = index(a:options, l:choice)
+    if l:index == -1
+        throw 'ERROR(BadChoice): Unable to find choice in option list'
+    endif
+    let l:selection = a:return_values[l:index]
     " return selection's return value
     return l:selection
 endfunction
 
-" s:menuInputlist(options, return_values, preamble)    {{{1
+" s:menuInputlist(prompt, options, return_values, preamble)    {{{1
 
 ""
 " @private
 " This is a helper function for @function(dn#util#menuSelect). That function
-" receives a multi-level |List| or |Dict| menu variable, normalises the menu
-" (using @function(s:menuNormalise)), builds parallel lists of {options}
-" (which includes the menu prompt as the first element) and {return_values},
-" and then calls on a subsidiary function to get the user to select a value.
-" If the menu is short enough to fit in the current window then
-" @function(dn#util#menuSelect) calls this function for that purpose.
+" receives a user {prompt}. It also receives a multi-level |List| or |Dict|
+" menu variable, normalises the menu (using @function(s:menuNormalise)),
+" builds parallel lists of {options} and {return_values}, and then calls on a
+" subsidiary function to get the user to select a value. If the menu is short
+" enough to fit in the current window then @function(dn#util#menuSelect) calls
+" this function for that purpose.
 "
 " If the {preamble} |List| contains any items they are echoed to the screen
 " before the menu is displayed.
 "
 " Returns the selected item's return value.
-function! s:menuInputlist(options, return_values, preamble) abort
+function! s:menuInputlist(prompt, options, return_values, preamble) abort
+    let l:options = deepcopy(a:options)
+    " insert prompt
+    call insert(l:options, a:prompt, 0)
+    " display preamble
     for l:line in a:preamble | echo l:line | endfor
+    " make selection
     let l:choice = inputlist(a:options)
     echo ' ' |    " needed to force next output to new line
     " process choice
@@ -1211,48 +1216,52 @@ function! dn#util#changeHeaderCaps(mode) abort
     if l:mode ==# 'i' | call dn#util#insertMode(1) | endif
 endfunction
 
-" dn#util#consoleSelect(singular, plural, items, [method])    {{{1
+" dn#util#consoleSelect(prompt, items, [method])    {{{1
 
 ""
 " @public
-" Select item from list using the console. During user interaction items in
-" the menu may be referred to by {singular} or {plural} terms. For example, if
-" the list contains elements, the {singular} term might be "element name"
-" while the {plural} term might be "element names". The menu {items} are
-" provided in a |List|.
+" Select item from list using the console. A user {prompt} is displayed along
+" with menu usage instructions before the user selects from the {items}
+" |List|.
 "
-" The optional selection [method] can be "complete" or "filter". The
-" "complete" selection method uses word completion. The "filter" selection
+" The optional selection [method] can be "complete", "filter", or "choose".
+" The "complete" selection method uses word completion. The "filter" selection
 " method enables the user to type part of the target item and select from the
-" resulting list of matches. Both selection methods can handle unescaped
-" spaces in the menu items.
-" @default method='filter'
+" resulting list of matches. The "choose" selection method enables the user to
+" select from the complete set of items. All selection methods can handle
+" unescaped spaces in the menu items.
+" @default method='choose'
 "
 " Returns the selected item, or "" if no item was selected.
 "
 " This function uses a perl5 script called "vim-dn-utils-console-select" that
 " is installed as part of this plugin, so a working perl installation is
 " required. The "complete" selection method uses the Term::Complete::complete
-" perl5 function while the "filter" selection method uses the
+" perl5 function while the "filter" and "choose" selection methods use the
 " Term::Clui::choose perl5 function.
-function! dn#util#consoleSelect(singular, plural, items, ...) abort
+" @throws BadMethod if invalid method provided
+" @throws BadOutput if script output file contains multiple lines
+" @throws BadWrite if unable to write to output file
+" @throws NoParam if a required parameter is empty
+" @throws NoScript if unable to locate menu script
+function! dn#util#consoleSelect(prompt, items, ...) abort
     " check variables    {{{2
-    for l:var in ['singular', 'plural', 'items']
+    for l:var in ['prompt', 'items']
         if empty(a:{l:var})
-            echoerr "No '" . l:var . "' parameter provided"
-            return ''
+            throw "ERROR(NoParam): No '" . l:var . "' parameter provided"
         endif
     endfor
-    let l:method = 'filter'
+    let l:method = 'choose'
     if a:0 >= 1
         if a:0 > 1
-            echoerr 'Ignoring extra arguments: ' . join(a:000[1:], ', ')
+            call dn#util#warn('Ignoring extra arguments: '
+                        \     . join(a:000[1:], ', '))
         endif
-        if a:1 =~# '^complete$\|^filter$'
+        let l:valid_methods = ['complete', 'filter', 'choose']
+        if count(l:valid_methods, a:1) 
             let l:method = a:1
         else
-            echoerr "Invalid method: '" . a:1 . "'"
-            return ''
+            throw "ERROR(BadMethod): Invalid method: '" . a:1 . "'"
         endif
     endif
     let l:temp_file = tempname()
@@ -1260,22 +1269,19 @@ function! dn#util#consoleSelect(singular, plural, items, ...) abort
     " - temporary file must be writable and start empty
     let l:write_result = writefile([], l:temp_file)
     if l:write_result != 0  " -1 = error, 0 = success
-        echoerr "Cannot write to temp file '" . l:temp_file . "'"
-        return ''
+        throw 'ERROR(BadWrite): Cannot write to temp file: ' . l:temp_file
     endif
     " - script file must be located
     let l:script = dn#util#getRtpFile('vim-dn-utils-console-select')
     if l:script ==? ''
-        echoerr 'dn-utils: cannot find console-select script'
-        return ''
+        throw 'ERROR(NoScript): cannot find console-select script'
     endif
     " assemble shell command to run script    {{{2
     let l:opts = []
-    let l:opts += ['--name-single', a:singular]
-    let l:opts += ['--name-plural', a:plural]
-    let l:opts += ['--output-file', fnameescape(l:temp_file)]
+    let l:opts += ['--prompt', a:prompt]
+    let l:opts += ['--output_file', fnameescape(l:temp_file)]
     let l:opts += ['--items', join(a:items, "\t")]
-    let l:opts += ['--select-method', l:method]
+    let l:opts += ['--select_method', l:method]
     call map(l:opts, 'shellescape(v:val)')
     let l:cmd = '!perl' . ' ' . l:script . ' ' . join(l:opts, ' ')
     " run script to select item    {{{2
@@ -1289,8 +1295,7 @@ function! dn#util#consoleSelect(singular, plural, items, ...) abort
     if     len(l:output) == 0 | return ''           " no selection
     elseif len(l:output) == 1 | return l:output[0]  " got selection!
     else  " more than one line of output!
-        echoerr 'dn-utils: unexpected output:' . l:output
-        return ''
+        throw 'ERROR(BadOutput): Unexpected output: ' . l:output
     endif    " }}}2
 endfunction
 
@@ -2447,8 +2452,6 @@ endfunction
 " @throws SubmenuBadArgs if other than a single argument is provided
 function! dn#util#menuSelect(menu, ...) abort
 
-    " TODO: wrap each preamble line to enable height calculation
-    "       (assume prompt fits on one line)
     " TODO: create s:menuInputlist() and s:menuBuffer() functions
     " TODO: calculate which menu display to use based on menu/preamble/prompt
     " TODO: display preamble before each menu type
@@ -2488,7 +2491,7 @@ function! dn#util#menuSelect(menu, ...) abort
     endif
 
     " process items to build parallel lists of options and return values
-    let l:options = [l:prompt] | let l:return_values = []
+    let l:options = [] | let l:return_values = []
     for l:Item in l:items
         " list menu items are single-pair Dicts whose values are either:
         " - simple data types (for plain menu options)
@@ -2515,8 +2518,10 @@ function! dn#util#menuSelect(menu, ...) abort
     endfor
 
     " prepend index to menu options
-    let l:len = len(len(l:options))  " gives width of largest item index
-    let l:index = 1  " no item number for prompt (in index 0)
+    " - ensures uniqueness of option items (needed for consoleSelect)
+    " - next line gives width of largest item index
+    let l:len = len(len(l:options))
+    let l:index = 0
     while l:index < len(l:options)
         " - left pad index with spaces to ensure all right justified
         let l:display_index = l:index
@@ -2539,18 +2544,15 @@ function! dn#util#menuSelect(menu, ...) abort
     " make choice
     if l:use_inputlist
         let l:Selection = s:menuInputlist(
-                    \ l:options, l:return_values, l:preamble
-                    \ )
+                    \ l:prompt, l:options, l:return_values, l:preamble)
     else
-        call dn#util#prompt()
-        let l:Selection = s:menuBufferSelect(
-                    \ l:options, l:return_values, l:preamble
-                    \ )
+        let l:Selection = s:menuConsoleSelect(
+                    \ l:prompt, l:options, l:return_values, l:preamble)
     endif
     " - recurse if selected a submenu, otherwise return selection
     if type(l:Selection) == type([])
-        return dn#util#menuSelect(l:Selection, l:prompt,
-                    \             l:preamble, l:recursive)  " recurse
+        return dn#util#menuSelect(
+                    \ l:Selection, l:prompt, l:preamble, l:recursive)
     else
         return l:Selection
     endif

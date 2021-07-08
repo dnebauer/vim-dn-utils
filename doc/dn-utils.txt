@@ -308,28 +308,31 @@ dn#util#changeHeaderCaps({mode})                  *dn#util#changeHeaderCaps()*
 
   Newlines in a selection are preserved.
 
-dn#util#consoleSelect({singular}, {plural}, {items}, [method])
-                                                     *dn#util#consoleSelect()*
-  Select item from list using the console. During user interaction items in
-  the menu may be referred to by {singular} or {plural} terms. For example, if
-  the list contains elements, the {singular} term might be "element name"
-  while the {plural} term might be "element names". The menu {items} are
-  provided in a |List|.
+dn#util#consoleSelect({prompt}, {items}, [method])   *dn#util#consoleSelect()*
+  Select item from list using the console. A user {prompt} is displayed along
+  with menu usage instructions before the user selects from the {items}
+  |List|.
 
-  The optional selection [method] can be "complete" or "filter". The
-  "complete" selection method uses word completion. The "filter" selection
+  The optional selection [method] can be "complete", "filter", or "choose".
+  The "complete" selection method uses word completion. The "filter" selection
   method enables the user to type part of the target item and select from the
-  resulting list of matches. Both selection methods can handle unescaped
-  spaces in the menu items.
-  [method] is 'filter' if omitted.
+  resulting list of matches. The "choose" selection method enables the user to
+  select from the complete set of items. All selection methods can handle
+  unescaped spaces in the menu items.
+  [method] is 'choose' if omitted.
 
   Returns the selected item, or "" if no item was selected.
 
   This function uses a perl5 script called "vim-dn-utils-console-select" that
   is installed as part of this plugin, so a working perl installation is
   required. The "complete" selection method uses the Term::Complete::complete
-  perl5 function while the "filter" selection method uses the
+  perl5 function while the "filter" and "choose" selection methods use the
   Term::Clui::choose perl5 function.
+  Throws ERROR(BadMethod) if invalid method provided
+  Throws ERROR(BadOutput) if script output file contains multiple lines
+  Throws ERROR(BadWrite) if unable to write to output file
+  Throws ERROR(NoParam) if a required parameter is empty
+  Throws ERROR(NoScript) if unable to locate menu script
 
 dn#util#dayOfWeek({year}, {month}, {day})                *dn#util#dayOfWeek()*
   Get name of weekday defined by {year}, {month} and {day} (all integers).

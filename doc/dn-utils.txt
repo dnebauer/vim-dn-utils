@@ -614,6 +614,7 @@ dn#util#menuSelect({menu}, [prompt], [preamble])        *dn#util#menuSelect()*
   In order for the gui menu script to run the following conditions must be
   satisfied:
     * the script is available and can be located by the ftplugin
+    * the script is executable
     * graphical user environment is available (this is assumed to be true for
       windows OS and non-linux/unix OSs, and linux/unix OSs if the $DISPLAY
       variable is non-empty)

@@ -348,12 +348,13 @@ endfunction
 "
 " The checks performed to determine whether the script can run successfully
 " are:
-" * script available
-" * gui available
+" * script is available to the ftplugin
+" * script is executable
+" * gui is available
 "   - assumed true for windows OS, assumed true for linux OS if the $DISPLAY
 "     variable is non-empty, and assumed true for other OSs. 
-" * python3 executable available
-" * necessary python modules (argparse, tkinter) available.
+" * python3 executable is available
+" * python modules 'argparse' and 'tkinter' are available.
 "
 " Returns boolean.
 " @throws BadChoice if unable to find choice in option list
@@ -365,12 +366,15 @@ function! s:menuGuiScriptCheck() abort
         return v:false
     endif
     let s:menu_gui_script.path = l:script
+    " is script executable?
+    let l:cmd = l:script . ' -h'
+    let l:feedback = systemlist(l:cmd)
+    if v:shell_error | return v:false | endif
     " is gui available?
-    let l:os = dn#util#os()
     " - assumed true for windows OS
     " - assumed true for linux OS if the $DISPLAY variable is non-empty
     " - assumed true for other OSs
-    if l:os ==# 'linux'
+    if dn#util#os() ==# 'linux'
         if !exists('$DISPLAY') || empty($DISPLAY)
             let s:menu_gui_script.enabled = v:false
             return v:false
@@ -2348,6 +2352,7 @@ endfunction
 " In order for the gui menu script to run the following conditions must be
 " satisfied:
 " * the script is available and can be located by the ftplugin
+" * the script is executable
 " * graphical user environment is available (this is assumed to be true for
 "   windows OS and non-linux/unix OSs, and linux/unix OSs if the $DISPLAY
 "   variable is non-empty)

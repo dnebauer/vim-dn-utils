@@ -608,9 +608,20 @@ dn#util#menuSelect({menu}, [prompt], [preamble])        *dn#util#menuSelect()*
 
   If the list is shorter than the current window, it will be displayed in the
   current window using an |inputlist()|. If it is too long to fit in the
-  current window the function prefers to use a graphical Tk menu widget. If
-  the graphical Tk widget cannot be run for some reason, an |inputlist()| is
-  used despite the menu options extending for multiple "pages".
+  current window the function prefers to use a graphical Tk menu widget
+  invoked via a python3 script.
+
+  In order for the gui menu script to run the following conditions must be
+  satisfied:
+    * the script is available and can be located by the ftplugin
+    * graphical user environment is available (this is assumed to be true for
+      windows OS and non-linux/unix OSs, and linux/unix OSs if the $DISPLAY
+      variable is non-empty)
+    * python3 executable is available
+    * python modules 'argparse' and 'tkinter' are available.
+
+  If the graphical Tk widget cannot be run for some reason, an |inputlist()|
+  is used despite the menu options extending for multiple "pages".
 
   An optional [prompt] string can be provided to this function. An optional
   [preamble] can also be provided. This is a List of strings which are

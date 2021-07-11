@@ -457,8 +457,7 @@ function! s:menuGuiSelect(prompt, options, return_values, preamble) abort
     if l:index == -1 | throw l:err | endif
     let l:selection = a:return_values[l:index]
     " leave terminal feedback to record user selection
-    echo a:prompt
-    echo 'User selected: ' . l:selection
+    echo dn#util#trimChar(a:prompt, "\n") . ' ' . l:choice
     " return selection's return value
     return l:selection
 endfunction
@@ -3020,10 +3019,13 @@ endfunction
 function! dn#util#trimChar(string, ...) abort
     " set trim character
     let l:char = (a:0 && a:1 !=? '') ? strpart(a:1, 0, 1) : ' '
-    " build match terms
+    " use trim() function if available
+    if exists('*trim') | return trim(a:string, l:char) | endif
+    " otherwise use substitute() function
+    " - build match terms
     let l:left_match_str = '^' . l:char . '\+'
     let l:right_match_str = l:char . '\+$'
-    " do trimming
+    " - do trimming
     let l:string = substitute(a:string, l:left_match_str, '', '')
     return substitute(l:string, l:right_match_str, '', '')
 endfunction

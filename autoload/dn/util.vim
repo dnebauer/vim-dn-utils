@@ -357,11 +357,6 @@ endfunction
 "
 " Returns boolean.
 " @throws BadChoice if unable to find choice in option list
-" @throws BadMethod if invalid method provided
-" @throws BadOutput if script output file contains multiple lines
-" @throws BadWrite if unable to write to output file
-" @throws NoParam if a required parameter is empty
-" @throws NoScript if unable to locate menu script
 function! s:menuGuiScriptCheck() abort
     " is script available?
     let l:script = dn#util#getRtpFile('vim-dn-utils-gui-select')
@@ -430,32 +425,29 @@ endfunction
 " Returns the selected item's return value.
 " @throws MenuError if gui menu script exits with error
 " @throws BadChoice if unable to find choice in option list
-" @throws BadMethod if invalid method provided
-" @throws BadOutput if script output file contains multiple lines
-" @throws BadWrite if unable to write to output file
-" @throws NoParam if a required parameter is empty
-" @throws NoScript if unable to locate menu script
 function! s:menuGuiSelect(prompt, options, return_values, preamble) abort
     " display preamble if present
-    if a:preamble
+    if !empty(a:preamble)
         for l:line in a:preamble | echo l:line | endfor
         call dn#util#prompt('Press [Enter] to invoke menu...')
     endif
     " assemble shell command to run script
-    let l:opts  = [s:menu_gui_script.path]
+    let l:opts  = []
     let l:opts += ['--title', 'Vim Menu']
     let l:opts += ['--prompt', a:prompt]
+    let l:opts += ['--split_items']
     let l:opts += ['--item_delimiter', "\t"]
-    let l:opts += ['--items', join(a:options, "\t")]
+    let l:opts += [join(a:options, "\t")]
     call map(l:opts, 'shellescape(v:val)')
     let l:cmd = s:menu_gui_script.path . ' ' . join(l:opts, ' ')
     " make selection
-    let l:choice = systemlist(l:cmd)
+    let l:feedback = systemlist(l:cmd)
     if v:shell_error
-        let l:err 'ERROR(MenuError): '
-        let l:err .= (empty(l:choice)) ? 'Gui menu script failed' : l:choice
+        let l:err = 'ERROR(MenuError): ' . (empty(l:feedback))
+                    \ ? 'Gui menu script failed' : join(l:feedback, "\n")
         throw l:err
     endif
+    let l:choice = l:feedback[0]
     " process choice
     " - must be valid selection
     if empty(l:choice) | return '' | endif

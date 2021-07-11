@@ -1440,7 +1440,7 @@ function! dn#util#executeShellCommand(cmd, ...) abort
     endif
 endfunction
 
-" dn#util#file_exists(filepath)    {{{1
+" dn#util#fileExists(filepath)    {{{1
 
 ""
 " @public

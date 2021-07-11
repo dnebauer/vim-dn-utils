@@ -56,7 +56,6 @@ set cpoptions&vim
 "   * @function(dn#util#menuSelect)        select item from menu
 "   * @function(dn#util#menuAddOption)     add option to menu
 "   * @function(dn#util#menuAddSubmenu)    add submenu to menu
-"   * @function(dn#util#consoleSelect)     select item from list using the console
 "   * @function(dn#util#help)              user can select from help topics
 "   * @function(dn#util#getSelection)      returns currently selected text
 " 
@@ -115,20 +114,29 @@ set cpoptions&vim
 
 " }}}1
 
-" Scripts variables
+" Script variables
 
-" s:rev           - revision number    {{{1
+" s:rev            - revision number    {{{1
 
 ""
 " Revision number in the form "yyyymmdd".
 let s:rev = 20180806
 
-" s:submenu_token - submenu token    {{{1
+" s:submenu_token  - submenu token    {{{1
 
 ""
 " Token in a menu list signifying the following item is a submenu. 
 let s:submenu_token = '__!_SUBMENU_!_TOKEN_!__'
-" }}}1
+"
+
+" s:menu_gui_script - gui menu script    {{{1
+
+""
+" A python script is included in this plugin for selecting an item from a gui
+" menu. This |Dict| variable stores the script path (key = 'path', default =
+" null) and whether the script can run successfully in the current system (key
+" = 'enabled', default = null).
+let s:menu_gui_script = { 'path' : v:null, 'enabled' : v:null }    " }}}1
 
 " Script functions
 
@@ -330,7 +338,70 @@ function! s:listifyMsg(var) abort
     return l:items
 endfunction
 
-" s:menuConsoleSelect(prompt, options, return_values, preamble)    {{{1
+" s:menuGuiScriptCheck()    {{{1
+
+""
+" @private
+" Check that the gui menu selection script "vim-dn-utils-gui-select" is
+" available and able to run on the current system. Set the script variable
+" "s:menu_gui_script" keys appropriately.
+"
+" The checks performed to determine whether the script can run successfully
+" are:
+" * script available
+" * gui available
+"   - assumed true for windows OS, assumed true for linux OS if the $DISPLAY
+"     variable is non-empty, and assumed true for other OSs. 
+" * python3 executable available
+" * necessary python modules (argparse, tkinter) available.
+"
+" Returns boolean.
+" @throws BadChoice if unable to find choice in option list
+" @throws BadMethod if invalid method provided
+" @throws BadOutput if script output file contains multiple lines
+" @throws BadWrite if unable to write to output file
+" @throws NoParam if a required parameter is empty
+" @throws NoScript if unable to locate menu script
+function! s:menuGuiScriptCheck() abort
+    " is script available?
+    let l:script = dn#util#getRtpFile('vim-dn-utils-gui-select')
+    if empty(l:script)
+        let s:menu_gui_script.enabled = v:false
+        return v:false
+    endif
+    let s:menu_gui_script.path = l:script
+    " is gui available?
+    let l:os = dn#util#os()
+    " - assumed true for windows OS
+    " - assumed true for linux OS if the $DISPLAY variable is non-empty
+    " - assumed true for other OSs
+    if l:os ==# 'linux'
+        if !exists('$DISPLAY') || empty($DISPLAY)
+            let s:menu_gui_script.enabled = v:false
+            return v:false
+        endif
+    endif
+    " is python3 executable available?
+    if !executable('python3')
+        let s:menu_gui_script.enabled = v:false
+        return v:false
+    endif
+    " are necessary python modules available?
+    let l:modules = ['argparse', 'tkinter']
+    for l:module in l:modules
+        let l:cmd = "python3 -c 'import " . l:module . "'"
+        let l:feedback = systemlist(l:cmd)
+        if v:shell_error
+            let s:menu_gui_script.enabled = v:false
+            return v:false
+        endif
+    endfor
+    " survived all checks, so flag appropriately
+    let s:menu_gui_script.enabled = v:true
+    return v:true
+endfunction
+
+" s:menuGuiSelect(prompt, options, return_values, preamble)    {{{1
 
 ""
 " @private
@@ -338,94 +409,60 @@ endfunction
 " receives a user {prompt}. It also receives a multi-level |List| or |Dict|
 " menu variable, normalises the menu (using @function(s:menuNormalise)),
 " builds parallel lists of {options} and {return_values}, and then calls on a
-" subsidiary function to get the user to select a value.  If the menu is not
+" subsidiary function to get the user to select a value. If the menu is not
 " short enough to fit in the current window then @function(dn#util#menuSelect)
 " calls this function for that purpose.
 "
-" If the {preamble} |List| contains any items they are displayed above the
-" menu.
+" This function calls a python script that uses Tk to display a modern gui
+" menu from which the user makes their selection.
+"
+" If the {preamble} |List| contains any items they are displayed in vim
+" before the gui menu is displayed.
+"
+" WARNING: The calling function is responsible for checking:
+" * that the parameters passed to this function are valid
+" * that the gui menu script is available
+" * that the gui menu script is able to run on the current system.
+"
+" The latter two items can be checked by the calling function with
+" @function(s:menuGuiScriptCheck).
 "
 " Returns the selected item's return value.
+" @throws MenuError if gui menu script exits with error
 " @throws BadChoice if unable to find choice in option list
-" @throws NoFileName if current buffer has no file name
-" @throws UnsavedChanges if opening new bfr while current bfr unsaved
-function! s:menuConsoleSelect(prompt, options, return_values, preamble) abort
-    "" construct buffer content
-    "let l:width = winwidth(0) - 1
-    "let l:content = []
-    "let l:rule = repeat('-', l:width)
-    "let l:instructions = split(dn#util#wrap(
-    "            \ "Quit with [Esc] or 'q' :: Select option with [Enter]",
-    "            \ l:width), "\n")
-    "call extend(l:content, l:instructions) | call add(l:content, l:rule)
-    "if !empty(a:preamble)
-    "    call extend(l:content, a:preamble) | call add(l:content, l:rule)
-    "endif
-    "let l:header_height = len(l:content)
-    "call extend(l:content, a:options)
-
-    "" open new buffer
-    "let l:original_buffer = winbufnr(0)
-    "try
-    "    " - save otherwise vim errors on opening new buffer
-    "    update
-    "    execute 'enew'
-    "catch /^Vim\%((\a\+)\)\=:E32/
-    "    " E32: No file name
-    "    " tried to update buffer that has no file name
-    "    throw "Error(NoFileName): can't save unnamed buffer (E32)"
-    "catch /^Vim\%((\a\+)\)\=:E37/
-    "    " E37: No write since last change (add ! to override)
-    "    " tried to create new buffer when current one has unsaved changes
-    "    throw 'Error(UnsavedChanges): save before opening new buffer'
-    "    return
-    "catch /^Vim\%((\a\+)\)\=:E/
-    "    " all other errors
-    "    echoerr v:exception
-    "endtry
-    "let menu_buffer = winbufnr(0)
-
-    "" set buffer-specific settings
-    ""   - cursorline:       highlight cursor line
-    ""   - nomodifiable:     don't allow to edit this buffer
-    ""   - noswapfile:       we don't need a swapfile
-    ""   - buftype=nowrite:  buffer will not be written
-    ""   - bufhidden=delete: delete this buffer if it will be hidden
-    ""   - nowrap:           don't wrap around long lines
-    ""   - iabclear:         no abbreviations in insert mode
-    ""   - syntax clear:     switch off syntax highlighting in current buffer
-    "setlocal cursorline
-    "setlocal nomodifiable
-    "setlocal noswapfile
-    "setlocal buftype=nowrite
-    "setlocal bufhidden=delete
-    ""setlocal nowrap
-    "iabclear <buffer>
-    "syntax clear
-
-    "" write content to buffer
-    "setlocal modifiable
-    "call append(0, l:content)
-    "setlocal nomodifiable
-
-    "" move cursor to first menu option
-    "let l:first_option_line = l:header_height + 2
-    "let l:option_start = 4  " assume line starts '1) '
-    "call setpos('.', [0, 1, 1, 0])
-    "call setpos('.', [0, l:first_option_line, l:option_start, 0])
-
-    "" set local key mappings
-
-    for l:line in a:preamble | echo l:line | endfor
-    let l:choice = dn#util#consoleSelect(a:prompt, a:options, 'choose')
+" @throws BadMethod if invalid method provided
+" @throws BadOutput if script output file contains multiple lines
+" @throws BadWrite if unable to write to output file
+" @throws NoParam if a required parameter is empty
+" @throws NoScript if unable to locate menu script
+function! s:menuGuiSelect(prompt, options, return_values, preamble) abort
+    " display preamble if present
+    if a:preamble
+        for l:line in a:preamble | echo l:line | endfor
+        call dn#util#prompt('Press [Enter] to invoke menu...')
+    endif
+    " assemble shell command to run script
+    let l:opts  = [s:menu_gui_script.path]
+    let l:opts += ['--title', 'Vim Menu']
+    let l:opts += ['--prompt', a:prompt]
+    let l:opts += ['--item_delimiter', "\t"]
+    let l:opts += ['--items', join(a:options, "\t")]
+    call map(l:opts, 'shellescape(v:val)')
+    let l:cmd = s:menu_gui_script.path . ' ' . join(l:opts, ' ')
+    " make selection
+    let l:choice = systemlist(l:cmd)
+    if v:shell_error
+        let l:err 'ERROR(MenuError): '
+        let l:err .= (empty(l:choice)) ? 'Gui menu script failed' : l:choice
+        throw l:err
+    endif
     " process choice
     " - must be valid selection
     if empty(l:choice) | return '' | endif
     " - get selected value
     let l:index = index(a:options, l:choice)
-    if l:index == -1
-        throw 'ERROR(BadChoice): Unable to find choice in option list'
-    endif
+    let l:err = 'ERROR(BadChoice): Unable to find choice in option list'
+    if l:index == -1 | throw l:err | endif
     let l:selection = a:return_values[l:index]
     " return selection's return value
     return l:selection
@@ -1214,89 +1251,6 @@ function! dn#util#changeHeaderCaps(mode) abort
     endif
     " return to insert mode if called from there
     if l:mode ==# 'i' | call dn#util#insertMode(1) | endif
-endfunction
-
-" dn#util#consoleSelect(prompt, items, [method])    {{{1
-
-""
-" @public
-" Select item from list using the console. A user {prompt} is displayed along
-" with menu usage instructions before the user selects from the {items}
-" |List|.
-"
-" The optional selection [method] can be "complete", "filter", or "choose".
-" The "complete" selection method uses word completion. The "filter" selection
-" method enables the user to type part of the target item and select from the
-" resulting list of matches. The "choose" selection method enables the user to
-" select from the complete set of items. All selection methods can handle
-" unescaped spaces in the menu items.
-" @default method='choose'
-"
-" Returns the selected item, or "" if no item was selected.
-"
-" This function uses a perl5 script called "vim-dn-utils-console-select" that
-" is installed as part of this plugin, so a working perl installation is
-" required. The "complete" selection method uses the Term::Complete::complete
-" perl5 function while the "filter" and "choose" selection methods use the
-" Term::Clui::choose perl5 function.
-" @throws BadMethod if invalid method provided
-" @throws BadOutput if script output file contains multiple lines
-" @throws BadWrite if unable to write to output file
-" @throws NoParam if a required parameter is empty
-" @throws NoScript if unable to locate menu script
-function! dn#util#consoleSelect(prompt, items, ...) abort
-    " check variables    {{{2
-    for l:var in ['prompt', 'items']
-        if empty(a:{l:var})
-            throw "ERROR(NoParam): No '" . l:var . "' parameter provided"
-        endif
-    endfor
-    let l:method = 'choose'
-    if a:0 >= 1
-        if a:0 > 1
-            call dn#util#warn('Ignoring extra arguments: '
-                        \     . join(a:000[1:], ', '))
-        endif
-        let l:valid_methods = ['complete', 'filter', 'choose']
-        if count(l:valid_methods, a:1) 
-            let l:method = a:1
-        else
-            throw "ERROR(BadMethod): Invalid method: '" . a:1 . "'"
-        endif
-    endif
-    let l:temp_file = tempname()
-    " check required files    {{{2
-    " - temporary file must be writable and start empty
-    let l:write_result = writefile([], l:temp_file)
-    if l:write_result != 0  " -1 = error, 0 = success
-        throw 'ERROR(BadWrite): Cannot write to temp file: ' . l:temp_file
-    endif
-    " - script file must be located
-    let l:script = dn#util#getRtpFile('vim-dn-utils-console-select')
-    if l:script ==? ''
-        throw 'ERROR(NoScript): cannot find console-select script'
-    endif
-    " assemble shell command to run script    {{{2
-    let l:opts = []
-    let l:opts += ['--prompt', a:prompt]
-    let l:opts += ['--output_file', fnameescape(l:temp_file)]
-    let l:opts += ['--items', join(a:items, "\t")]
-    let l:opts += ['--select_method', l:method]
-    call map(l:opts, 'shellescape(v:val)')
-    let l:cmd = '!perl' . ' ' . l:script . ' ' . join(l:opts, ' ')
-    " run script to select item    {{{2
-    silent execute l:cmd
-    redraw!
-    " retrieve and return result    {{{2
-    if !filereadable(l:temp_file)  " assume script aborted with error
-        return ''
-    endif
-    let l:output = readfile(l:temp_file)
-    if     len(l:output) == 0 | return ''           " no selection
-    elseif len(l:output) == 1 | return l:output[0]  " got selection!
-    else  " more than one line of output!
-        throw 'ERROR(BadOutput): Unexpected output: ' . l:output
-    endif    " }}}2
 endfunction
 
 " dn#util#dayOfWeek(year, month, day)    {{{1
@@ -2394,7 +2348,9 @@ endfunction
 "
 " If the list is shorter than the current window, it will be displayed in the
 " current window using an |inputlist()|. If it is too long to fit in the
-" current window, it will be displayed in a full-size buffer.
+" current window the function prefers to use a graphical Tk menu widget. If
+" the graphical Tk widget cannot be run for some reason, an |inputlist()| is
+" used despite the menu options extending for multiple "pages".
 "
 " An optional [prompt] string can be provided to this function. An optional
 " [preamble] can also be provided. This is a List of strings which are
@@ -2452,10 +2408,6 @@ endfunction
 " @throws SubmenuBadArgs if other than a single argument is provided
 function! dn#util#menuSelect(menu, ...) abort
 
-    " TODO: create s:menuInputlist() and s:menuBuffer() functions
-    " TODO: calculate which menu display to use based on menu/preamble/prompt
-    " TODO: display preamble before each menu type
-
     " process parameters
     " - prompt
     let l:prompt = 'Select an option:'    " default used if none provided
@@ -2477,8 +2429,10 @@ function! dn#util#menuSelect(menu, ...) abort
         call extend(l:preamble, l:lines)
     endfor
     " - recursive
+    "   . check gui menu script if initial call
     let l:recursive = v:false
     if a:0 > 2 && a:3 | let l:recursive = v:true | endif
+    if !l:recursive | call s:menuGuiScriptCheck() | endif
     " - menu
     "   . normalise menu to 'List of Dicts'
     "   . this includes checking menu validity
@@ -2539,14 +2493,18 @@ function! dn#util#menuSelect(menu, ...) abort
     let l:available_height -= 1           " allow for tab pages line at top
     let l:menu_height = len(l:options) + len(l:preamble)
     let l:inputlist_needs = l:menu_height + 2  " allow for number entry line
-    let l:use_inputlist = eval(l:inputlist_needs . ' <= ' . l:available_height)
+    let l:use_inputlist = v:true
+    let l:prefer_gui = eval(l:inputlist_needs . ' > ' . l:available_height)
+    if l:prefer_gui && s:menu_gui_script.enabled
+        let l:use_inputlist = v:false
+    endif
 
     " make choice
     if l:use_inputlist
         let l:Selection = s:menuInputlist(
                     \ l:prompt, l:options, l:return_values, l:preamble)
     else
-        let l:Selection = s:menuConsoleSelect(
+        let l:Selection = s:menuGuiSelect(
                     \ l:prompt, l:options, l:return_values, l:preamble)
     endif
     " - recurse if selected a submenu, otherwise return selection
@@ -2710,7 +2668,7 @@ endfunction
 ""
 " @public
 " Display [prompt] |String| using |hl-MoreMsg| highlighting.
-" @default prompt='Press [Enter] to continue...'
+" @default prompt='Press Enter to continue...'
 function! dn#util#prompt(...) abort
     " variables
     if a:0 > 0 | let l:prompt = a:1

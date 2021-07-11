@@ -228,7 +228,6 @@ User interaction
   * |dn#util#menuSelect()|        select item from menu
   * |dn#util#menuAddOption()|     add option to menu
   * |dn#util#menuAddSubmenu()|    add submenu to menu
-  * |dn#util#consoleSelect()|     select item from list using the console
   * |dn#util#help()|              user can select from help topics
   * |dn#util#getSelection()|      returns currently selected text
 
@@ -307,32 +306,6 @@ dn#util#changeHeaderCaps({mode})                  *dn#util#changeHeaderCaps()*
       prepositions and conjunctions of fewer than five letters
 
   Newlines in a selection are preserved.
-
-dn#util#consoleSelect({prompt}, {items}, [method])   *dn#util#consoleSelect()*
-  Select item from list using the console. A user {prompt} is displayed along
-  with menu usage instructions before the user selects from the {items}
-  |List|.
-
-  The optional selection [method] can be "complete", "filter", or "choose".
-  The "complete" selection method uses word completion. The "filter" selection
-  method enables the user to type part of the target item and select from the
-  resulting list of matches. The "choose" selection method enables the user to
-  select from the complete set of items. All selection methods can handle
-  unescaped spaces in the menu items.
-  [method] is 'choose' if omitted.
-
-  Returns the selected item, or "" if no item was selected.
-
-  This function uses a perl5 script called "vim-dn-utils-console-select" that
-  is installed as part of this plugin, so a working perl installation is
-  required. The "complete" selection method uses the Term::Complete::complete
-  perl5 function while the "filter" and "choose" selection methods use the
-  Term::Clui::choose perl5 function.
-  Throws ERROR(BadMethod) if invalid method provided
-  Throws ERROR(BadOutput) if script output file contains multiple lines
-  Throws ERROR(BadWrite) if unable to write to output file
-  Throws ERROR(NoParam) if a required parameter is empty
-  Throws ERROR(NoScript) if unable to locate menu script
 
 dn#util#dayOfWeek({year}, {month}, {day})                *dn#util#dayOfWeek()*
   Get name of weekday defined by {year}, {month} and {day} (all integers).
@@ -635,7 +608,9 @@ dn#util#menuSelect({menu}, [prompt], [preamble])        *dn#util#menuSelect()*
 
   If the list is shorter than the current window, it will be displayed in the
   current window using an |inputlist()|. If it is too long to fit in the
-  current window, it will be displayed in a full-size buffer.
+  current window the function prefers to use a graphical Tk menu widget. If
+  the graphical Tk widget cannot be run for some reason, an |inputlist()| is
+  used despite the menu options extending for multiple "pages".
 
   An optional [prompt] string can be provided to this function. An optional
   [preamble] can also be provided. This is a List of strings which are
@@ -736,9 +711,9 @@ dn#util#padRight({string}, {length}, [char])              *dn#util#padRight()*
   returned.
   [char] is ' ' if omitted.
 
-dn#util#prompt([prompt], [Enter])                           *dn#util#prompt()*
+dn#util#prompt([prompt])                                    *dn#util#prompt()*
   Display [prompt] |String| using |hl-MoreMsg| highlighting.
-  [prompt] is 'Press [Enter] to continue...' if omitted.
+  [prompt] is 'Press Enter to continue...' if omitted.
 
 dn#util#rev()                                                  *dn#util#rev()*
   Return the current revision number of this plugin. The revision number is

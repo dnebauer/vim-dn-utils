@@ -456,6 +456,9 @@ function! s:menuGuiSelect(prompt, options, return_values, preamble) abort
     let l:err = 'ERROR(BadChoice): Unable to find choice in option list'
     if l:index == -1 | throw l:err | endif
     let l:selection = a:return_values[l:index]
+    " leave terminal feedback to record user selection
+    echo a:prompt
+    echo 'User selected: ' . l:selection
     " return selection's return value
     return l:selection
 endfunction
